@@ -734,3 +734,55 @@ body { font-variant-numeric: lining-nums tabular-nums; }
   .wedding-timeline { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
   .mosaic-frame:last-child:not(:first-child) .mosaic-photo { aspect-ratio: 4/3; border-bottom-right-radius: 110px; }
 }
+
+/* Added 2026-11-13: photo-left address composition and shared admin/public heart gift disclosure. */
+.reply-message { max-width: 580px; margin: 28px auto 0; }
+.reply-message p { margin-top: 16px; font-size: 15px; line-height: 1.9; color: var(--muted); text-wrap: pretty; }
+.reply-message p:first-child { font-family: var(--font-display), serif; font-size: 23px; color: var(--red-dark); }
+.reply-message p:last-child:not(:first-child) { font-style: italic; }
+.gift-block { max-width: 500px; margin: 38px auto 0; padding-top: 28px; border-top: 1px solid var(--line); }
+.gift-block .gift-intro { margin: 0 auto 20px; }
+.gift-intro p { margin-top: 12px; font-size: 14px; line-height: 1.9; }
+.gift-intro p:first-child { color: var(--red-dark); }
+.gift-disclosure { width: 100%; text-align: center; }
+.gift-disclosure summary { width: fit-content; max-width: 100%; margin-inline: auto; padding: 8px 14px; cursor: pointer; list-style: none; border-radius: 12px; }
+.gift-disclosure summary::-webkit-details-marker { display: none; }
+.gift-disclosure summary:focus-visible { outline: 2px solid var(--red); outline-offset: 6px; }
+.gift-label { display: block; font-family: var(--font-display), serif; font-size: 30px; font-style: italic; color: var(--red); }
+.gift-heart { display: block; width: 150px; margin: 6px auto; filter: drop-shadow(0 9px 8px #79302922); transition: transform .25s ease; }
+.gift-heart svg { display: block; width: 100%; height: auto; }
+.gift-heart-box { fill: #7d242c; }
+.gift-heart-lid { fill: #ae3e48; stroke: #d88586; stroke-width: 1.5; }
+.gift-heart-ribbon { stroke: #f1ce9b; stroke-width: 5; }
+.gift-heart-bow { fill: #efd0a4; stroke: #c89d6d; stroke-width: 1.5; }
+.gift-disclosure[open] .gift-heart { display: none; }
+.gift-disclosure .gift-qr { margin-top: 16px; }
+.reply-location { max-width: 960px; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(16px, 4vw, 48px); row-gap: 28px; margin-top: 90px; }
+.location-time { grid-column: 1 / -1; text-align: center; }
+.location-time time { font-family: var(--font-display), serif; font-size: clamp(36px, 5vw, 52px); line-height: 1.2; }
+.location-time p { margin-top: 12px; font-size: clamp(13px, 2.4vw, 18px); color: var(--muted); }
+.reply-location .location-portrait { width: 100%; aspect-ratio: 3/4; min-height: 320px; border-radius: 3px; }
+.reply-location .location-map { justify-content: center; gap: clamp(16px, 3vw, 30px); padding-block: 8px; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; }
+.location-map-heading { text-align: center; padding: 0; }
+.location-map-heading h2 { font-family: var(--font-display), serif; font-weight: 400; font-size: clamp(36px, 7.5vw, 88px); line-height: 1.1; font-style: italic; color: var(--red-dark); }
+.location-map-heading h3 { margin-top: clamp(16px, 3vw, 30px); font-size: clamp(16px, 2.6vw, 28px); line-height: 1.4; text-transform: uppercase; }
+.location-map-heading p { margin-top: 12px; font-size: clamp(13px, 2vw, 18px); line-height: 1.6; color: var(--ink); text-wrap: pretty; }
+.reply-location .location-map iframe { flex: none; min-height: 0; height: clamp(140px, 23vw, 240px); border: 1px solid var(--line); border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .gift-heart { transition: none; }
+}
+
+/* Added 2026-11-13: gentle heart shake replaces QR instructions; live per-family wedding countdown. */
+.wedding-countdown { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 3vw, 36px); width: min(100%, 580px); margin: 0 auto; }
+.countdown-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-width: 0; min-height: clamp(88px, 14vw, 120px); padding: 12px 6px; border-radius: 8px; color: var(--paper); background: var(--red-dark); }
+.countdown-value { font-family: var(--font-body), sans-serif; font-size: clamp(23px, 4vw, 32px); line-height: 1.2; font-variant-numeric: lining-nums tabular-nums; }
+.countdown-unit { font-size: clamp(12px, 2.4vw, 16px); }
+@keyframes gift-heart-shake {
+  0%, 60%, 100% { transform: rotate(0); }
+  66%, 78% { transform: rotate(-6deg); }
+  72%, 84% { transform: rotate(6deg); }
+  90% { transform: rotate(-3deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gift-heart { animation: gift-heart-shake 3.8s ease-in-out infinite; transform-origin: 50% 70%; }
+}

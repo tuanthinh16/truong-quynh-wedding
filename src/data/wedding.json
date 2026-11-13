@@ -78,10 +78,10 @@
     "groom": {
       "label": "Lễ thành hôn",
       "venue": "Tư gia nhà trai",
-      "address": "Nghĩa Đàn, Nghệ An",
+      "address": "Xóm Tân Lâm, xã Nghĩa Đàn, tỉnh Nghệ An",
       "dateTime": "2026-11-29T17:30:00+07:00",
       "lunarDate": "21 tháng 10 năm Bính Ngọ",
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=H%E1%BA%A3i%20Ch%C3%A2u%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng",
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=X%C3%B3m%20T%C3%A2n%20L%C3%A2m%2C%20x%C3%A3%20Ngh%C4%A9a%20%C4%90%C3%A0n%2C%20t%E1%BB%89nh%20Ngh%E1%BB%87%20An",
       "sideLabel": "Nhà trai",
       "schedule": [
         {
@@ -110,11 +110,11 @@
     },
     "bride": {
       "label": "Lễ vu quy",
-      "venue": "Địa điểm mẫu nhà gái",
-      "address": "Sơn Trà, Đà Nẵng",
+      "venue": "Tư gia nhà gái",
+      "address": "Xóm Nam, Khánh Dương, Yên Mô, Ninh Bình",
       "dateTime": "2026-11-28T17:30:00+07:00",
       "lunarDate": "20 tháng 10 năm Bính Ngọ",
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=S%C6%A1n%20Tr%C3%A0%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng",
+      "mapUrl": "https://www.google.com/maps/search/?api=1&query=X%C3%B3m%20Nam%2C%20Kh%C3%A1nh%20D%C6%B0%C6%A1ng%2C%20Y%C3%AAn%20M%C3%B4%2C%20Ninh%20B%C3%ACnh",
       "sideLabel": "Nhà gái",
       "schedule": [
         {
@@ -181,7 +181,8 @@
       "closing": "Sự hiện diện của bạn là niềm vinh hạnh và hạnh phúc của gia đình chúng mình.",
       "letterTitle": "Gửi những người thân thương:",
       "letterBody": "Chúng mình muốn gửi đến những người thân thương nhất lời mời trân quý cho ngày hai đứa chính thức bước sang một hành trình mới. Sau hơn 8 năm cùng đi qua bao nhiêu cung bậc cảm xúc, chúng mình trân trọng khoảnh khắc được chia sẻ niềm vui này cùng mọi người - những người đã dõi theo, chứng kiến và yêu thương chúng mình trong suốt chặng đường ấy.",
-      "locationImageAlt": "Ảnh cưới của chúng mình bên cạnh bản đồ chỉ đường"
+      "locationImageAlt": "Ảnh cưới của chúng mình bên cạnh bản đồ chỉ đường",
+      "locationTitle": "Address"
     },
     "partner": {
       "eyebrow": "CÔ DÂU & CHÚ RỂ",
@@ -288,10 +289,10 @@
       "temporaryNotice": "Hồi đáp trên website chỉ được lưu tạm. Bạn nhắn thêm cho cô dâu hoặc chú rể để xác nhận chắc chắn nhé."
     },
     "gift": {
-      "label": "Gửi quà mừng cưới online",
+      "label": "Gửi quà",
       "eyebrow": "MỘT CHÚT YÊU THƯƠNG",
       "title": "Mừng ngày chung đôi",
-      "description": "Thật vui khi có bạn bên cạnh trong ngày hạnh phúc. Nếu không thể tham dự nhưng vẫn muốn gửi chút yêu thương, bạn có thể gửi lời chúc và quà mừng qua mã QR bên dưới. Cảm ơn bạn thật nhiều!",
+      "description": "Thật vui khi có bạn bên cạnh trong ngày hạnh phúc.\n\nNếu không thể tham dự, bạn vẫn có thể gửi chút yêu thương đến chúng mình qua hộp quà bên dưới. Cảm ơn bạn thật nhiều!",
       "qrAlt": "Mã QR nhận quà mừng cưới",
       "bankLabel": "Ngân hàng",
       "accountNameLabel": "Chủ tài khoản",
@@ -307,6 +308,13 @@
       "title": "Chuyện chúng mình",
       "subtitle": "From a moment to forever",
       "description": "Có những cuộc gặp gỡ tưởng chừng thật tình cờ, nhưng lại mở ra một hành trình đặc biệt. Tình yêu của bọn mình là một hành trình kỳ diệu, vượt qua bao thử thách để cùng nhau bước đến ngày trọng đại - Đám cưới của chúng mình.\n\nĐám cưới này là lời cam kết chân thành, là sự bắt đầu của một chương mới - nơi chúng mình cùng vun đắp tổ ấm, cùng sẻ chia mọi vui buồn và cùng nắm tay nhau đi đến cuối con đường mang tên hạnh phúc."
+    },
+    "countdown": {
+      "label": "Đếm ngược đến ngày chung đôi",
+      "days": "ngày",
+      "hours": "giờ",
+      "minutes": "phút",
+      "seconds": "giây"
     }
   },
   "experience": {
@@ -368,6 +376,6 @@
   "_meta": {
     "updatedAt": "2026-11-13T07:28:32.605Z",
     "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor.",
-    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git."
+    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin."
   }
 }

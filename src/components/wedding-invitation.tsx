@@ -12,6 +12,7 @@ import { formatWeddingDate } from "./wedding-date";
 import WeddingHero from "./wedding-hero";
 import WeddingPlayback from "./wedding-playback";
 import WeddingGift from "./wedding-gift";
+import WeddingCountdown from "./wedding-countdown";
 import { useWeddingAudio } from "./wedding-audio";
 
 const RsvpDialog = dynamic(() => import("./rsvp-dialog"));
@@ -150,13 +151,15 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
         </section>
 
         <section id="hoi-dap" className="reply-section section-space">
-          <FloralArt className="reply-floral" /><div className="reply-content reveal"><span className="eyebrow">{copy.reply.eyebrow}</span><h2>{copy.reply.title}<br /><em>{copy.reply.accent}</em></h2><p>{copy.reply.description}</p><WeddingGift side={side} /><div className="reply-actions"><button className="button button-red" onClick={() => setRsvpOpen(true)}>{copy.reply.button} <Icon name="arrow" size={18} /></button></div></div>
+          <FloralArt className="reply-floral" /><div className="reply-content reveal"><span className="eyebrow" {...editable("content", "reply", "eyebrow")}>{copy.reply.eyebrow}</span><h2><span {...editable("content", "reply", "title")}>{copy.reply.title}</span><br /><em {...editable("content", "reply", "accent")}>{copy.reply.accent}</em></h2><div className="reply-message" {...editable("content", "reply", "description")}>{copy.reply.description.split(/\n\s*\n/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div><div className="reply-actions"><button className="button button-red" onClick={() => setRsvpOpen(true)}><span {...editable("content", "reply", "button")}>{copy.reply.button}</span> <Icon name="arrow" size={18} /></button></div><WeddingGift side={side} /></div>
           {event.address && <div className="reply-location content-width">
-            <div className="location-portrait photo-reveal" {...editable("events", side, "locationImage")}><ScrollPhoto src={event.locationImage} alt={copy.invitation.locationImageAlt} sizes="(min-width: 900px) 440px, (min-width: 600px) 42vw, 85vw" /></div>
-            <div className="location-map reveal" {...editable("events", side, "address")}>
-              <div className="location-map-heading"><span className="eyebrow" {...editable("events", side, "sideLabel")}>{event.sideLabel}</span><p {...editable("events", side, "address")}>{event.address}</p></div>
+            <div className="location-time reveal">{date && event.dateTime && <time dateTime={event.dateTime} {...editable("events", side, "dateTime")}>{date.time}</time>}{event.lunarDate && <p><span {...editable("content", "invitation", "lunarPrefix")}>{copy.invitation.lunarPrefix}</span> <span {...editable("events", side, "lunarDate")}>{event.lunarDate}</span></p>}</div>
+            <div className="location-portrait photo-reveal" {...editable("events", side, "locationImage")}><ScrollPhoto src={event.locationImage} alt={copy.invitation.locationImageAlt} sizes="(min-width: 1100px) 456px, 44vw" /></div>
+            <div className="location-map reveal">
+              <div className="location-map-heading"><h2 {...editable("content", "invitation", "locationTitle")}>{copy.invitation.locationTitle}</h2><h3 {...editable("events", side, "venue")}>{event.venue}</h3><p {...editable("events", side, "address")}>{event.address}</p></div>
               <iframe key={event.address} title={`${copy.invitation.map} · ${event.sideLabel} · ${event.address}`} src={`https://www.google.com/maps?q=${encodeURIComponent(event.address)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
             </div>
+            <WeddingCountdown dateTime={event.dateTime} />
           </div>}
         </section>
 

@@ -18,6 +18,8 @@ const labels = {
   heroPortrait: "Hero · ảnh dọc (mobile)", entrancePortrait: "Mở màn · ảnh dọc (mobile)", entranceAlt: "Mô tả ảnh mở màn", loveStory: "Chuyện chúng mình", subtitle: "Dòng tiếng Anh", temporaryNotice: "Lưu ý hồi đáp tạm thời",
   // Added 2026-11-13: dated family timelines, invitation letter and shared couple/location portraits.
   date: "Ngày diễn ra", letterTitle: "Tiêu đề lời mời", letterBody: "Nội dung lời mời", couplePortrait: "Ảnh chung cô dâu & chú rể", coupleAlt: "Mô tả ảnh chung", locationImage: "Ảnh cưới cạnh bản đồ", locationImageAlt: "Mô tả ảnh cạnh bản đồ",
+  // Added 2026-11-13: address heading and countdown labels shared with the admin preview.
+  locationTitle: "Tiêu đề khu vực địa chỉ", countdown: "Đếm ngược ngày cưới", days: "Nhãn ngày", hours: "Nhãn giờ", minutes: "Nhãn phút", seconds: "Nhãn giây",
 };
 
 export function readPath(data, path) {
