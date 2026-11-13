@@ -9,17 +9,20 @@ import type { PreviewMessage } from "./preview";
 import { FieldEditor } from "./field-editor";
 import { InPageDialog } from "./in-page-dialog";
 import { GuestResponses } from "./guest-responses";
-import { wedding } from "@/config/wedding";
+import { InvitationLinks } from "./invitation-links";
+import { GalleryInsert } from "./gallery-insert";
+import { MediaLibraryGrid } from "./media-library-grid";
+import { formatImageSize, imageSettings, validateUploadServer } from "@/lib/image-settings.mjs";
 
 interface DraftState { data: WeddingData; base: WeddingData; revision: string; past: WeddingData[]; future: WeddingData[] }
 const samePath = (first: EditorPath, second: EditorPath) => JSON.stringify(first) === JSON.stringify(second);
 
-export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
+export function WeddingEditor({ initialData, readOnly = false }: { initialData: WeddingData; readOnly?: boolean }) {
   const router = useRouter();
-  const [session, setSession] = useState<DraftState | null>(() => readOnly ? { data: wedding, base: wedding, revision: "deployment", past: [], future: [] } : null);
+  const [session, setSession] = useState<DraftState | null>(() => readOnly ? { data: initialData, base: initialData, revision: "deployment", past: [], future: [] } : null);
   const token = useRef("");
   const [busy, setBusy] = useState(false);
-  const [maxUploadBytes, setMaxUploadBytes] = useState(10 * 1024 * 1024);
+  const [maxUploadBytes, setMaxUploadBytes] = useState(imageSettings.maxUploadBytes);
   const [feedback, setFeedback] = useState({ text: "", error: false });
   const [page, setPage] = useState<PreviewMessage["page"]>("groom");
   const [mode, setMode] = useState<PreviewMessage["mode"]>("select");
@@ -29,9 +32,12 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
   const [selected, setSelected] = useState<EditorPath | null>(null);
   const [inspector, setInspector] = useState(false);
   const [responsesOpen, setResponsesOpen] = useState(false);
+  const [invitationLinksOpen, setInvitationLinksOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [insertPositions, setInsertPositions] = useState<Record<string, number>>({});
+  const [galleryInsertion, setGalleryInsertion] = useState<number | null>(null);
   const [assets, setAssets] = useState<MediaAsset[] | null>(null);
+  const mediaCache = useRef<{ assets: MediaAsset[]; loaded: boolean; pending: Promise<MediaAsset[]> | null }>({ assets: [], loaded: false, pending: null });
   const [assetTarget, setAssetTarget] = useState<EditorPath | null>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
@@ -50,6 +56,20 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
     return result;
   }, [router]);
 
+  const loadAssets = useCallback((): Promise<MediaAsset[]> => {
+    const cache = mediaCache.current;
+    if (cache.pending) return cache.pending;
+    if (cache.loaded) return Promise.resolve(cache.assets);
+    cache.pending = request("media").then((result: { assets: MediaAsset[] }) => {
+      const merged = new Map(result.assets.map(asset => [asset.src, asset]));
+      cache.assets.forEach(asset => merged.set(asset.src, asset));
+      cache.assets = Array.from(merged.values());
+      cache.loaded = true;
+      return cache.assets;
+    }).finally(() => { cache.pending = null; });
+    return cache.pending;
+  }, [request]);
+
   useEffect(() => {
     if (readOnly) return;
     let active = true;
@@ -58,12 +78,15 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
         const status = await request("status");
         if (active && status.maxUploadBytes) setMaxUploadBytes(status.maxUploadBytes);
         const content = await request("content", {}, status.token);
-        if (active) { token.current = status.token; setSession({ ...content, base: content.data, past: [], future: [] }); }
+        if (active) {
+          token.current = status.token; setSession({ ...content, base: content.data, past: [], future: [] });
+          void loadAssets().catch(error => { if (active) notice(error instanceof Error ? error.message : "Không thể tải thư viện ảnh. Mở thư viện để thử lại.", true); });
+        }
       } catch (error) { if (active) notice(error instanceof Error ? error.message : "Không thể kết nối.", true); }
     }
     void connect();
     return () => { active = false; };
-  }, [request, readOnly]);
+  }, [request, readOnly, loadAssets]);
 
   useEffect(() => {
     const element = canvas.current;
@@ -74,14 +97,17 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
   }, []);
 
   const sendPreview = useCallback(() => {
-    if (session) frame.current?.contentWindow?.postMessage({ type: "wedding:render", state: { data: session.data, page, mode, selected } satisfies PreviewMessage }, location.origin);
-  }, [session, page, mode, selected]);
+    if (session) frame.current?.contentWindow?.postMessage({ type: "wedding:render", state: { data: session.data, page, mode, selected, canInsertGallery: !readOnly && !busy } satisfies PreviewMessage }, location.origin);
+  }, [session, page, mode, selected, readOnly, busy]);
   useEffect(() => { sendPreview(); }, [sendPreview]);
   useEffect(() => {
     function receive(event: MessageEvent) {
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       if (event.data?.type === "wedding:ready") sendPreview();
       if (event.data?.type === "wedding:save") saveRef.current();
+      if (event.data?.type === "wedding:gallery-add" && session && !readOnly && !lock.current && session.data.photos.gallery.length < listConfig(["photos", "gallery"])!.max) {
+        setDocumentId("photos"); setSelected(null); setGalleryInsertion(session.data.photos.gallery.length);
+      }
       if (event.data?.type === "wedding:select" && !lock.current) {
         const path = event.data.path;
         if (!Array.isArray(path)) return;
@@ -92,7 +118,7 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
     }
     window.addEventListener("message", receive);
     return () => window.removeEventListener("message", receive);
-  }, [documents, sendPreview]);
+  }, [documents, sendPreview, session, readOnly]);
   useEffect(() => {
     if (!dirty) return;
     const prevent = (event: BeforeUnloadEvent) => { event.preventDefault(); };
@@ -124,11 +150,22 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
     lock.current = true; setBusy(true);
     try {
       const result = await request("content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: session.data, revision: session.revision }) });
-      setSession({ data: result.data, base: result.data, revision: result.revision, past: [], future: [] });
+      setSession(current => current ? { ...current, data: result.data, base: result.data, revision: result.revision } : current);
       notice("Đã lưu nội dung thiệp. Bản cũ được sao lưu trong .editor/history.");
     } catch (error) { notice(error instanceof Error ? error.message : "Lưu thất bại.", true); }
     finally { lock.current = false; setBusy(false); }
   }, [session, dirty, request, readOnly]);
+  async function reloadContent() {
+    if (lock.current || dirty && !window.confirm("Bỏ bản nháp và tải lại dữ liệu đã lưu?")) return;
+    lock.current = true; setBusy(true);
+    try {
+      const result = await request("content");
+      setSession({ data: result.data, base: result.data, revision: result.revision, past: [], future: [] });
+      setSelected(null);
+      notice("Đã tải dữ liệu mới nhất, không tải lại trang.");
+    } catch (error) { notice(error instanceof Error ? error.message : "Không thể tải lại dữ liệu.", true); }
+    finally { lock.current = false; setBusy(false); }
+  }
   useEffect(() => { saveRef.current = () => { void save(); }; }, [save]);
   useEffect(() => {
     function keyboard(event: KeyboardEvent) { if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); void save(); } }
@@ -136,21 +173,31 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
     return () => window.removeEventListener("keydown", keyboard);
   }, [save]);
 
-  async function upload(path: EditorPath, file: File) {
+  async function uploadImage(file: File, purpose?: string) {
     if (lock.current || readOnly) return;
-    if (file.size > maxUploadBytes) { notice(`Ảnh vượt giới hạn ${maxUploadBytes / 1024 / 1024} MB.`, true); return; }
+    if (file.size > maxUploadBytes) throw new Error(`Ảnh ${formatImageSize(file.size)} vượt giới hạn ${formatImageSize(maxUploadBytes)}. Hãy xuất ảnh với cạnh dài tối đa ${imageSettings.maxUploadDimension}px rồi upload lại.`);
     lock.current = true; setBusy(true);
     try {
-      const result = await request("upload", { method: "POST", headers: { "Content-Type": file.type, ...(path.at(-1) === "qrImage" ? { "X-Editor-Image-Purpose": "qr" } : {}) }, body: file });
-      lock.current = false; change(path, result.src);
-      notice("Đã upload ảnh vào thư viện. Bấm Lưu để dùng ảnh này trên thiệp.");
-    } catch (error) { notice(error instanceof Error ? error.message : "Upload thất bại.", true); }
+      const status = await request("status");
+      validateUploadServer(status);
+      token.current = status.token;
+      notice(`Đang upload ${formatImageSize(file.size)} và tối ưu ảnh…`);
+      const result = await request("upload", { method: "POST", headers: { "Content-Type": file.type, ...(purpose === "qrImage" ? { "X-Editor-Image-Purpose": "qr" } : {}) }, body: file });
+      const asset: MediaAsset = { src: result.src, name: result.src.split("/").at(-1), size: result.size, thumbnailSrc: result.thumbnailSrc };
+      mediaCache.current.assets = [...mediaCache.current.assets.filter(existing => existing.src !== asset.src), asset];
+      notice(`Đã tối ưu ${formatImageSize(file.size)} → ${formatImageSize(result.size)} (${result.width} × ${result.height}px). Bấm Lưu để dùng ảnh này trên thiệp.`);
+      return result.src as string;
+    }
     finally { lock.current = false; setBusy(false); }
+  }
+  async function upload(path: EditorPath, file: File) {
+    try { const src = await uploadImage(file, String(path.at(-1))); if (src) change(path, src); }
+    catch (error) { notice(error instanceof Error ? error.message : "Upload thất bại.", true); }
   }
   async function library(path: EditorPath) {
     if (lock.current) return;
     lock.current = true; setBusy(true);
-    try { const result = await request("media"); setAssets(result.assets); setAssetTarget(path); }
+    try { setAssets(await loadAssets()); setAssetTarget(path); }
     catch (error) { notice(error instanceof Error ? error.message : "Không thể mở thư viện.", true); }
     finally { lock.current = false; setBusy(false); }
   }
@@ -176,7 +223,7 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
   const scale = Math.min(1, Math.max(1, canvasSize.width - 4) / viewport);
   const frameHeight = Math.max(480, Math.floor((canvasSize.height - 4) / scale));
   const selectedIsImage = document?.fields.some(field => selected && samePath(field.path, selected) && field.kind === "image");
-  const selectedIsLocation = selected?.[0] === "events" && selected.length === 3 && ["address", "venue", "mapUrl"].includes(String(selected.at(-1)));
+  const selectedIsLocation = selected?.[0] === "events" && selected.length === 3 && ["address", "venue", "mapUrl", "mapEmbedUrl"].includes(String(selected.at(-1)));
   const visibleFields = document?.fields.filter(field => selected ? samePath(field.path, selected) || field.kind !== "image" && samePath(field.path.slice(0, -1), selected.slice(0, -1)) && (selectedIsImage || selectedIsLocation) : `${field.label} ${field.path.join(".")}`.toLowerCase().includes(search.toLowerCase())) || [];
 
   return <main className="ed-root">
@@ -184,13 +231,14 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
       <label className="ed-route"><span className="ed-sr-only">Trang xem trước</span><select value={page} onChange={event => setPage(event.target.value as PreviewMessage["page"])}><option value="entrance">Màn mở đầu</option><option value="groom">Thiệp nhà trai</option><option value="bride">Thiệp nhà gái</option></select></label>
       <div className="ed-top-actions"><span className={`ed-connection ${session ? "connected" : ""}`}>{session ? dirty ? "Có thay đổi chưa lưu" : "Đã đồng bộ" : "Đang kết nối…"}</span>
         <button disabled={!session || busy} onClick={() => { setSelected(null); setSearch(""); setInspector(true); }}>Nội dung</button>
+        <button onClick={() => setInvitationLinksOpen(true)}>Tạo link mời</button>
         <details className="ed-tools"><summary>Tùy chọn</summary><div className="ed-tools-menu">
           <label>Khung xem<select value={viewport} onChange={event => setViewport(Number(event.target.value))}><option value={1440}>Desktop · 1440</option><option value={768}>Tablet · 768</option><option value={390}>Mobile · 390</option></select></label>
           <label>Chế độ<select value={mode} onChange={event => setMode(event.target.value as PreviewMessage["mode"])}><option value="select">Bấm để sửa</option><option value="browse">Duyệt thiệp</option></select></label>
           <div className="ed-history"><button disabled={!session?.past.length || busy} onClick={() => history("undo")}>Hoàn tác</button><button disabled={!session?.future.length || busy} onClick={() => history("redo")}>Làm lại</button></div>
           <button disabled={!session || busy} onClick={() => { setDocumentId("metadata"); setSelected(null); setInspector(true); }}>SEO & chia sẻ</button>
           <button disabled={!session || busy || readOnly} onClick={() => setResponsesOpen(true)}>Danh sách hồi đáp</button>
-          <button disabled={busy} onClick={() => { if (!dirty || window.confirm("Bỏ bản nháp và tải lại dữ liệu đã lưu?")) location.reload(); }}>Tải lại dữ liệu</button>
+          <button disabled={busy || readOnly} onClick={() => void reloadContent()}>Tải lại dữ liệu</button>
           {!readOnly && <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>}
         </div></details><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button>
       </div>
@@ -200,7 +248,7 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
     <section className="ed-workspace"><div className="ed-stage"><p className="ed-preview-hint">{mode === "select" ? "Bấm vào chữ hoặc ảnh trên thiệp để sửa · Mọi trường khác nằm trong Nội dung" : "Duyệt thiệp để mở album và form · Chọn Bấm để sửa khi cần chỉnh nội dung"}</p>
       <div ref={canvas} className="ed-canvas"><div className="ed-preview-surface" style={{ width: viewport * scale, height: frameHeight * scale }}><div className="ed-frame" style={{ width: viewport, height: frameHeight, transform: `scale(${scale})` }}><iframe ref={frame} title="Xem trước thiệp cưới — bản nháp" src="/admin/preview" onLoad={sendPreview} /></div></div></div>
     </div></section>
-    {inspector && session && <InPageDialog className="ed-dialog" label="Chỉnh sửa nội dung" inactive={!!assets} onClose={() => { if (!busy) setInspector(false); }}>
+    {inspector && session && <InPageDialog className="ed-dialog" label="Chỉnh sửa nội dung" inactive={!!assets || galleryInsertion !== null} onClose={() => { if (!busy) setInspector(false); }}>
       <header><div><p className="ed-eyebrow">Bản nháp · xem trước tức thì</p><h2>{selected ? "Sửa ngay trên thiệp" : "Nội dung thiệp"}</h2></div><button disabled={busy} aria-label="Đóng chỉnh sửa" onClick={() => setInspector(false)}>×</button></header>
       <div className="ed-dialog-body"><label className="ed-document-label">Nhóm nội dung<select value={documentId} disabled={busy} onChange={event => { setDocumentId(event.target.value); setSelected(null); setSearch(""); }}>{documents.map(doc => <option key={doc.id} value={doc.id}>{doc.label}</option>)}</select></label>
         {documentId === "mail" && <p className="ed-config-help">Chỉ gửi cho khách chọn tham dự và nhập email. Dùng {"{name}, {couple}, {side}, {guests}"} để chèn thông tin. Cấu hình SMTP trong Environment Variables của Vercel rồi redeploy, hoặc .env.local khi chạy local; không nhập mật khẩu SMTP vào nội dung thiệp.</p>}
@@ -221,13 +269,26 @@ export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
               </select>
             </label>
             <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay, chỉ công khai khi bấm Lưu.</p>
-            <button disabled={busy || readOnly || items.length >= list.max} onClick={() => listChange(list.path, "add", insertion)}>Thêm {isPhotoList ? "ảnh" : "mục"} tại vị trí {insertion + 1}</button>
+            <button disabled={busy || readOnly || items.length >= list.max} onClick={() => listKey === "photos.gallery" ? setGalleryInsertion(insertion) : listChange(list.path, "add", insertion)}>{listKey === "photos.gallery" ? "Chọn ảnh & xem trước" : `Thêm ${isPhotoList ? "ảnh" : "mục"} tại vị trí ${insertion + 1}`}</button>
           </section>;
         })}
         <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy || readOnly} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
       </div><footer><span>Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu.</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button></footer>
     </InPageDialog>}
-    {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}><header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header><div className="ed-library-grid">{assets.map(asset => <button key={asset.src} title={asset.src} onClick={() => { if (assetTarget) change(assetTarget, asset.src); setAssets(null); setAssetTarget(null); }}><img src={asset.src} alt={asset.name} loading="lazy" /><span>{asset.name}</span></button>)}</div>{!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}</InPageDialog>}
+    {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}><header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header><MediaLibraryGrid assets={assets} usedSources={assetTarget?.[0] === "photos" && assetTarget[1] === "gallery" ? session?.data.photos.gallery.map(photo => photo.src) : undefined} onChoose={source => { if (assetTarget) change(assetTarget, source); setAssets(null); setAssetTarget(null); }} />{!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}</InPageDialog>}
+    {galleryInsertion !== null && session && <GalleryInsert data={session.data} initialPosition={galleryInsertion} page={page === "entrance" ? "groom" : page} busy={busy} maxUploadBytes={maxUploadBytes} upload={uploadImage} loadAssets={loadAssets} onClose={() => { if (!lock.current) setGalleryInsertion(null); }} onInsert={(photo, position) => {
+      if (lock.current || readOnly) return;
+      const items = [...session.data.photos.gallery];
+      const config = listConfig(["photos", "gallery"]);
+      if (!config || items.length >= config.max) return;
+      if (items.some(existing => existing.src === photo.src)) { notice("Ảnh này đã có trong gallery. Hãy chọn ảnh khác.", true); return; }
+      items.splice(position, 0, photo);
+      change(["photos", "gallery"], items);
+      setGalleryInsertion(null); setSelected(["photos", "gallery", position, "src"]);
+      setPage(page === "entrance" ? "groom" : page);
+      notice(`Đã thêm ảnh vào gallery tại vị trí ${position + 1}. Bấm Lưu để lưu thay đổi.`);
+    }} />}
     {responsesOpen && <GuestResponses request={request} onClose={() => setResponsesOpen(false)} />}
+    {invitationLinksOpen && <InvitationLinks initialPath={page === "entrance" ? "/" : page === "bride" ? "/nha-gai" : "/nha-trai"} onClose={() => setInvitationLinksOpen(false)} />}
   </main>;
 }

@@ -1,7 +1,7 @@
 const unsafe = new Set(["__proto__", "constructor", "prototype"]);
 const labels = {
   groom: "Chú rể", bride: "Cô dâu", name: "Họ tên", shortName: "Tên ngắn", initial: "Chữ đầu", portrait: "Ảnh chân dung", introduction: "Giới thiệu", role: "Vai trò",
-  photos: "Hình ảnh", hero: "Hero · ảnh ngang", roses: "Mở màn · ảnh ngang", heroAlt: "Mô tả ảnh hero", story: "Khoảnh khắc", gallery: "Album", src: "Ảnh", alt: "Mô tả ảnh", position: "Vị trí ảnh", label: "Nhãn",
+  photos: "Hình ảnh", hero: "Ảnh hero · mọi màn hình", roses: "Ảnh mở đầu · mọi màn hình", heroAlt: "Mô tả ảnh hero", story: "Khoảnh khắc", gallery: "Album", src: "Ảnh", alt: "Mô tả ảnh", position: "Vị trí ảnh", label: "Nhãn",
   events: "Ngày cưới", sideLabel: "Tên gia đình", venue: "Địa điểm", address: "Địa chỉ", dateTime: "Ngày và giờ", lunarDate: "Âm lịch", mapUrl: "Link bản đồ", schedule: "Lịch trình", time: "Giờ", title: "Tiêu đề", detail: "Mô tả", icon: "Biểu tượng",
   content: "Nội dung", entrance: "Màn mở đầu", invitation: "Lời mời", partner: "Giới thiệu", calendar: "Lịch", album: "Album", reply: "Hồi đáp", footer: "Cuối thiệp", navigation: "Điều hướng", modal: "Hộp thoại", rsvp: "Form hồi đáp",
   metadata: "SEO", openGraph: "Chia sẻ mạng xã hội", description: "Mô tả", locale: "Ngôn ngữ", experience: "Trải nghiệm", audio: "Nhạc nền", volume: "Âm lượng", loop: "Phát lặp", scroll: "Cuộn tự động", pixelsPerSecond: "Tốc độ cuộn (px/s)", rampMilliseconds: "Thời gian tăng tốc (ms)", controls: "Nút điều khiển", decoration: "Trang trí", bouquet: "Bó hoa", storageKey: "Khóa lưu hồi đáp",
@@ -15,11 +15,17 @@ const labels = {
   // 2026-11-13: Ten hien thi nguoi gui email, tach khoi dia chi SMTP.
   senderName: "Tên người gửi email",
   // Added 2026-11-13: responsive couple photos, shared love story and temporary RSVP disclosure.
-  heroPortrait: "Hero · ảnh dọc (mobile)", entrancePortrait: "Mở màn · ảnh dọc (mobile)", entranceAlt: "Mô tả ảnh mở màn", loveStory: "Chuyện chúng mình", subtitle: "Dòng tiếng Anh", temporaryNotice: "Lưu ý hồi đáp tạm thời",
+  entranceAlt: "Mô tả ảnh mở màn", loveStory: "Chuyện chúng mình", subtitle: "Dòng tiếng Anh", temporaryNotice: "Lưu ý hồi đáp tạm thời",
   // Added 2026-11-13: dated family timelines, invitation letter and shared couple/location portraits.
   date: "Ngày diễn ra", letterTitle: "Tiêu đề lời mời", letterBody: "Nội dung lời mời", couplePortrait: "Ảnh chung cô dâu & chú rể", coupleAlt: "Mô tả ảnh chung", locationImage: "Ảnh cưới cạnh bản đồ", locationImageAlt: "Mô tả ảnh cạnh bản đồ",
   // Added 2026-11-13: address heading and countdown labels shared with the admin preview.
   locationTitle: "Tiêu đề khu vực địa chỉ", countdown: "Đếm ngược ngày cưới", days: "Nhãn ngày", hours: "Nhãn giờ", minutes: "Nhãn phút", seconds: "Nhãn giây",
+  // Added 2026-11-13: separate the editable Google Maps iframe source from the directions link.
+  mapEmbedUrl: "Link Google Maps nhúng",
+  // Added 2026-11-13: editable greeting and thank-you copy for named invitation links.
+  personalization: "Lời mời cá nhân hóa", inviteLabel: "Dòng kính mời khách", fallbackName: "Tên hiển thị khi không có tên khách", thankYou: "Lời cảm ơn · dùng {name} để chèn tên", genericThanks: "Lời cảm ơn khi không có tên khách",
+  // Added 2026-11-13: shared party concept, palette and dress code for invitations and email.
+  partyConcept: "Concept bữa tiệc", paletteLabel: "Nhãn concept", tones: "Tone màu (văn bản)", dressCodeLabel: "Nhãn trang phục", dressCode: "Trang phục",
 };
 
 export function readPath(data, path) {
@@ -48,8 +54,8 @@ export function fieldKind(path, value) {
   if (key === "dateTime") return "date";
   if (key === "date") return "day";
   if (key === "icon") return "icon";
-  if (key === "portrait" || key === "bouquet" || key === "qrImage" || key === "locationImage" || path[0] === "photos" && ["hero", "roses", "heroPortrait", "entrancePortrait", "couplePortrait", "src"].includes(key)) return "image";
-  if (key === "mapUrl") return "url";
+  if (key === "portrait" || key === "bouquet" || key === "qrImage" || key === "locationImage" || path[0] === "photos" && ["hero", "roses", "couplePortrait", "src"].includes(key)) return "image";
+  if (["mapUrl", "mapEmbedUrl"].includes(key)) return "url";
   return "text";
 }
 
@@ -65,7 +71,7 @@ export function editorDocuments(data) {
           if (key.startsWith("_")) continue;
           walk(child, [...current, Array.isArray(value) ? Number(key) : key], [...trail, labels[key] || (/^\d+$/.test(key) ? `Mục ${Number(key) + 1}` : key)]);
         }
-      } else fields.push({ path: current, key: String(current.at(-1)), label: trail.join(" / ") || label, kind: fieldKind(current, value), nullable: value === null || ["dateTime", "mapUrl"].includes(current.at(-1)), value });
+      } else fields.push({ path: current, key: String(current.at(-1)), label: trail.join(" / ") || label, kind: fieldKind(current, value), nullable: value === null || ["dateTime", "mapUrl", "mapEmbedUrl"].includes(current.at(-1)), value });
     }
     walk(readPath(data, path), path, []);
     documents.push({ id, label, path, fields, lists });
@@ -83,5 +89,6 @@ export function editorDocuments(data) {
   add("gift-groom", "Quà mừng nhà trai", ["gifts", "groom"]);
   add("gift-bride", "Quà mừng nhà gái", ["gifts", "bride"]);
   add("mail", "Email hướng dẫn", ["mail"]);
+  add("party-concept", "Concept bữa tiệc", ["partyConcept"]);
   return documents;
 }

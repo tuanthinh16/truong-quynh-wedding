@@ -5,10 +5,10 @@ import WeddingEntrance from "@/components/wedding-entrance";
 import WeddingInvitation from "@/components/wedding-invitation";
 import { WeddingAudioProvider } from "@/components/wedding-audio";
 import { WeddingContentProvider } from "@/components/wedding-content";
-import { editorDocuments } from "@/lib/editor-schema.mjs";
+import { editorDocuments, listConfig } from "@/lib/editor-schema.mjs";
 import type { EditorDocument, EditorPath, WeddingData } from "@/lib/editor-types";
 
-export interface PreviewMessage { data: WeddingData; page: "entrance" | "groom" | "bride"; mode: "select" | "browse"; selected: EditorPath | null }
+export interface PreviewMessage { data: WeddingData; page: "entrance" | "groom" | "bride"; mode: "select" | "browse"; selected: EditorPath | null; galleryInsertion?: number; canInsertGallery?: boolean }
 
 class PreviewBoundary extends Component<{ children: ReactNode; data: WeddingData }, { failed: boolean }> {
   state = { failed: false };
@@ -21,6 +21,16 @@ class PreviewBoundary extends Component<{ children: ReactNode; data: WeddingData
 
 function PreviewSurface({ state }: { state: PreviewMessage }) {
   const surface = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (state.galleryInsertion === undefined) return;
+    const element = surface.current?.querySelectorAll<HTMLElement>(".album-mosaic > .mosaic-frame")[state.galleryInsertion];
+    if (!element) return;
+    element.dataset.editorInsertion = String(state.galleryInsertion + 1);
+    const showInsertion = () => element.scrollIntoView({ block: "center", behavior: "instant" });
+    showInsertion();
+    window.addEventListener("resize", showInsertion);
+    return () => { delete element.dataset.editorInsertion; window.removeEventListener("resize", showInsertion); };
+  }, [state.galleryInsertion, state.data, state.page]);
   const fields = useMemo(() => {
     const documents = editorDocuments(state.data) as EditorDocument[];
     const preferred = [state.page, `event-${state.page}`, `content-${state.page === "entrance" ? "entrance" : "invitation"}`];
@@ -44,6 +54,7 @@ function PreviewSurface({ state }: { state: PreviewMessage }) {
       }
       root.querySelectorAll<HTMLElement>("[data-edit]").forEach(element => mark(element, element.dataset.edit || ""));
       root.querySelectorAll<HTMLElement>("img, p, span, h1, h2, h3, em, strong, button, a, label, small, blockquote").forEach(element => {
+        if (element.closest("[data-editor-gallery-add]")) return;
         if (element.closest("[data-edit]") || element.querySelector("[data-edit]")) return;
         if (element instanceof HTMLImageElement) {
           const url = new URL(element.currentSrc || element.src, location.origin);
@@ -63,6 +74,7 @@ function PreviewSurface({ state }: { state: PreviewMessage }) {
     observer.observe(root, { childList: true, subtree: true, characterData: true });
     function click(event: MouseEvent) {
       const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest("[data-editor-gallery-add]")) return;
       const editable = target?.closest<HTMLElement>("[data-editor-ref]");
       if (state.mode === "select") {
         event.preventDefault(); event.stopImmediatePropagation();
@@ -84,7 +96,7 @@ function PreviewSurface({ state }: { state: PreviewMessage }) {
 
   return <div ref={surface} className={`editor-preview ${state.mode === "select" ? "editor-selecting" : ""}`}>
     <WeddingContentProvider value={state.data}><WeddingAudioProvider>
-      {state.page === "entrance" ? <WeddingEntrance /> : <WeddingInvitation side={state.page} />}
+      {state.page === "entrance" ? <WeddingEntrance /> : <WeddingInvitation side={state.page} galleryAppend={state.canInsertGallery && state.data.photos.gallery.length < listConfig(["photos", "gallery"])!.max ? <figure className="mosaic-frame"><button type="button" className="photo-button mosaic-photo ed-gallery-add" data-editor-gallery-add aria-label="Thêm ảnh vào cuối Our Wedding Gallery" onClick={() => window.parent.postMessage({ type: "wedding:gallery-add" }, location.origin)}><span className="ed-gallery-add-content"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg><span>Thêm ảnh</span><small>Upload hoặc chọn từ thư viện</small></span></button></figure> : undefined} />}
     </WeddingAudioProvider></WeddingContentProvider>
   </div>;
 }

@@ -1,7 +1,7 @@
 {
   "groom": {
     "name": "Duy Trường",
-    "portrait": "/images/editorial-demo.jpg",
+    "portrait": "/images/DSC05841.jpg",
     "introduction": "Người sẽ cùng Quỳnh đi qua những ngày bình dị, lắng nghe những câu chuyện nhỏ và vun đắp một mái nhà đầy yêu thương.",
     "shortName": "Trường",
     "initial": "T",
@@ -9,79 +9,82 @@
   },
   "bride": {
     "name": "Diễm Quỳnh",
-    "portrait": "/images/ceremony-demo.jpg",
+    "portrait": "/images/DSC05696.jpg",
     "introduction": "Người sẽ cùng Trường viết tiếp những tháng ngày hạnh phúc, biến từng điều giản dị thành những kỷ niệm thật đáng trân trọng.",
     "shortName": "Quỳnh",
     "initial": "Q",
     "role": "Cô dâu"
   },
   "photos": {
-    "hero": "/images/editorial-demo.jpg",
-    "roses": "/images/editorial-demo.jpg",
+    "hero": "/images/DSC06132.jpg",
+    "roses": "/images/DSC06132.jpg",
     "story": [
       {
-        "src": "/images/editorial-demo.jpg",
+        "src": "/images/DSC06362.jpg",
         "alt": "Bên nhau trong ngày hạnh phúc",
         "position": "40% center"
       },
       {
-        "src": "/images/moments-demo.jpg",
+        "src": "/images/DSC06014.jpg",
         "alt": "Một khoảnh khắc yêu thương",
         "position": "center"
       },
       {
-        "src": "/images/ceremony-demo.jpg",
+        "src": "/images/DSC05696.jpg",
         "alt": "Lời hẹn ngày chung đôi",
         "position": "center"
       },
       {
-        "src": "/images/details-demo.jpg",
+        "src": "/images/DSC05513.jpg",
         "alt": "Dấu ấn ngày cưới",
         "position": "center"
       }
     ],
     "gallery": [
       {
-        "src": "/images/wedding-demo.jpg",
+        "src": "/images/DSC06269.jpg",
         "alt": "Chạm vào hạnh phúc",
         "label": "Một đời thương"
       },
       {
-        "src": "/images/editorial-demo.jpg",
+        "src": "/images/DSC05841.jpg",
         "alt": "Khoảnh khắc bên nhau",
         "label": "Bên nhau"
       },
       {
-        "src": "/images/ceremony-demo.jpg",
+        "src": "/images/DSC06373.jpg",
         "alt": "Ngày chung đôi",
         "label": "Ngày chung đôi"
       },
       {
-        "src": "/images/details-demo.jpg",
+        "src": "/images/DSC05513.jpg",
         "alt": "Chi tiết ngày cưới",
         "label": "Lời hẹn ước"
       },
       {
-        "src": "/images/flowers-demo.jpg",
+        "src": "/images/DSC05696.jpg",
         "alt": "Yêu thương nở hoa",
         "label": "Yêu thương nở hoa"
+      },
+      {
+        "src": "/images/DSC06362.jpg",
+        "alt": "Khoảnh khắc ngày cưới",
+        "label": ""
       }
     ],
     "heroAlt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
-    "heroPortrait": "/images/ceremony-demo.jpg",
-    "entrancePortrait": "/images/ceremony-demo.jpg",
     "entranceAlt": "Cô dâu và chú rể cùng bắt đầu hành trình mới",
-    "couplePortrait": "/images/ceremony-demo.jpg",
+    "couplePortrait": "/images/DSC05841.jpg",
     "coupleAlt": "Cô dâu và chú rể bên nhau"
   },
   "events": {
     "groom": {
       "label": "Lễ thành hôn",
       "venue": "Tư gia nhà trai",
-      "address": "Xóm Tân Lâm, xã Nghĩa Đàn, tỉnh Nghệ An",
+      "address": "Xóm Tân Mai, xã Nghĩa Đàn, tỉnh Nghệ An",
       "dateTime": "2026-11-29T17:30:00+07:00",
       "lunarDate": "21 tháng 10 năm Bính Ngọ",
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=X%C3%B3m%20T%C3%A2n%20L%C3%A2m%2C%20x%C3%A3%20Ngh%C4%A9a%20%C4%90%C3%A0n%2C%20t%E1%BB%89nh%20Ngh%E1%BB%87%20An",
+      "mapUrl": "https://maps.app.goo.gl/VB8o5ydCx86aRmEGA",
       "sideLabel": "Nhà trai",
       "schedule": [
         {
@@ -106,15 +109,16 @@
           "date": "2026-11-29"
         }
       ],
-      "locationImage": "/images/ceremony-demo.jpg"
+      "locationImage": "/images/DSC05696.jpg",
+      "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3764.56201171724!2d105.487301!3d19.344802999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDIwJzQxLjMiTiAxMDXCsDI5JzE0LjMiRQ!5e0!3m2!1sen!2s!4v1794575401796!5m2!1sen!2s"
     },
     "bride": {
       "label": "Lễ vu quy",
       "venue": "Tư gia nhà gái",
-      "address": "Xóm Nam, Khánh Dương, Yên Mô, Ninh Bình",
+      "address": "Xóm Nghĩa Lâm, Xã Nghĩa Đàn, Nghệ An",
       "dateTime": "2026-11-28T17:30:00+07:00",
       "lunarDate": "20 tháng 10 năm Bính Ngọ",
-      "mapUrl": "https://www.google.com/maps/search/?api=1&query=X%C3%B3m%20Nam%2C%20Kh%C3%A1nh%20D%C6%B0%C6%A1ng%2C%20Y%C3%AAn%20M%C3%B4%2C%20Ninh%20B%C3%ACnh",
+      "mapUrl": "https://maps.app.goo.gl/dCCZR9wb9qEVrLdX9",
       "sideLabel": "Nhà gái",
       "schedule": [
         {
@@ -146,7 +150,8 @@
           "date": "2026-11-29"
         }
       ],
-      "locationImage": "/images/ceremony-demo.jpg"
+      "locationImage": "/images/DSC06014.jpg",
+      "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3138.2010383649927!2d105.4758421394395!3d19.388234009547038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDIwJzQxLjMiTiAxMDXCsDI5JzE0LjMiRQ!5e0!3m2!1sen!2s!4v1794577677066!5m2!1sen!2s"
     }
   },
   "rsvp": {
@@ -165,7 +170,8 @@
   "content": {
     "entrance": {
       "eyebrow": "WE'RE GETTING MARRIED",
-      "question": "Bạn được mời dự bên nào?"
+      "question": "Bạn được mời dự bên nào?",
+      "date": "2026-11-29"
     },
     "invitation": {
       "skip": "Đến lời mời",
@@ -315,6 +321,12 @@
       "hours": "giờ",
       "minutes": "phút",
       "seconds": "giây"
+    },
+    "personalization": {
+      "inviteLabel": "Trân trọng kính mời",
+      "fallbackName": "Bạn",
+      "thankYou": "Cảm ơn {name} đã luôn yêu thương và là một phần trong hành trình của chúng mình. Mong được gặp bạn trong ngày chung đôi!",
+      "genericThanks": "Cảm ơn bạn đã là một phần trong hành trình của chúng mình. Mong được gặp bạn trong ngày chung đôi!"
     }
   },
   "experience": {
@@ -373,9 +385,19 @@
     "closing": "Thân mến,\nTrường Quỳnh Wedding",
     "senderName": "Trường Quỳnh Wedding"
   },
+  "partyConcept": {
+    "enabled": true,
+    "paletteLabel": "Concept chính",
+    "tones": "Đỏ rượu vang, xanh nhạt.",
+    "dressCodeLabel": "Trang phục",
+    "dressCode": "Mát mẻ, sang trọng."
+  },
   "_meta": {
-    "updatedAt": "2026-11-13T07:28:32.605Z",
+    "partyConceptNote": "2026-11-13: partyConcept dùng chung cho hai nhà, sửa trong admin; tones và dressCode chỉ hiện hai dòng chữ nhỏ dưới lịch và trong email, không chấm màu hay border; tắt enabled để ẩn cả hai.",
+    "updatedAt": "2026-11-13T15:01:59.712Z",
     "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor.",
-    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin."
+    "personalizationNote": "2026-11-13: Thêm content.personalization để sửa lời kính mời, tên mặc định và lời cảm ơn theo {name}; tên khách lấy từ query name, danh sách tạo link chỉ xử lý trong trình duyệt.",
+    "entranceDateNote": "2026-11-13: Thêm content.entrance.date cho ngày tháng năm của màn mở đầu trước khi chọn gia đình, sửa riêng trong admin; lời kính mời, tên khách hoặc Bạn và ngày nằm ở 1/3 phía trên ảnh.",
+    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin. 2026-11-13: Thêm events.<side>.mapEmbedUrl độc lập địa chỉ/link chỉ đường, sửa trực tiếp trong admin; cấu hình upload 30 MB và WebP responsive dựng lúc build tại image-settings.mjs."
   }
 }

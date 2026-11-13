@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { editable, useWedding } from "./wedding-content";
+import "./wedding-countdown.css";
 
 function subscribe(onChange: () => void) {
   const interval = window.setInterval(onChange, 1000);

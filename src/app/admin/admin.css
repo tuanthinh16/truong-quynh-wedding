@@ -181,3 +181,55 @@
 .ed-response-list article p { font-size: 13px; margin: 8px 0; }
 .ed-response-list small { color: var(--ed-muted); }
 .ed-response-message { white-space: pre-wrap; }
+
+/* Added 2026-11-13: batch invitation link generator with responsive, selectable results. */
+.ed-root .ed-invitation-links { width: min(760px, calc(100vw - 24px)); }
+.ed-invite-form { display: grid; gap: 10px; }
+.ed-invite-form > label { font-size: 13px; font-weight: 600; }
+.ed-invite-form > .ed-config-help { margin: 0 0 8px; }
+.ed-root .ed-invite-form > button { min-height: 44px; }
+.ed-invite-results { list-style: none; padding: 0; display: grid; gap: 12px; margin: 20px 0 0; }
+.ed-invite-results > li { display: flex; align-items: center; gap: 14px; padding: 16px; background: white; border: 1px solid var(--ed-line); border-radius: 8px; }
+.ed-invite-results > li > div { flex: 1; min-width: 0; }
+.ed-invite-results strong { display: block; margin-bottom: 6px; font-size: 14px; }
+.ed-invite-results a { display: block; color: var(--red); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.ed-invite-results button { flex-shrink: 0; min-height: 44px; }
+@media (max-width: 760px) {
+  .ed-root .ed-top-actions { flex-wrap: wrap; }
+  .ed-invite-results > li { flex-direction: column; align-items: stretch; }
+}
+
+/* Added 2026-11-13: staged gallery uploads and live insertion preview at mobile/desktop widths. */
+.ed-root .ed-gallery-insert { width: min(1120px, calc(100vw - 24px)); }
+.ed-gallery-layout { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(0, 2fr); gap: 24px; }
+.ed-gallery-form { display: grid; align-content: start; gap: 14px; min-width: 0; }
+.ed-gallery-form > label, .ed-gallery-preview > label { display: grid; gap: 8px; font-size: 13px; }
+.ed-gallery-form input:not([type="file"]), .ed-gallery-form select, .ed-gallery-preview select { width: 100%; min-height: 44px; padding: 10px; border: 1px solid var(--ed-line); border-radius: 5px; background: white; }
+.ed-gallery-chosen { width: 100%; height: 160px; object-fit: contain; background: #f5efe8; border-radius: 6px; }
+.ed-gallery-preview { min-width: 0; }
+.ed-gallery-canvas { height: 480px; overflow: hidden; margin-top: 12px; border: 1px solid var(--ed-line); border-radius: 6px; background: white; }
+.ed-gallery-canvas iframe { display: block; border: 0; transform-origin: top left; }
+.editor-preview [data-editor-insertion] { position: relative; outline: 4px solid var(--red); outline-offset: 5px; }
+.editor-preview [data-editor-insertion]::after { content: "Ảnh mới · vị trí " attr(data-editor-insertion); position: absolute; top: 8px; left: 8px; z-index: 10; padding: 8px 12px; border-radius: 4px; color: white; background: var(--red); font: 600 16px/1.5 var(--font-body), sans-serif; pointer-events: none; }
+@media (max-width: 760px) {
+  .ed-gallery-layout { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .ed-gallery-form .ed-config-help { margin: 0; }
+}
+
+/* Added 2026-11-13: admin-only add tile inherits the next photo's gallery grid size and shape. */
+.editor-preview .ed-gallery-add { min-height: 44px; border: 2px dashed var(--red); color: var(--red-dark); background: linear-gradient(145deg, #fff8f1, #f0e1da); cursor: pointer; }
+.ed-gallery-add-content { position: absolute; inset: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 12px; text-align: center; }
+.ed-gallery-add-content > span { font: 600 18px/1.5 var(--font-body), sans-serif; }
+.ed-gallery-add-content > small { max-width: 180px; font: 400 13px/1.6 var(--font-body), sans-serif; }
+.editor-preview .ed-gallery-add:hover { background: linear-gradient(145deg, #fffdf8, #ead3cb); }
+.editor-preview .ed-gallery-add:focus-visible { outline: 3px solid var(--red); outline-offset: 5px; }
+
+/* Added 2026-11-13: mark and lock gallery images already used or selected in the media library. */
+.ed-root .ed-library-grid button[data-gallery-used], .ed-root .ed-library-grid button[data-library-selected] { border: 3px solid var(--red); opacity: 1; cursor: not-allowed; }
+.ed-library-grid button[data-gallery-used] img { opacity: .7; }
+.ed-library-status { display: block; padding: 6px 8px; color: white; background: var(--red-dark); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+
+/* Added 2026-11-13: stable lightweight thumbnails and incremental media rendering keep scrolling responsive. */
+.ed-library-grid img { display: block; }
+.ed-library-grid .ed-library-placeholder { display: grid; place-items: center; aspect-ratio: 1; white-space: normal; color: var(--ed-muted); background: #f5efe8; }
+.ed-root .ed-library-more { display: block; margin: 20px auto 0; min-height: 44px; }

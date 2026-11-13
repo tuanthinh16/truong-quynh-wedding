@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { wedding } from "@/config/wedding";
+import Script from "next/script";
 import { Suspense } from "react";
 import WeddingLive from "@/components/wedding-live";
 import "./globals.css";
+import "./portrait-layout.css";
 
 const bodyFont = localFont({
   src: "../../public/fonts/quicksand.ttf",
@@ -27,16 +27,7 @@ const scriptFont = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: wedding.metadata.title,
-  description: wedding.metadata.description,
-  openGraph: {
-    title: wedding.metadata.openGraph.title,
-    description: wedding.metadata.openGraph.description,
-    locale: wedding.metadata.openGraph.locale,
-    type: "website",
-  },
-};
+export { getWeddingMetadata as generateMetadata } from "@/lib/wedding-server";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -44,7 +35,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="vi"
       className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable}`}
     >
-      <body><Suspense fallback={null}><WeddingLive audio>{children}</WeddingLive></Suspense></body>
+      <body>
+        <Script id="wedding-scroll-reset" strategy="beforeInteractive">{`
+          if (!location.pathname.startsWith("/admin")) {
+            history.scrollRestoration = "manual";
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          }
+        `}</Script>
+        <Suspense fallback={null}><WeddingLive audio>{children}</WeddingLive></Suspense>
+      </body>
     </html>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "./wedding-image";
 import { useEffect, useState } from "react";
 import { albumPhotos } from "@/config/wedding";
 import { useWedding } from "./wedding-content";

@@ -1,19 +1,23 @@
 "use client";
 
-import Image from "next/image";
+import ViewportPhoto from "./viewport-photo";
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { type WeddingSide, type WeddingPhoto } from "@/config/wedding";
 import { useWedding, editable } from "./wedding-content";
 import Icon, { type IconName } from "./icon";
 import FloralArt from "./floral-art";
 import WeddingCalendar from "./wedding-calendar";
+import WeddingConcept from "./wedding-concept";
 import { formatWeddingDate } from "./wedding-date";
 import WeddingHero from "./wedding-hero";
 import WeddingPlayback from "./wedding-playback";
 import WeddingGift from "./wedding-gift";
 import WeddingCountdown from "./wedding-countdown";
 import { useWeddingAudio } from "./wedding-audio";
+import { isMapEmbedUrl } from "@/lib/map-embed.mjs";
+import { GuestDedication } from "./guest-personalization";
+import { invitationHref } from "@/lib/guest-invitation";
 
 const RsvpDialog = dynamic(() => import("./rsvp-dialog"));
 const GalleryDialog = dynamic(() => import("./gallery-dialog"));
@@ -26,12 +30,6 @@ function SectionHeading({ content }: { content: { eyebrow: string; title: string
   return <div className="section-heading reveal"><span className="eyebrow">{content.eyebrow}</span><h2>{content.title} <em>{content.accent}</em></h2><p>{content.description}</p></div>;
 }
 
-function ScrollPhoto({ src, alt, sizes, position }: { src: string; alt: string; sizes: string; position?: string }) {
-  const [loadedSource, setLoadedSource] = useState<string | null>(null);
-
-  return <Image src={src} alt={alt} fill sizes={sizes} loading="lazy" className={loadedSource === src ? "is-loaded" : undefined} style={{ objectPosition: position }} onLoad={() => setLoadedSource(src)} />;
-}
-
 function PhotoButton({ photo, index, className, onOpen, sizes = "(min-width: 1200px) 560px, (min-width: 600px) 45vw, 85vw" }: {
   photo: WeddingPhoto; index: number; className: string; onOpen: (index: number) => void; sizes?: string;
 }) {
@@ -40,12 +38,12 @@ function PhotoButton({ photo, index, className, onOpen, sizes = "(min-width: 120
   const photoPath = index < wedding.photos.story.length ? ["photos", "story", index, "src"] : ["photos", "gallery", index - wedding.photos.story.length, "src"];
   return (
     <button className={`photo-button photo-reveal ${className}`} data-edit={JSON.stringify(photoPath)} onClick={() => onOpen(index)} aria-label={`${copy.gallery.view} ${photo.alt}`}>
-      <ScrollPhoto src={photo.src} alt={photo.alt} sizes={sizes} position={photo.position} />
+      <ViewportPhoto src={photo.src} alt={photo.alt} sizes={sizes} position={photo.position} direction={index % 2 === 0 ? "left" : "right"} />
     </button>
   );
 }
 
-export default function WeddingInvitation({ side }: { side: WeddingSide }) {
+export default function WeddingInvitation({ side, galleryAppend }: { side: WeddingSide; galleryAppend?: ReactNode }) {
   const wedding = useWedding();
   const copy = wedding.content;
   const { startMusic, pauseMusic } = useWeddingAudio();
@@ -65,16 +63,16 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
     const root = pageRef.current;
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) { entry.target.classList.add("is-visible"); observer.unobserve(entry.target); }
+        entry.target.classList.toggle("is-visible", entry.isIntersecting);
       });
     }, { threshold: 0.08 });
     root?.classList.add("motion-ready");
-    root?.querySelectorAll(".reveal, .photo-reveal").forEach(element => observer.observe(element));
-    return () => observer.disconnect();
+    root?.querySelectorAll(".reveal").forEach(element => observer.observe(element));
+    return () => { observer.disconnect(); root?.classList.remove("motion-ready"); };
   }, []);
 
   async function shareInvitation() {
-    const url = new URL(side === "groom" ? "/nha-trai" : "/nha-gai", window.location.origin).href;
+    const url = new URL(invitationHref(side === "groom" ? "/nha-trai" : "/nha-gai", new URLSearchParams(window.location.search).get("name")), window.location.origin).href;
     try { await navigator.clipboard.writeText(url); setShareStatus(copy.footer.copied); }
     catch { setShareStatus(`${copy.footer.link} ${url}`); }
   }
@@ -88,7 +86,7 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
         <section id="loi-moi" className="wedding-details section-space">
           <FloralArt className="details-floral" />
           <div className="family-names reveal"><div><span className="eyebrow">{wedding.groom.role}</span><h2>{wedding.groom.name}</h2></div><Icon name="rings" size={37} /><div><span className="eyebrow">{wedding.bride.role}</span><h2>{wedding.bride.name}</h2></div></div>
-          <div className="invitation-letter content-width reveal"><h2 {...editable("content", "invitation", "letterTitle")}>{copy.invitation.letterTitle}</h2><p {...editable("content", "invitation", "letterBody")}>{copy.invitation.letterBody}</p></div>
+          <div className="invitation-letter content-width reveal"><GuestDedication /><h2 {...editable("content", "invitation", "letterTitle")}>{copy.invitation.letterTitle}</h2><p {...editable("content", "invitation", "letterBody")}>{copy.invitation.letterBody}</p></div>
           <div className={`date-invitation-grid content-width reveal${date ? "" : " without-calendar"}`}>
             {event.dateTime && <WeddingCalendar date={event.dateTime.slice(0, 10)} />}
             <div className="dinner-invitation">
@@ -101,6 +99,7 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
               {event.mapUrl && <a className="button button-red" href={event.mapUrl} target="_blank" rel="noopener noreferrer"><Icon name="pin" size={17} />{copy.invitation.map}</a>}
             </div>
           </div>
+          <WeddingConcept />
           <p className="invitation-closing reveal">{copy.invitation.closing}</p>
         </section>
 
@@ -115,7 +114,7 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
 
         <section id="chung-minh" className="partner-section section-space">
           <div className="couple-profile content-width">
-            <div className="portrait-composition torn-portrait"><div className="partner-photo photo-reveal" {...editable("photos", "couplePortrait")}><ScrollPhoto src={wedding.photos.couplePortrait} alt={wedding.photos.coupleAlt} sizes="(min-width: 900px) 480px, 85vw" /></div></div>
+            <div className="portrait-composition torn-portrait"><div className="partner-photo photo-reveal" {...editable("photos", "couplePortrait")}><ViewportPhoto src={wedding.photos.couplePortrait} alt={wedding.photos.coupleAlt} sizes="(min-width: 900px) 480px, 85vw" /></div></div>
             <div className="partner-copy couple-profile-copy reveal">
               <span className="eyebrow" {...editable("content", "partner", "eyebrow")}>{copy.partner.eyebrow}</span>
               <p className="partner-intro" {...editable("content", "partner", "intro")}>{copy.partner.intro}</p>
@@ -147,23 +146,23 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
 
         <section id="album" className="album-section section-space">
           <SectionHeading content={copy.album} />
-          <div className="album-mosaic content-width">{wedding.photos.gallery.map((photo, index) => <figure className="mosaic-frame" key={`${photo.src}-${index}`}><PhotoButton photo={photo} index={wedding.photos.story.length + index} className="mosaic-photo" onOpen={setGalleryIndex} sizes={index === 0 ? "(min-width: 1200px) 700px, (min-width: 700px) 55vw, 90vw" : "(min-width: 1200px) 450px, 45vw"} /></figure>)}</div>
+          <div className="album-mosaic content-width">{wedding.photos.gallery.map((photo, index) => <figure className="mosaic-frame" key={`${photo.src}-${index}`}><PhotoButton photo={photo} index={wedding.photos.story.length + index} className="mosaic-photo" onOpen={setGalleryIndex} sizes={index === 0 ? "(min-width: 1200px) 700px, (min-width: 700px) 55vw, 90vw" : "(min-width: 1200px) 450px, 45vw"} /></figure>)}{galleryAppend}</div>
         </section>
 
         <section id="hoi-dap" className="reply-section section-space">
           <FloralArt className="reply-floral" /><div className="reply-content reveal"><span className="eyebrow" {...editable("content", "reply", "eyebrow")}>{copy.reply.eyebrow}</span><h2><span {...editable("content", "reply", "title")}>{copy.reply.title}</span><br /><em {...editable("content", "reply", "accent")}>{copy.reply.accent}</em></h2><div className="reply-message" {...editable("content", "reply", "description")}>{copy.reply.description.split(/\n\s*\n/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}</div><div className="reply-actions"><button className="button button-red" onClick={() => setRsvpOpen(true)}><span {...editable("content", "reply", "button")}>{copy.reply.button}</span> <Icon name="arrow" size={18} /></button></div><WeddingGift side={side} /></div>
           {event.address && <div className="reply-location content-width">
             <div className="location-time reveal">{date && event.dateTime && <time dateTime={event.dateTime} {...editable("events", side, "dateTime")}>{date.time}</time>}{event.lunarDate && <p><span {...editable("content", "invitation", "lunarPrefix")}>{copy.invitation.lunarPrefix}</span> <span {...editable("events", side, "lunarDate")}>{event.lunarDate}</span></p>}</div>
-            <div className="location-portrait photo-reveal" {...editable("events", side, "locationImage")}><ScrollPhoto src={event.locationImage} alt={copy.invitation.locationImageAlt} sizes="(min-width: 1100px) 456px, 44vw" /></div>
-            <div className="location-map reveal">
+            <div className="location-portrait photo-reveal" {...editable("events", side, "locationImage")}><ViewportPhoto src={event.locationImage} alt={copy.invitation.locationImageAlt} sizes="(min-width: 1100px) 456px, 44vw" direction="right" /></div>
+            <div className="location-map reveal" {...editable("events", side, "mapEmbedUrl")}>
               <div className="location-map-heading"><h2 {...editable("content", "invitation", "locationTitle")}>{copy.invitation.locationTitle}</h2><h3 {...editable("events", side, "venue")}>{event.venue}</h3><p {...editable("events", side, "address")}>{event.address}</p></div>
-              <iframe key={event.address} title={`${copy.invitation.map} · ${event.sideLabel} · ${event.address}`} src={`https://www.google.com/maps?q=${encodeURIComponent(event.address)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+              {event.mapEmbedUrl && isMapEmbedUrl(event.mapEmbedUrl) && <iframe key={event.mapEmbedUrl} title={`${copy.invitation.map} · ${event.sideLabel} · ${event.address}`} src={event.mapEmbedUrl} {...editable("events", side, "mapEmbedUrl")} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />}
             </div>
             <WeddingCountdown dateTime={event.dateTime} />
           </div>}
         </section>
 
-        <footer className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{date && <p>{date.day} . {date.month} . {date.year}</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></footer>
+        <footer className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{date && <p>{date.day} . {date.month} . {date.year}</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></footer>
       </main>
 
       <WeddingPlayback dialogOpen={rsvpOpen || galleryIndex !== null} />

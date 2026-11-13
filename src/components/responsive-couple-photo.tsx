@@ -1,11 +1,7 @@
-import Image, { getImageProps } from "next/image";
+import ViewportPhoto from "./viewport-photo";
 
-export default function ResponsiveCouplePhoto({ landscape, portrait, alt, className }: {
-  landscape: string; portrait: string; alt: string; className: string;
+export default function ResponsiveCouplePhoto({ src, alt, className }: {
+  src: string; alt: string; className: string;
 }) {
-  const { props: mobile } = getImageProps({ src: portrait, alt, fill: true, sizes: "100vw" });
-  return <picture>
-    <source media="(max-width: 699px)" srcSet={mobile.srcSet} sizes="100vw" />
-    <Image src={landscape} alt={alt} className={className} fill sizes="100vw" loading="eager" fetchPriority="high" />
-  </picture>;
+  return <ViewportPhoto src={src} alt={alt} className={className} sizes="(min-width: 1200px) 440px, (min-width: 700px) 38vw, 100vw" eager />;
 }

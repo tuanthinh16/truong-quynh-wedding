@@ -18,4 +18,4 @@ export interface EditorDocument {
   fields: EditorField[];
   lists: { path: EditorPath; label: string; max: number; min: number }[];
 }
-export interface MediaAsset { src: string; name: string; size: number }
+export interface MediaAsset { src: string; name: string; size: number; thumbnailSrc?: string | null }

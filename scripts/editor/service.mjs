@@ -2,12 +2,14 @@ import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
+import { formatImageSize, imageSettings } from "../../src/lib/image-settings.mjs";
+import { isMapEmbedUrl } from "../../src/lib/map-embed.mjs";
 import { fieldKind, listConfig } from "../../src/lib/editor-schema.mjs";
 import { listRsvps } from "../../src/lib/rsvp-service.mjs";
 import { mailConfigured } from "../../src/lib/rsvp-mail.mjs";
 
 // Added 2026-11-13: bounded, same-origin uploads and atomic JSON writes with revision checks and private backups.
-const maxUpload = 10 * 1024 * 1024;
+const maxUpload = imageSettings.maxUploadBytes;
 const imageExtensions = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
 const icons = new Set(["heart", "arrow", "pin", "calendar", "check", "close", "chevron", "copy", "car", "flower", "rings", "image", "music", "play", "pause", "scroll"]);
 const unsafeKeys = new Set(["__proto__", "constructor", "prototype"]);
@@ -16,13 +18,14 @@ class EditorError extends Error {
 }
 export const revisionOf = bytes => createHash("sha256").update(bytes).digest("hex");
 
-async function body(request, limit) {
-  if (Number(request.headers["content-length"]) > limit) throw new EditorError(413, "Dữ liệu vượt giới hạn dung lượng.");
+async function body(request, limit, label = "Dữ liệu") {
+  function tooLarge(size) { return new EditorError(413, `${label} vượt giới hạn ${formatImageSize(limit)} (yêu cầu ${formatImageSize(size)}).`); }
+  if (Number(request.headers["content-length"]) > limit) throw tooLarge(Number(request.headers["content-length"]));
   const chunks = [];
   let length = 0;
   for await (const chunk of request) {
     length += chunk.length;
-    if (length > limit) throw new EditorError(413, "Dữ liệu vượt giới hạn dung lượng.");
+    if (length > limit) throw tooLarge(length);
     chunks.push(chunk);
   }
   return Buffer.concat(chunks);
@@ -46,7 +49,7 @@ export function validateContent(input, baseline) {
       for (const key of expected) visit(value[key], previous[key], [...trail, key]);
     } else {
       const key = trail.at(-1);
-      if (value === null && ["dateTime", "mapUrl"].includes(key)) return;
+      if (value === null && ["dateTime", "mapUrl", "mapEmbedUrl"].includes(key)) return;
       const kind = fieldKind(trail, previous);
       if (kind === "number") {
         if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1e9) invalid("cần số không âm hợp lệ.");
@@ -59,6 +62,7 @@ export function validateContent(input, baseline) {
       if (typeof value !== "string" || value.length > 10000) invalid("cần văn bản không quá 10000 ký tự.");
       if (kind === "image" && !(key === "qrImage" && value === "") && !/^\/(?!\/)(?!.*(?:\.\.|[\\?#\u0000-\u001f])).+\.(?:jpe?g|png|webp|avif)$/i.test(value)) invalid("chọn ảnh JPG, PNG, WebP hoặc AVIF trong public.");
       if (kind === "url" && value) { try { if (!["http:", "https:"].includes(new URL(value).protocol)) invalid("link chỉ hỗ trợ http/https."); } catch { invalid("link không hợp lệ."); } }
+      if (key === "mapEmbedUrl" && value && !isMapEmbedUrl(value)) invalid("cần link HTTPS Google Maps nhúng. Vào Chia sẻ → Nhúng bản đồ và sao chép src của iframe, không dùng link rút gọn.");
       if (kind === "date") {
         const match = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):[0-5]\d:[0-5]\d(?:Z|[+-](?:0\d|1[0-4]):[0-5]\d)$/.exec(value);
         if (!match || Number.isNaN(Date.parse(value))) invalid("ngày giờ ISO 8601 không hợp lệ.");
@@ -82,6 +86,7 @@ export function createEditorService({ root, origin, aliases = [], token }) {
   const origins = new Map([origin, ...aliases].map(value => [new URL(value).host, value]));
   const contentFile = path.join(root, "src/data/wedding.json");
   let queue = Promise.resolve();
+  let mediaPending = null;
   async function directory(relative) {
     let current = root;
     for (const segment of relative.split("/")) {
@@ -128,20 +133,37 @@ export function createEditorService({ root, origin, aliases = [], token }) {
   }
   async function upload(request) {
     if (!["image/jpeg", "image/png", "image/webp", "image/avif"].includes(String(request.headers["content-type"]).split(";")[0])) throw new EditorError(415, "Chỉ nhận JPG, PNG, WebP hoặc AVIF.");
-    const bytes = await body(request, maxUpload);
+    const bytes = await body(request, maxUpload, "Ảnh upload");
     let converted;
     try {
-      const image = sharp(bytes, { limitInputPixels: 30000000, animated: false });
+      const image = sharp(bytes, { limitInputPixels: imageSettings.maxInputPixels, animated: false });
       const metadata = await image.metadata();
       if (!["jpeg", "png", "webp", "avif", "heif"].includes(metadata.format) || (metadata.pages ?? 1) > 1) throw new Error("format");
-      converted = await image.rotate().resize({ width: 2560, height: 2560, fit: "inside", withoutEnlargement: true }).webp(request.headers["x-editor-image-purpose"] === "qr" ? { lossless: true } : { quality: 88 }).toBuffer({ resolveWithObject: true });
-    } catch { throw new EditorError(422, "Ảnh không hợp lệ hoặc vượt quá 30 megapixel."); }
+      converted = await image.rotate().resize({ width: imageSettings.maxUploadDimension, height: imageSettings.maxUploadDimension, fit: "inside", withoutEnlargement: true }).webp(request.headers["x-editor-image-purpose"] === "qr" ? { lossless: true } : { quality: imageSettings.uploadQuality }).toBuffer({ resolveWithObject: true });
+    } catch { throw new EditorError(422, `Ảnh không hợp lệ hoặc vượt ${imageSettings.maxInputPixels / 1000000} megapixel. Dung lượng MB và độ phân giải MP là hai giới hạn khác nhau; hãy xuất lại ảnh với cạnh dài tối đa ${imageSettings.maxUploadDimension}px rồi upload.`); }
     const folder = await directory("public/uploads/editor");
     const name = `${randomUUID()}.webp`;
     await fs.writeFile(path.join(folder, name), converted.data, { flag: "wx" });
-    return { src: `/uploads/editor/${name}`, width: converted.info.width, height: converted.info.height, size: converted.data.length };
+    const src = `/uploads/editor/${name}`;
+    const thumbnailSrc = await thumbnail(path.join(folder, name), src, await fs.stat(path.join(folder, name)));
+    return { src, thumbnailSrc, width: converted.info.width, height: converted.info.height, size: converted.data.length };
   }
-  async function media() {
+  async function thumbnail(filename, src, stat) {
+    const settings = { size: imageSettings.editorThumbnailSize, quality: imageSettings.editorThumbnailQuality, encoder: sharp.versions };
+    const key = revisionOf(JSON.stringify({ src, size: stat.size, modified: stat.mtimeMs, settings }));
+    const folder = await directory("public/optimized/editor-thumbnails");
+    const output = path.join(folder, `${key}.webp`);
+    const thumbnailSrc = `/optimized/editor-thumbnails/${key}.webp`;
+    try { await fs.access(output); return thumbnailSrc; } catch (error) { if (error.code !== "ENOENT") throw error; }
+    const temporary = `${output}.${randomUUID()}.tmp`;
+    try {
+      const bytes = await sharp(filename, { limitInputPixels: imageSettings.maxInputPixels, animated: false }).rotate().resize({ width: settings.size, height: settings.size, fit: "cover", withoutEnlargement: true }).webp({ quality: settings.quality }).toBuffer();
+      await fs.writeFile(temporary, bytes, { flag: "wx" });
+      await fs.rename(temporary, output);
+    } finally { await fs.unlink(temporary).catch(() => {}); }
+    return thumbnailSrc;
+  }
+  async function scanMedia() {
     const assets = [], publicRoot = await fs.realpath(path.join(root, "public"));
     async function walk(relative) {
       const target = path.join(publicRoot, relative);
@@ -155,11 +177,32 @@ export function createEditorService({ root, origin, aliases = [], token }) {
         if (entry.isSymbolicLink()) continue;
         const local = path.posix.join(relative, entry.name);
         if (entry.isDirectory()) await walk(local);
-        else if (entry.isFile() && imageExtensions.has(path.extname(entry.name).toLowerCase())) assets.push({ src: `/${local}`, name: entry.name, size: (await fs.stat(path.join(publicRoot, local))).size });
+        else if (entry.isFile() && imageExtensions.has(path.extname(entry.name).toLowerCase())) {
+          const filename = await fs.realpath(path.join(publicRoot, local));
+          if (!filename.startsWith(publicRoot + path.sep)) continue;
+          const stat = await fs.stat(filename);
+          assets.push({ src: `/${local}`, name: entry.name, size: stat.size, filename, stat });
+        }
       }
     }
     await walk("images"); await walk("uploads");
-    return { assets };
+    let cursor = 0;
+    const result = new Array(assets.length);
+    await Promise.all(Array.from({ length: Math.min(assets.length, imageSettings.editorThumbnailConcurrency) }, async () => {
+      while (cursor < assets.length) {
+        const index = cursor++;
+        const { filename, stat, ...asset } = assets[index];
+        let thumbnailSrc = null;
+        try { thumbnailSrc = await thumbnail(filename, asset.src, stat); }
+        catch { console.warn(`Không thể tạo thumbnail: ${asset.src}`); }
+        result[index] = { ...asset, thumbnailSrc };
+      }
+    }));
+    return { assets: result };
+  }
+  function media() {
+    if (!mediaPending) mediaPending = scanMedia().finally(() => { mediaPending = null; });
+    return mediaPending;
   }
   return async function handle(request, response) {
     const url = new URL(request.url, origin);
@@ -168,7 +211,7 @@ export function createEditorService({ root, origin, aliases = [], token }) {
     try {
       const requestOrigin = origins.get(request.headers.host);
       if (!requestOrigin || request.headers.origin && request.headers.origin !== requestOrigin || request.headers["sec-fetch-site"] && request.headers["sec-fetch-site"] !== "same-origin") throw new EditorError(403, "Yêu cầu phải cùng origin.");
-      if (request.method === "GET" && url.pathname === "/__editor/api/status") { json(200, { enabled: true, token, uploadDirectory: "public/uploads/editor" }); return true; }
+      if (request.method === "GET" && url.pathname === "/__editor/api/status") { json(200, { enabled: true, token, uploadDirectory: "public/uploads/editor", maxUploadBytes: maxUpload, maxInputPixels: imageSettings.maxInputPixels, maxUploadDimension: imageSettings.maxUploadDimension }); return true; }
       const supplied = Buffer.from(String(request.headers["x-editor-token"] || "")), expected = Buffer.from(token);
       if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) throw new EditorError(401, "Phiên editor đã hết hạn. Hãy tải lại trang.");
       if (request.method !== "GET" && request.headers.origin !== requestOrigin) throw new EditorError(403, "Origin không hợp lệ.");

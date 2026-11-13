@@ -1,0 +1,32 @@
+/* Updated 2026-11-13: minimal photo-led invitation, with all hero information grouped together. */
+.invitation-page .botanical-hero { display: grid; grid-template-rows: 1fr; height: auto; min-height: 100svh; padding: 0; gap: 0; }
+.botanical-hero .hero-composition { height: auto; }
+.botanical-hero .hero-paper { display: grid; min-height: 100svh; height: auto; container-type: normal; grid-template-columns: minmax(0, 1fr); padding: 0; background: var(--paper); }
+.botanical-hero .hero-portrait { position: relative; aspect-ratio: 2/3; width: min(80%, 300px); margin: 0 auto; }
+.botanical-hero .hero-landscape { object-fit: contain; object-position: center; opacity: 1; filter: none; z-index: auto; }
+.botanical-hero .hero-lettering { position: relative; inset: auto; padding: 0; min-width: 0; align-self: center; gap: 14px; text-align: center; }
+.botanical-hero .hero-day-month { font-family: var(--font-display), serif; font-weight: 400; font-size: clamp(72px, 8vw, 110px); line-height: 1; letter-spacing: -2px; }
+.botanical-hero .hero-names { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 0 8px; margin: 0; font-size: clamp(30px, 3.5vw, 48px); line-height: 1.4; letter-spacing: 0; }
+.botanical-hero .hero-names > span { white-space: normal; }
+.botanical-hero .hero-names i { font-size: .75em; line-height: inherit; margin: 0; color: inherit; }
+.botanical-hero .hero-kicker { margin: 0; font-size: 10px; line-height: 1.8; letter-spacing: 1.4px; }
+.botanical-hero .hero-kicker span { padding: 0; }
+.botanical-hero .hero-event-time { margin: 0; font-family: var(--font-body), sans-serif; font-weight: 500; font-size: 12px; line-height: 1.6; letter-spacing: .6px; }
+
+@media (min-width: 700px) {
+  .botanical-hero .hero-paper { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); gap: clamp(24px, 4vw, 64px); padding: clamp(40px, 5vw, 72px) clamp(32px, 5vw, 80px); }
+  .botanical-hero .hero-portrait { grid-column: 2; grid-row: 1; width: min(100%, 430px); align-self: center; }
+  .botanical-hero .hero-lettering { grid-column: 1; grid-row: 1; }
+}
+
+@media (max-width: 699px) {
+  .invitation-page .botanical-hero { display: block; }
+  .botanical-hero .hero-paper { min-height: max(100svh, 700px); }
+  .botanical-hero .hero-portrait { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; }
+  .botanical-hero .hero-landscape { object-fit: cover; }
+  .botanical-hero .hero-lettering { z-index: 2; min-height: inherit; width: 100%; align-self: stretch; justify-content: flex-end; gap: 10px; padding: 40px 22px max(46px, env(safe-area-inset-bottom)); color: var(--paper); text-shadow: 0 2px 18px #101a18aa; }
+  .botanical-hero .hero-day-month { font-size: clamp(58px, 16vw, 76px); }
+  .botanical-hero .hero-names { font-size: clamp(25px, 7.2vw, 32px); }
+  .botanical-hero .hero-kicker { font-size: 9px; letter-spacing: 1px; }
+  .botanical-hero .hero-event-time { font-size: 11px; }
+}

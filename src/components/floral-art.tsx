@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "./wedding-image";
 import { useWedding, editable } from "./wedding-content";
 
 export default function FloralArt({ className = "" }: { className?: string }) {

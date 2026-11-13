@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/editor.mjs",
-    "editor": "node scripts/editor.mjs",
-    "build": "next build",
+    "dev": "node scripts/prepare-images.mjs && node scripts/editor.mjs",
+    "editor": "node scripts/prepare-images.mjs && node scripts/editor.mjs",
+    "build": "node scripts/prepare-images.mjs && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prepare:images": "node scripts/prepare-images.mjs"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -25,5 +26,6 @@
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
-  }
+  },
+  "_configNotes": "2026-11-13: Prepare responsive WebP assets before dev/build so deployed visitors use versioned static images rather than waiting for image transformations."
 }

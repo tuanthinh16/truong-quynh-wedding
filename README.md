@@ -92,9 +92,10 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - Bản nháp cập nhật tức thì trong iframe nhưng chưa đổi thiệp thật. Bấm **Lưu thay đổi** hoặc `Ctrl/Cmd+S` để ghi `src/data/wedding.json`. Nếu file đã bị sửa ở phiên khác, editor từ chối ghi đè; bản nháp vẫn còn để đối chiếu trước khi tải lại.
 - Trong **Hình ảnh & album**, chọn **Vị trí chèn ảnh** trước khi thêm: đầu danh sách, trước một ảnh cụ thể hoặc cuối danh sách. Thumbnail và số thứ tự giúp xác định vị trí; ảnh mới đẩy các ảnh sau xuống, xem trước cập nhật ngay và hỗ trợ Hoàn tác/Làm lại.
 - Phần giới thiệu dùng **một ảnh chung bên trái, nội dung cả hai bên phải** trên desktop; mobile xếp ảnh trước, chữ sau. Sửa ảnh tại **Hình ảnh & album → Ảnh chung cô dâu & chú rể**; tên, vai trò và lời giới thiệu tại **Chú rể** / **Cô dâu**; dòng dẫn và lời nhắn chung tại **Giới thiệu**. Thiệp chỉ giữ một nút loa bật/tắt nhạc, không còn navbar.
-- Upload trực tiếp JPG/PNG/WebP/AVIF (tối đa 10 MB và 30 MP). Server kiểm tra nội dung ảnh, tự xoay theo EXIF, giới hạn cạnh 2560px và chuyển sang WebP. File thật nằm trong `public/uploads/editor/`, URL `/uploads/editor/<uuid>.webp`; không dùng dịch vụ lưu ảnh ngoài. File upload được ghi ngay, nhưng chỉ gắn lên thiệp sau khi lưu bản nháp. Thư viện cho chọn lại ảnh trong `public/images` và `public/uploads`.
+- Upload trực tiếp JPG/PNG/WebP/AVIF (tối đa 30 MB và 60 MP). Server kiểm tra nội dung ảnh, tự xoay theo EXIF, giới hạn cạnh 2560px và chuyển sang WebP. File thật nằm trong `public/uploads/editor/`, URL `/uploads/editor/<uuid>.webp`; không dùng dịch vụ lưu ảnh ngoài. File upload được ghi ngay, nhưng chỉ gắn lên thiệp sau khi lưu bản nháp. Thư viện cho chọn lại ảnh trong `public/images` và `public/uploads`.
 - Mỗi lần lưu có bản sao dữ liệu cũ trong `.editor/history/` (không public, không commit). Đăng nhập dùng cookie HttpOnly, giới hạn số lần thử và kiểm tra cùng origin cho API ghi/upload. Không upload SVG hoặc ghi đường dẫn tùy ý.
 - Local `npm run dev` dùng editor filesystem có đăng nhập. Production `npm run build` / `npm start` và Vercel chỉ xem trước nội dung công khai tại `/admin`, khóa toàn bộ upload/lưu và API ghi. Thiệp lấy JSON và ảnh từ bản commit, không cần kho lưu trữ ngoài.
+- Cập nhật 2026-11-13: thư viện admin chỉ tải thumbnail WebP tối đa 256×256, không tải ảnh gốc để dựng danh sách. Thumbnail tạo với số tác vụ giới hạn, cache tại `public/optimized/editor-thumbnails/` và tự đổi URL khi ảnh gốc thay đổi; lần tạo đầu có thể mất vài giây. Danh sách dùng cache chung trong phiên admin, upload bổ sung trực tiếp vào cache, lưới render từng đợt 24 ảnh khi cuộn. Sau khi sửa `scripts/editor/service.mjs`, lưu bản nháp rồi khởi động lại `npm run dev` để server nhận thay đổi.
 
 ## Quà mừng, bản đồ & email hướng dẫn — 2026-11-13
 
@@ -106,6 +107,12 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - Admin → **Tùy chọn → Danh sách hồi đáp**: xem tên, email, số khách, nhà được mời, lời nhắn và trạng thái gửi thư. Dữ liệu cá nhân chỉ nằm trong `.rsvp/`, không nằm trong `public` hoặc JSON nội dung; thư mục này đã được bỏ qua bởi Git. Giới hạn hiển thị 500 hồi đáp gần nhất.
 - API kiểm tra cùng origin, giới hạn payload 8 KB, honeypot, 120 lượt gửi mới / 10 phút / process; mã hồi đáp UUID giúp retry không gửi lại cùng thư. Giới hạn email lưu trên đĩa: một lần thử / email / nhà / ngày UTC, tổng mặc định 100 lần thử mỗi ngày qua `RSVP_DAILY_EMAIL_LIMIT`. SMTP lỗi vẫn tính một lần thử để tránh spam; không tự gửi lại khi retry. Cần điều chỉnh quota và bổ sung chống bot chuyên dụng nếu mở cho lưu lượng lớn.
 - `POST /api/rsvp` hoạt động cả khi chạy `npm run dev`, `npm start` và Vercel. Local lưu `.rsvp/` trên filesystem. Vercel chỉ lưu tạm trong `/tmp/.rsvp/`: **có thể mất khi instance dừng, không đồng bộ giữa các instance, admin local không xem được hồi đáp trên Vercel**. UI báo rõ giới hạn này sau khi gửi. Chống gửi trùng/quota chỉ có hiệu lực trong cùng filesystem còn tồn tại, không đảm bảo toàn deployment. SMTP vẫn gửi hướng dẫn theo đúng nhà khi được cấu hình. Không dùng danh sách tạm làm nguồn chốt khách duy nhất. Không dùng static export.
+
+### Concept bữa tiệc và email màu sắc — 2026-11-13
+
+- Admin → **Nội dung → Concept bữa tiệc**: bật/tắt, sửa tone màu và trang phục bằng văn bản. Cấu hình `partyConcept` đặt cuối JSON, dùng chung cho hai nhà.
+- Dưới cụm lịch và trong email chỉ hiện hai dòng chữ nhỏ: “Concept chính: …” và “Trang phục: …”; không chấm màu, border hay nội dung thêm.
+- Email hướng dẫn dùng HTML đỏ rượu–kem: tên cô dâu/chú rể, thẻ thời gian/địa điểm theo đúng nhà, nút Google Maps và concept đồng bộ từ dữ liệu đã **Lưu**. Luôn kèm bản plain text cho ứng dụng không hiển thị HTML. Tắt concept sẽ ẩn trong cả thiệp và thư; email đã gửi không tự thay đổi.
 
 ### Gmail và tên người gửi — 2026-11-13
 
@@ -120,7 +127,7 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 ## Upload local, deploy từ Git — 2026-11-13
 
 1. Giữ preset **Next.js**, Build Command `npm run build`, không dùng static export hoặc chạy `npm run dev` trên production.
-2. Chạy `npm run dev`, đăng nhập admin local, upload ảnh rồi bấm **Lưu thay đổi**. Giới hạn 10 MB / ảnh, 30 MP; ảnh nằm trong `public/uploads/editor/`, nội dung trong `src/data/wedding.json`.
+2. Chạy `npm run dev`, đăng nhập admin local, upload ảnh rồi bấm **Lưu thay đổi**. Giới hạn 30 MB / ảnh, 60 MP; ảnh nằm trong `public/uploads/editor/`, nội dung trong `src/data/wedding.json`.
 3. Commit/push **cả JSON lẫn ảnh mới**. Vercel tự build từ commit; deployment mới luôn thay thế nội dung/ảnh theo Git. Không commit `.env.local`, `.editor/` hoặc `.rsvp/`.
 4. Bản online `/admin` chỉ xem trước, không cần đăng nhập vì chỉ chứa dữ liệu thiệp đã công khai; input/upload/lưu đều khóa. `/__editor` và `/api/editor` chặn mọi thao tác ghi ở server. Không có mật khẩu hay hồi đáp khách trong dữ liệu public này.
 5. Chỉ cần các biến `SMTP_*` và `RSVP_DAILY_EMAIL_LIMIT` trên Vercel nếu dùng email. Biến `ADMIN_*` chỉ dùng local. Không cần token kho ảnh hoặc SDK lưu trữ ngoài. Biến môi trường cũ nếu có không còn được code sử dụng.
@@ -128,7 +135,7 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 
 ### Nội dung và ảnh responsive — 2026-11-13
 
-- **Hình ảnh & album**: `hero` và `roses` là ảnh ngang của hero/mở màn; `heroPortrait` và `entrancePortrait` là ảnh dọc dùng dưới 700px. Thẻ `picture` để trình duyệt chọn đúng ảnh theo màn hình, không tải hai ảnh chỉ để ẩn bằng CSS.
+- **Hình ảnh & album**: cập nhật 2026-11-13, mỗi vị trí chỉ có một nguồn ảnh trên mọi màn hình: `photos.hero` cho hero và `photos.roses` cho mở đầu. Trong admin, sửa **Ảnh hero · mọi màn hình** hoặc **Ảnh mở đầu · mọi màn hình** một lần để áp dụng cả mobile/desktop. Không còn hai trường ảnh mobile riêng; trình duyệt vẫn chọn kích thước WebP phù hợp từ cùng ảnh gốc. Collage khoảnh khắc dùng hai cột lệch nhịp, nghiêng nhẹ, không xếp toàn bộ ảnh lên cùng một ô.
 - **Chuyện chúng mình**: sửa tiêu đề, dòng tiếng Anh và hai đoạn văn; section nằm ngay sau thông tin ngày/giờ, hiện trên cả hai thiệp.
 - **Hồi đáp**: nội dung Save a Seat chia thành các đoạn, nút hồi đáp nằm trước phần quà mừng. **Lời nhắn quà mừng** sửa lời dẫn và chữ Gửi quà; trái tim rung nhẹ, mặc định che QR, nhấn hoặc dùng Enter/Space để mở/đóng. Không hiện hướng dẫn thao tác. QR 180px, mỗi nhà một mã riêng; chỉ hiển thị ảnh mã, không kèm thông tin tài khoản. Tắt chuyển động khi khách bật giảm chuyển động.
 - **Lời mời**: lời gửi những người thân thương và nội dung hành trình 8 năm nằm phía trên lịch/ngày cưới; sửa `letterTitle` / `letterBody`.
@@ -136,3 +143,34 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 - **Ngày cưới → Ảnh cưới cạnh bản đồ**: mỗi nhà chọn một ảnh dọc riêng. Bố cục cuối thiệp giữ ảnh bên trái, tiêu đề Address / tư gia / địa chỉ / map gọn bên phải trên cả mobile và desktop. Giờ và ngày âm lịch nằm phía trên; dùng cùng dữ liệu ngày cưới và cùng component trong admin preview. Sửa tiêu đề tại **Lời mời → Tiêu đề khu vực địa chỉ**.
 - **Đếm ngược ngày cưới**: bốn ô ngày/giờ/phút/giây bên dưới ảnh và map, chạy theo `events.<side>.dateTime` của từng nhà. Đổi ngày giờ trong admin sẽ cập nhật bộ đếm; qua giờ tổ chức thì dừng ở 00, không hiển thị số âm; bỏ ngày giờ thì ẩn bộ đếm. Các nhãn sửa trong nhóm **Đếm ngược ngày cưới**.
 - **THE BEGINNING OF ALWAYS**: ảnh xếp chồng kiểu scrapbook, nhấn vào phần ảnh lộ ra hoặc dùng bàn phím để xem; không có icon góc ảnh. Hai ảnh cuối **OUR WEDDING GALLERY** đổi sang vòm và chữ nhật bo góc bất đối xứng.
+
+### Tối ưu ảnh và map nhúng — 2026-11-13
+
+- Giới hạn upload dùng chung `src/lib/image-settings.mjs`: 30 MB dung lượng file, 60 MP chống ảnh quá lớn gây tràn bộ nhớ; cập nhật ngày 2026-11-13 để nhận bộ ảnh máy ảnh 32,74 MP hiện có. Upload chỉ thực hiện local; bản online vẫn chỉ xem trước.
+- Cập nhật 2026-11-13: custom editor server không hot-reload theo Next.js. Sau khi sửa backend hoặc giới hạn upload, cần dừng terminal dev và chạy lại `npm run dev`. Admin kiểm tra giới hạn thực tế trước khi gửi file, chặn server cũ thay vì hiển thị 30 MB nhưng bị backend từ chối. Lưu bản nháp trước khi tải lại admin. Upload dùng raw binary, không base64; thông báo lỗi tách dung lượng MB và độ phân giải MP, upload thành công hiển thị dung lượng/kích thước ảnh sau nén. Ảnh nguồn 30 MB không được gửi nguyên dung lượng đó cho khách xem: server lưu WebP tối đa 2560px, build tiếp tục tạo responsive variants có hash/cache.
+- `npm run dev`, `npm run editor` và `npm run build` tự tạo ảnh WebP nhiều kích thước vào `public/optimized/` và manifest `.generated/images.json`. Có thể chạy riêng `npm run prepare:images`. Không commit hai thư mục sinh tự động; Vercel tạo lại lúc build. Build Command trên Vercel cần là `npm run build`, không ghi đè thành `next build` trực tiếp. Trước khi chạy `tsc` trực tiếp trên checkout mới, chạy `npm run prepare:images`.
+- Hero/mở màn dùng một nguồn ảnh dọc cho mọi màn hình, ưu tiên tải ngay; desktop đặt ảnh bên phải và giữ trọn khung, nội dung bên trái. Album dùng khung dọc 2:3, collage xếp hai cột lệch nhịp để từng ảnh đều nhìn rõ; ảnh dưới trang vẫn lazy-load. Gallery và hoa dùng cùng ảnh dựng sẵn, không chờ nén ảnh theo từng request đầu tiên. Ảnh vừa upload trong bản nháp chưa có variant vẫn dùng Next Image Optimization để preview; build tiếp theo sẽ tạo variant.
+- Tên variant chứa hash nội dung ảnh và cấu hình encoder, cache browser 1 năm với `immutable`; Vercel tự cache file tĩnh trên CDN. Thay ảnh rồi build sẽ tạo URL mới, không cần xóa cache. Không đặt immutable cho file `/images` có tên cố định. QR giữ ảnh gốc lossless, không nén mất chi tiết.
+- Vercel có CDN cache static assets; các variant là file tĩnh, không dùng lượt Image Optimization động. Cache thực tế được nạp khi có request, không phải khẳng định mọi điểm CDN đã được làm nóng sẵn.
+- Admin **Ngày cưới nhà trai / nhà gái → Link Google Maps nhúng**: dán HTML iframe từ Google Maps → Chia sẻ → Nhúng bản đồ, hoặc chỉ URL `src`. Link nhúng tách biệt với link chỉ đường và địa chỉ, không tự tìm lại khi sửa địa chỉ; xóa link sẽ ẩn map. Chỉ nhận HTTPS Google Maps nhúng, không nhận link rút gọn hay iframe website khác.
+- Không tự commit/push; chỉ deploy khi người dùng yêu cầu.
+
+### Link mời cá nhân hóa và hero ảnh dọc — 2026-11-13
+
+- Hero và màn mở đầu dùng cùng nguồn ảnh trên mọi kích thước: desktop/tablet giữ ảnh dọc tự nhiên bên phải, bỏ viền/vòm; mobile ảnh phủ kín section với gradient nhẹ ở chân ảnh. Màn mở đầu có lời kính mời, tên khách (mặc định **Bạn**) và ngày/tháng/năm màu đỏ rượu vang ở 1/3 trên; tên dâu rể và hai lựa chọn gia đình màu sáng ở chân ảnh. Ngày mở đầu sửa tại **Nội dung → Màn mở đầu → Ngày diễn ra**, độc lập ngày từng nhà. Hero hai nhà chỉ giữ ngày lớn, tên, tên buổi lễ/gia đình và giờ ở một cụm; không có địa chỉ, map hoặc nút xem lời mời. Tên người được mời hiển thị đầy đủ trong phần lời mời bên dưới; bản đồ vẫn nằm cuối trang. Dùng chung trang chính và admin preview.
+- Trong admin chọn **Tạo link mời**, nhập **domain đã deploy** (thay localhost nếu đang chỉnh local), chọn màn mở đầu / nhà trai / nhà gái, nhập mỗi tên một dòng và bấm **Tạo link mời**. Có thể sao chép từng link, sao chép tất cả hoặc tải `.txt`; danh sách không lưu lên server.
+- Link dạng `?name=...` hiển thị tên ở lời kính mời và lời cảm ơn cuối thiệp. Chọn nhà trai/gái từ màn mở đầu hoặc sao chép link chia sẻ vẫn giữ tên. Link không có tên dùng lời mời chung.
+- Sửa nhãn kính mời, tên mặc định và lời cảm ơn trong **Nội dung → Lời mời cá nhân hóa**; dùng `{name}` trong lời cảm ơn để chèn tên khách. Tên tối đa 120 ký tự, khoảng trắng được chuẩn hóa; dòng trống và tên trùng được bỏ qua khi tạo link.
+
+### Lưu admin không reload — 2026-11-13
+
+- Có thể nhập `A+B`, `A + B` hoặc `A + người yêu` trên cùng một dòng để tạo một lời mời chung. Link được tạo tự mã hóa dấu cộng thành `%2B`; không thay `%2B` bằng `+` thủ công vì dấu `+` thô trong query được trình duyệt hiểu là khoảng trắng.
+- Nội dung JSON chỉ được đọc phía server, không import vào bundle chạy của trình duyệt. Local đọc dữ liệu mới ở mỗi request; production dùng cache để giữ khả năng dựng trang tĩnh và tối ưu tải trang. File nội dung được đưa vào output tracing của Vercel.
+- Bấm **Lưu thay đổi** cập nhật dữ liệu, baseline và revision trong React state, giữ nguyên khung xem trước, nhóm nội dung đang sửa và lịch sử hoàn tác; không reload trang hoặc iframe do ghi JSON. **Tải lại dữ liệu** cũng lấy JSON qua API rồi cập nhật state, chỉ bỏ bản nháp sau khi xác nhận.
+
+### Tải ảnh theo cuộn và mở màn — 2026-11-13
+
+- Ảnh nội dung chỉ mount khi cách khung nhìn tối đa 120px; ra khỏi vùng này sẽ unmount ở cả hai chiều cuộn. Khung ảnh giữ nguyên kích thước để không nhảy trang. Ảnh đầu trang vẫn tải ngay, ảnh đã tải có thể được trình duyệt giữ trong cache.
+- Ảnh xuất hiện luân phiên từ trái/phải khi vào màn hình; cuộn ra rồi quay lại sẽ chạy lại. Màn chọn gia đình và hero mở từ trên xuống. Tôn trọng `prefers-reduced-motion`.
+- Reload thiệp công khai đưa về đầu trang, không khôi phục vị trí cuộn cũ; không áp dụng cho admin.
+- 2026-11-13: Reset cuộn chỉ chạy lúc khởi tạo trang, không dùng `pageshow` vì sự kiện này có thể đến muộn khi ảnh tải chậm và kéo khách đang xem về đầu. Observer lấy trạng thái giao cắt cuối mỗi batch để ảnh không kẹt trạng thái cũ khi cuộn nhanh; ảnh nội dung giữ native lazy loading, hero vẫn tải ngay.
