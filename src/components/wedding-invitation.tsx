@@ -40,7 +40,6 @@ function PhotoButton({ photo, index, className, onOpen, sizes = "(min-width: 120
   return (
     <button className={`photo-button photo-reveal ${className}`} data-edit={JSON.stringify(photoPath)} onClick={() => onOpen(index)} aria-label={`${copy.gallery.view} ${photo.alt}`}>
       <ScrollPhoto src={photo.src} alt={photo.alt} sizes={sizes} position={photo.position} />
-      <span className="photo-open" aria-hidden="true"><Icon name="arrow" size={18} /></span>
     </button>
   );
 }
@@ -88,6 +87,7 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
         <section id="loi-moi" className="wedding-details section-space">
           <FloralArt className="details-floral" />
           <div className="family-names reveal"><div><span className="eyebrow">{wedding.groom.role}</span><h2>{wedding.groom.name}</h2></div><Icon name="rings" size={37} /><div><span className="eyebrow">{wedding.bride.role}</span><h2>{wedding.bride.name}</h2></div></div>
+          <div className="invitation-letter content-width reveal"><h2 {...editable("content", "invitation", "letterTitle")}>{copy.invitation.letterTitle}</h2><p {...editable("content", "invitation", "letterBody")}>{copy.invitation.letterBody}</p></div>
           <div className={`date-invitation-grid content-width reveal${date ? "" : " without-calendar"}`}>
             {event.dateTime && <WeddingCalendar date={event.dateTime.slice(0, 10)} />}
             <div className="dinner-invitation">
@@ -103,23 +103,35 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
           <p className="invitation-closing reveal">{copy.invitation.closing}</p>
         </section>
 
-        <section id="chung-minh" className="partner-section section-space">
-          <div className="section-heading reveal"><span className="eyebrow" {...editable("content", "partner", "eyebrow")}>{copy.partner.eyebrow}</span><p {...editable("content", "partner", "intro")}>{copy.partner.intro}</p></div>
-          <div className="couple-grid content-width">
-            {(["groom", "bride"] as const).map(personKey => {
-              const person = wedding[personKey];
-              return <article className="couple-card" key={personKey}>
-                <div className="portrait-composition torn-portrait"><div className="partner-photo photo-reveal" {...editable(personKey, "portrait")}><ScrollPhoto src={person.portrait} alt={`${person.role} ${person.name}`} sizes="(min-width: 900px) 400px, (min-width: 600px) 42vw, 85vw" /></div></div>
-                <div className="partner-copy reveal"><span className="partner-role" {...editable(personKey, "role")}>{person.role}</span><h2 {...editable(personKey, "name")}>{person.name}</h2><div className="short-rule" /><p {...editable(personKey, "introduction")}>{person.introduction}</p></div>
-              </article>;
-            })}
+        <section id="chuyen-chung-minh" className="love-story-section section-space" aria-labelledby="love-story-title">
+          <div className="love-story-copy content-width reveal">
+            <span className="eyebrow" {...editable("content", "loveStory", "subtitle")}>{copy.loveStory.subtitle}</span>
+            <h2 id="love-story-title" {...editable("content", "loveStory", "title")}>{copy.loveStory.title}</h2>
+            <Ornament />
+            <p {...editable("content", "loveStory", "description")}>{copy.loveStory.description}</p>
           </div>
-          <blockquote className="couple-quote content-width reveal" {...editable("content", "partner", "quote")}>{copy.partner.quote}</blockquote>
+        </section>
+
+        <section id="chung-minh" className="partner-section section-space">
+          <div className="couple-profile content-width">
+            <div className="portrait-composition torn-portrait"><div className="partner-photo photo-reveal" {...editable("photos", "couplePortrait")}><ScrollPhoto src={wedding.photos.couplePortrait} alt={wedding.photos.coupleAlt} sizes="(min-width: 900px) 480px, 85vw" /></div></div>
+            <div className="partner-copy couple-profile-copy reveal">
+              <span className="eyebrow" {...editable("content", "partner", "eyebrow")}>{copy.partner.eyebrow}</span>
+              <p className="partner-intro" {...editable("content", "partner", "intro")}>{copy.partner.intro}</p>
+              <h2><span {...editable("groom", "name")}>{wedding.groom.name}</span><i aria-hidden="true"> & </i><span {...editable("bride", "name")}>{wedding.bride.name}</span></h2>
+              <div className="short-rule" />
+              {(["groom", "bride"] as const).map(personKey => <div className="couple-person" key={personKey}><span className="partner-role" {...editable(personKey, "role")}>{wedding[personKey].role}</span><p {...editable(personKey, "introduction")}>{wedding[personKey].introduction}</p></div>)}
+              <blockquote {...editable("content", "partner", "quote")}>{copy.partner.quote}</blockquote>
+            </div>
+          </div>
         </section>
 
         {event.schedule.length > 0 && <section id="lich-trinh" className="schedule-section section-space">
-          <div className="section-heading reveal">{date && <span className="eyebrow">{date.full}</span>}<h2>{copy.schedule.title} <em>{copy.schedule.accent}</em></h2><p>{event.label}</p></div>
-          <ol className="wedding-timeline content-width">{event.schedule.map((item, index) => <li key={`${item.time}-${index}`} className="reveal"><span className="timeline-number">{String(index + 1).padStart(2, "0")}</span><div className="timeline-icon" {...editable("events", side, "schedule", index, "icon")}><Icon name={item.icon as IconName} size={25} /></div><time {...editable("events", side, "schedule", index, "time")}>{item.time}</time><h3 {...editable("events", side, "schedule", index, "title")}>{item.title}</h3><p {...editable("events", side, "schedule", index, "detail")}>{item.detail}</p></li>)}</ol>
+          <div className="section-heading reveal"><span className="eyebrow" {...editable("events", side, "sideLabel")}>{event.sideLabel}</span><h2>{copy.schedule.title} <em>{copy.schedule.accent}</em></h2><p>{event.label}</p></div>
+          <ol className="wedding-timeline content-width">{event.schedule.map((item, index) => {
+            const milestoneDate = item.date ? formatWeddingDate(item.date) : null;
+            return <li key={`${item.date}-${item.time}-${index}`} className="reveal"><span className="timeline-number">{String(index + 1).padStart(2, "0")}</span><div className="timeline-icon" {...editable("events", side, "schedule", index, "icon")}><Icon name={item.icon as IconName} size={25} /></div><time dateTime={item.date ? `${item.date}T${item.time}:00+07:00` : undefined} {...editable("events", side, "schedule", index, "time")}>{item.time}</time>{milestoneDate && <span className="timeline-day" {...editable("events", side, "schedule", index, "date")}>{milestoneDate.day}/{milestoneDate.month}/{milestoneDate.year}</span>}<h3 {...editable("events", side, "schedule", index, "title")}>{item.title}</h3><p {...editable("events", side, "schedule", index, "detail")}>{item.detail}</p></li>;
+          })}</ol>
         </section>}
 
         <section id="khoanh-khac" className="photo-story section-space">
@@ -140,6 +152,7 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
         <section id="hoi-dap" className="reply-section section-space">
           <FloralArt className="reply-floral" /><div className="reply-content reveal"><span className="eyebrow">{copy.reply.eyebrow}</span><h2>{copy.reply.title}<br /><em>{copy.reply.accent}</em></h2><p>{copy.reply.description}</p><WeddingGift side={side} /><div className="reply-actions"><button className="button button-red" onClick={() => setRsvpOpen(true)}>{copy.reply.button} <Icon name="arrow" size={18} /></button></div></div>
           {event.address && <div className="reply-location content-width">
+            <div className="location-portrait photo-reveal" {...editable("events", side, "locationImage")}><ScrollPhoto src={event.locationImage} alt={copy.invitation.locationImageAlt} sizes="(min-width: 900px) 440px, (min-width: 600px) 42vw, 85vw" /></div>
             <div className="location-map reveal" {...editable("events", side, "address")}>
               <div className="location-map-heading"><span className="eyebrow" {...editable("events", side, "sideLabel")}>{event.sideLabel}</span><p {...editable("events", side, "address")}>{event.address}</p></div>
               <iframe key={event.address} title={`${copy.invitation.map} · ${event.sideLabel} · ${event.address}`} src={`https://www.google.com/maps?q=${encodeURIComponent(event.address)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />

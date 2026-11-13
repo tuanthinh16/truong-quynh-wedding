@@ -66,6 +66,10 @@ export function validateContent(input, baseline) {
         if (calendar.toISOString().slice(0, 10) !== value.slice(0, 10)) invalid("ngày không tồn tại trong lịch.");
       }
       if (kind === "icon" && !icons.has(value)) invalid("biểu tượng không được hỗ trợ.");
+      if (kind === "day" && value) {
+        const parsed = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00Z`) : null;
+        if (!parsed || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) invalid("ngày cần đúng định dạng YYYY-MM-DD và tồn tại trong lịch.");
+      }
       if (key === "time" && !/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) invalid("giờ cần định dạng HH:mm.");
       if (["name", "src", "storageKey"].includes(key) && !value.trim()) invalid("không được bỏ trống.");
       if (trail.join(".") === "experience.audio.src" && !/^\/(?!\/)(?!.*(?:\.\.|[\\?#])).+\.(?:mp3|m4a|ogg|wav)$/i.test(value)) invalid("nhạc cần đường dẫn file âm thanh trong public.");

@@ -7,7 +7,7 @@ export interface EditorField {
   path: EditorPath;
   key: string;
   label: string;
-  kind: "text" | "image" | "number" | "toggle" | "url" | "date" | "icon";
+  kind: "text" | "image" | "number" | "toggle" | "url" | "date" | "day" | "icon";
   nullable: boolean;
   value: FieldValue;
 }

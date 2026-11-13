@@ -10,7 +10,8 @@ export type WeddingEvent = {
   dateTime: string | null;
   lunarDate: string;
   mapUrl: string | null;
-  schedule: { time: string; title: string; detail: string; icon: string }[];
+  schedule: { time: string; title: string; detail: string; icon: string; date: string }[];
+  locationImage: string;
 };
 
 // Added 2026-11-12: JSON is the only editable content source; each family owns its event details.

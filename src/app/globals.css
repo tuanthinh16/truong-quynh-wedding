@@ -186,16 +186,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .dinner-invitation .button { margin-top: 20px; }
 .invitation-closing { text-align: center; font-family: var(--font-display), serif; font-style: italic; font-size: 14px; color: var(--muted); margin-top: 44px; }
 .partner-section { background: var(--cream); position: relative; }
-.couple-grid { display: grid; gap: 48px; max-width: 960px; }
-.couple-card { min-width: 0; }
-.couple-card .portrait-composition { width: min(100%, 380px); margin: 0 auto 24px; }
-.couple-card .partner-copy { text-align: center; }
-.couple-card .partner-copy > p { margin-inline: auto; }
-.couple-card .short-rule { margin-inline: auto; }
-.couple-quote { max-width: 640px; margin: 40px auto 0; text-align: center; font-family: var(--font-display), serif; font-style: italic; line-height: 1.8; color: var(--muted); }
-@media (min-width: 600px) {
-  .couple-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(28px, 6vw, 80px); }
-}
+.couple-profile { display: grid; gap: 40px; align-items: center; max-width: 1080px; }
 .partner-photo { width: 85%; max-width: 340px; aspect-ratio: 4/5; position: relative; margin-inline: auto; border-radius: 46% 46% 0 0; }
 .partner-photo > img { object-fit: cover; border-radius: inherit; filter: saturate(.65); }
 .partner-photo-border { position: absolute; inset: -10px 10px 10px -10px; border: 1px solid #ba9d87; border-radius: inherit; pointer-events: none; }
@@ -321,10 +312,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .editorial-name { position: relative; z-index: 2; display: block; font-family: var(--font-script), cursive; font-size: clamp(43px, 10vw, 80px); color: var(--red); line-height: 1.4; }
 .editorial-name-first { margin-bottom: 16px; padding-left: 2%; }
 .editorial-name-second { text-align: right; margin-top: 16px; }
-.editorial-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; align-items: start; }
-.editorial-frame { margin: 0; min-width: 0; padding: 7px; background: var(--paper); box-shadow: 0 12px 30px #53282d12; }
-.editorial-frame .editorial-photo { aspect-ratio: 3/4; }
-.editorial-frame:last-child:nth-child(odd) { grid-column: 1/-1; width: calc((100% - 14px) / 2); justify-self: center; }
+.editorial-photos { display: grid; grid-template-columns: minmax(0, 1fr); aspect-ratio: 1/.96; padding: 22px 8px; isolation: isolate; }
+.editorial-frame { grid-area: 1/1; margin: 0; min-width: 0; padding: 7px; background: var(--paper); box-shadow: 0 16px 35px #53282d22; align-self: start; justify-self: start; }
+.editorial-frame .editorial-photo { aspect-ratio: 4/5; }
+.editorial-frame:nth-child(4n+1) { width: 62%; margin-top: 4%; transform: rotate(-5deg); z-index: 1; }
+.editorial-frame:nth-child(4n+2) { width: 40%; margin-top: 9%; justify-self: end; transform: rotate(7deg); z-index: 2; }
+.editorial-frame:nth-child(4n+3) { width: 38%; margin-left: 6%; margin-bottom: 1%; align-self: end; transform: rotate(-7deg); z-index: 3; }
+.editorial-frame:nth-child(4n) { width: 43%; margin-right: 2%; margin-bottom: 3%; align-self: end; justify-self: end; transform: rotate(5deg); z-index: 4; }
+.editorial-frame:only-child { width: 76%; margin: 0; place-self: center; }
+.editorial-frame:hover, .editorial-frame:focus-within { z-index: 6; }
 .editorial-floral { width: 42%; position: absolute; top: 40%; right: -17%; z-index: -1; opacity: .24; transform: rotate(-25deg); }
 .album-mosaic { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 14px; max-width: 680px; align-items: start; }
 .mosaic-frame { margin: 0; min-width: 0; }
@@ -338,9 +334,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .reply-content > p { max-width: 440px; margin-inline: auto; }
 
 @media (min-width: 700px) {
-  .editorial-photos { gap: 26px; }
   .editorial-frame { padding: 12px; }
-  .editorial-frame:last-child:nth-child(odd) { width: calc((100% - 26px) / 2); }
   .album-mosaic { gap: 32px 24px; }
   .portrait-composition { margin-bottom: 0; }
 }
@@ -351,8 +345,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .editorial-story { max-width: 1280px; padding-top: 35px; }
   .editorial-name { font-size: clamp(65px, 6.5vw, 105px); }
   .editorial-name-first { padding-left: 2%; }
-  .editorial-photos { gap: 30px; max-width: 900px; margin-inline: auto; }
-  .editorial-frame:last-child:nth-child(odd) { width: calc((100% - 30px) / 2); }
+  .editorial-photos { max-width: 1000px; margin-inline: auto; }
   .editorial-floral { width: 23%; top: 0; right: 0; }
   .album-mosaic { max-width: 1280px; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 34px; }
   .mosaic-frame:first-child { grid-column: 1/8; grid-row: 1/3; padding-top: 0; }
@@ -619,7 +612,7 @@ body { font-variant-numeric: lining-nums tabular-nums; }
 .gift-intro, .gift-safety, .gift-empty { font-size: 13px; line-height: 1.9; }
 .gift-intro { margin: 16px auto; max-width: 420px; }
 .gift-side { display: inline-block; border: 1px solid var(--line); border-radius: 30px; padding: 4px 18px; color: var(--red); font-size: 12px; margin-bottom: 18px; }
-.gift-qr { width: min(100%, 300px); margin: 32px auto; padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.gift-qr { width: min(100%, 180px); margin: 20px auto 0; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
 .gift-qr img { display: block; width: 100%; height: auto; max-height: 360px; object-fit: contain; }
 .gift-empty { padding: 22px; border: 1px dashed #c6a797; border-radius: 12px; background: #faf2e9; }
 .gift-details { margin: 20px 0; text-align: left; }
@@ -658,4 +651,86 @@ body { font-variant-numeric: lining-nums tabular-nums; }
 }
 @media (max-width: 699px) and (max-height: 500px) {
   .botanical-hero { height: auto; min-height: 100svh; grid-template-rows: minmax(380px, 1fr) auto auto; }
+}
+
+/* Updated 2026-11-13: brighter couple photography, legible invitation text and editable story/gift copy. */
+.welcome-screen { background: var(--paper); color: var(--red-dark); }
+.welcome-background { object-position: center 35%; filter: brightness(1.12) saturate(.82); }
+.welcome-screen::before { background: linear-gradient(180deg, #fffaf3c9, #fffaf3b3 52%, #fffaf3d9); }
+.welcome-content { position: relative; text-shadow: 0 1px 12px #fffaf3; }
+.welcome-eyebrow, .welcome-content h2 { color: var(--red-dark); font-weight: 600; }
+.welcome-content .script-names { color: var(--red-dark); }
+.welcome-content .names-amp { color: #8d5747; }
+.welcome-divider { background: #8c4a4652; }
+.welcome-choices > a { background: #fffaf3e8; border-color: #b47e6b80; color: var(--red-dark); box-shadow: 0 4px 22px #643b2a0a; font-weight: 600; }
+.welcome-choices > a > svg, .welcome-ornament { color: var(--red); }
+.welcome-choices > a:hover { background: #fffaf3; border-color: var(--red); }
+.welcome-choices > a:focus-visible { outline-color: var(--red-dark); }
+.botanical-hero { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+.hero-landscape { filter: brightness(1.12) saturate(.85); opacity: 1; object-position: center 35%; }
+.hero-paper-wash { background: linear-gradient(180deg, #fffaf3e8, #fffaf3c9 45%, #fffaf385 75%, #fffaf35c); }
+.hero-lettering { color: #6b2433; text-shadow: 0 1px 12px #fffaf3; }
+.hero-kicker { font-weight: 600; }
+.hero-invitation, .hero-lunar, .hero-venue { color: #603b36; }
+.hero-date { font-weight: 600; }
+.love-story-section { background: radial-gradient(ellipse at 50% 45%, #f4e4dc80, transparent 68%), var(--paper); }
+.love-story-copy { max-width: 780px; text-align: center; }
+.love-story-copy > h2 { font-family: var(--font-names), cursive; color: var(--red); font-weight: 400; font-size: clamp(44px, 7vw, 76px); line-height: 1.5; margin-top: 14px; }
+.love-story-copy > .eyebrow { text-transform: none; letter-spacing: 2px; }
+.love-story-copy > p { white-space: pre-line; font-family: var(--font-display), serif; font-size: clamp(18px, 2vw, 22px); line-height: 1.9; color: #644a42; text-wrap: pretty; }
+.reply-content > p { white-space: pre-line; max-width: 600px; line-height: 1.9; text-wrap: pretty; }
+.gift-block { margin-top: 36px; }
+.gift-block .gift-intro { max-width: 460px; color: var(--muted); text-wrap: pretty; }
+@media (min-width: 700px) {
+  .welcome-screen { justify-items: start; padding-inline: max(8%, calc((100vw - 1280px) / 2)); }
+  .welcome-screen::before { background: linear-gradient(90deg, #fffaf3f2, #fffaf3de 35%, #fffaf352 68%, #fffaf31a); }
+  .welcome-background { object-position: 65% center; }
+  .welcome-content { width: min(46vw, 440px); }
+  .hero-landscape { width: 65% !important; left: 35% !important; object-position: 50% center; }
+  .hero-paper-wash { background: linear-gradient(90deg, #fffaf3 12%, #fffaf3f5 38%, #fffaf34d 65%, #fffaf308); }
+  .hero-lettering { inset: 11% 49% auto 5%; }
+  .hero-names { flex-direction: column; gap: 0; font-size: clamp(42px, 7.5cqh, 68px); }
+  .hero-names i { font-size: clamp(32px, 5cqh, 48px); margin: 2px 0; }
+}
+@media (min-width: 900px) {
+  .hero-floral { width: clamp(180px, 18vw, 260px); bottom: -55px; }
+  .hero-floral-left { left: -100px; }
+  .hero-floral-right { right: -100px; }
+}
+@media (max-height: 600px) and (min-width: 700px) {
+  .hero-lettering { inset: 10% 49% auto 5%; gap: 3px; }
+  .hero-names { font-size: 32px; line-height: 1.1; }
+  .hero-names i { font-size: 22px; }
+}
+
+/* Updated 2026-11-13: invitation letter, multi-day timelines, single couple portrait and photo/map columns. */
+.invitation-letter { max-width: 780px; margin-block: 38px 56px; text-align: center; }
+.invitation-letter h2 { font-size: clamp(26px, 4vw, 38px); color: var(--red); font-style: italic; }
+.invitation-letter p { margin-top: 20px; font-size: 15px; line-height: 2; color: var(--muted); text-wrap: pretty; }
+.couple-profile > .portrait-composition { width: min(100%, 440px); margin: 0 auto; }
+.couple-profile-copy { text-align: left; }
+.couple-profile-copy > h2 { font-size: clamp(40px, 5vw, 60px); line-height: 1.4; }
+.couple-profile-copy > h2 > span { display: block; }
+.couple-profile-copy > h2 > i { display: block; font-family: var(--font-display), serif; font-size: 26px; color: var(--gold); font-style: italic; line-height: 1.2; }
+.couple-profile-copy .short-rule { margin-left: 0; }
+.couple-profile-copy .partner-intro { font-size: 14px; color: var(--muted); margin-top: 12px; }
+.couple-person { margin-top: 20px; }
+.couple-person p { font-size: 14px; line-height: 1.9; color: var(--muted); margin-top: 6px; text-wrap: pretty; }
+.wedding-timeline .timeline-icon { grid-row: span 4; }
+.timeline-day { display: block; font-family: var(--font-body), sans-serif; font-size: 12px; color: var(--muted); margin-top: 5px; }
+.reply-location { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; align-items: stretch; max-width: 400px; }
+.location-portrait { position: relative; min-width: 0; aspect-ratio: 3/4; overflow: hidden; border-radius: 20px; }
+.location-portrait > img { object-fit: cover; }
+.reply-location .location-map { width: 100%; display: flex; flex-direction: column; }
+.reply-location .location-map iframe { flex: 1; min-height: 260px; }
+.mosaic-frame:nth-last-child(2):not(:first-child) .mosaic-photo { aspect-ratio: 4/5; border-radius: 46% 46% 10px 10px; }
+.mosaic-frame:last-child:not(:first-child) .mosaic-photo { aspect-ratio: 4/5; border-radius: 12px 12px 70px 12px; }
+@media (min-width: 600px) {
+  .reply-location { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; max-width: 960px; }
+  .reply-location .location-map iframe { min-height: 200px; }
+}
+@media (min-width: 900px) {
+  .couple-profile { grid-template-columns: .95fr 1.05fr; gap: clamp(40px, 6vw, 90px); }
+  .wedding-timeline { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .mosaic-frame:last-child:not(:first-child) .mosaic-photo { aspect-ratio: 4/3; border-bottom-right-radius: 110px; }
 }

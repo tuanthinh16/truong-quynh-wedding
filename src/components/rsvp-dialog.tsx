@@ -15,6 +15,7 @@ export default function RsvpDialog({ side, onClose }: { side: WeddingSide; onClo
   const [attending, setAttending] = useState("yes");
   const [busy, setBusy] = useState(false);
   const [emailStatus, setEmailStatus] = useState("");
+  const [temporaryStorage, setTemporaryStorage] = useState(false);
   const pending = useRef<{ id: string; payload: string } | null>(null);
   const submitting = useRef(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -36,7 +37,7 @@ export default function RsvpDialog({ side, onClose }: { side: WeddingSide; onClo
       const response = await fetch("/api/rsvp", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, submissionId: pending.current.id }), signal: controller.signal });
       const result = await response.json();
       if (!response.ok || !result.received) throw new Error("submit");
-      setEmailStatus(result.emailStatus); setSaved(true);
+      setEmailStatus(result.emailStatus); setTemporaryStorage(result.storage === "temporary"); setSaved(true);
     } catch { setError(copy.submitError); }
     finally { window.clearTimeout(timeout); submitting.current = false; setBusy(false); }
   }
@@ -52,6 +53,7 @@ export default function RsvpDialog({ side, onClose }: { side: WeddingSide; onClo
           {emailStatus === "sent" && <p className="rsvp-mail-status" role="status">{copy.emailSent}</p>}
           {["failed", "unconfigured", "disabled", "rate-limited"].includes(emailStatus) && <p className="rsvp-mail-status" role="status">{copy.emailUnavailable}</p>}
           {emailStatus === "pending" && <p className="rsvp-mail-status" role="status">{copy.emailPending}</p>}
+          {temporaryStorage && <p className="rsvp-mail-status" role="status">{copy.temporaryNotice}</p>}
           <button className="button button-red" onClick={onClose}>{copy.back} <Icon name="heart" size={17} /></button>
         </div>
       ) : (

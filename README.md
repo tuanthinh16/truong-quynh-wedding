@@ -48,7 +48,7 @@ Thông tin ngày cưới:
 - Form hồi đáp gửi `POST /api/rsvp`, kiểm tra dữ liệu và lưu trên server trong `.rsvp/responses/`, tách riêng nhà trai / nhà gái. Không còn chỉ lưu `localStorage`. Email là tùy chọn; chỉ khách chọn tham dự và nhập email mới được gửi hướng dẫn nếu đã bật và cấu hình SMTP. Preview admin không lưu hồi đáp hoặc gửi email thật.
 - Next Image tối ưu ảnh, preload bìa, lazy-load ảnh ngoài màn hình; dialog album và form tải qua dynamic import khi mở.
 - Font tiếng Việt lưu nội bộ; không gọi Google Fonts khi build hoặc xem thiệp.
-- Hỗ trợ giảm chuyển động, bàn phím, thanh điều hướng mobile và safe area. Không có header; nội dung hero vừa một màn hình trên mobile và desktop. Nội dung vẫn hiện nếu chưa chạy JavaScript; hiệu ứng cuộn chỉ bật sau hydration.
+- Hỗ trợ giảm chuyển động, bàn phím và safe area. Không có header/navbar; chỉ giữ nút loa. Nội dung vẫn hiện nếu chưa chạy JavaScript; hiệu ứng cuộn chỉ bật sau hydration.
 
 ## Kiểm tra
 
@@ -82,7 +82,7 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - Audio nằm ở layout để không ngắt khi chọn nhà trai / nhà gái. Thao tác chọn bên gọi phát nhạc ngay trong sự kiện người dùng. Mở link trực tiếp sẽ thử tự phát; nếu trình duyệt chặn, nút phát nhỏ trên thiệp cho phép bắt đầu bằng thao tác người dùng, không hiển thị màn hướng dẫn.
 - Web Audio dùng gain 20% với âm lượng nguồn 100%, hoặc volume native 20% nếu không có Web Audio. Không giảm cả hai cùng lúc.
 - `experience.scroll.pixelsPerSecond` là 19.8, nhanh hơn đúng 10% so với 18 trước đó; `rampMilliseconds` giữ 5000 để bắt đầu thật nhẹ rồi đạt tốc độ cuộn chậm. Chỉ cuộn khi nhạc thực sự đang phát; tạm dừng nhạc, buffering hoặc mở dialog sẽ dừng cuộn.
-- Chạm, kéo, cuộn chuột hoặc dùng phím điều hướng sẽ trả quyền cuộn cho khách. Có nút dừng / tiếp tục cuộn riêng; tới cuối trang tự dừng. Tôn trọng `prefers-reduced-motion`: không tự cuộn khi khách bật giảm chuyển động, nhưng vẫn cho phép chủ động bật bằng nút.
+- Chạm, kéo, cuộn chuột hoặc dùng phím điều hướng sẽ trả quyền cuộn cho khách; tới cuối trang tự dừng. Chỉ có nút loa bật/tắt nhạc, không có nút cuộn riêng. Tôn trọng `prefers-reduced-motion`: không tự cuộn khi khách bật giảm chuyển động.
 
 ## Visual editor — 2026-11-13
 
@@ -91,10 +91,10 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - Chọn màn mở đầu / nhà trai / nhà gái, bấm trực tiếp chữ hoặc ảnh để sửa. Nút **Nội dung** cung cấp toàn bộ dữ liệu: tên, ngày cưới, địa điểm, lịch trình, album, nhãn form, thông báo, SEO, nhạc và hoa. Có thêm/xóa/sắp xếp ảnh và lịch trình, hoàn tác/làm lại, preview desktop/tablet/mobile và chế độ duyệt thử.
 - Bản nháp cập nhật tức thì trong iframe nhưng chưa đổi thiệp thật. Bấm **Lưu thay đổi** hoặc `Ctrl/Cmd+S` để ghi `src/data/wedding.json`. Nếu file đã bị sửa ở phiên khác, editor từ chối ghi đè; bản nháp vẫn còn để đối chiếu trước khi tải lại.
 - Trong **Hình ảnh & album**, chọn **Vị trí chèn ảnh** trước khi thêm: đầu danh sách, trước một ảnh cụ thể hoặc cuối danh sách. Thumbnail và số thứ tự giúp xác định vị trí; ảnh mới đẩy các ảnh sau xuống, xem trước cập nhật ngay và hỗ trợ Hoàn tác/Làm lại.
-- Phần giới thiệu hiển thị chung cả cô dâu và chú rể trên hai thiệp; sửa ảnh, tên, vai trò và lời giới thiệu tại nhóm **Chú rể** / **Cô dâu**, sửa dòng dẫn và lời nhắn chung tại **Giới thiệu**. Thiệp chỉ giữ một nút loa bật/tắt nhạc, không còn navbar.
+- Phần giới thiệu dùng **một ảnh chung bên trái, nội dung cả hai bên phải** trên desktop; mobile xếp ảnh trước, chữ sau. Sửa ảnh tại **Hình ảnh & album → Ảnh chung cô dâu & chú rể**; tên, vai trò và lời giới thiệu tại **Chú rể** / **Cô dâu**; dòng dẫn và lời nhắn chung tại **Giới thiệu**. Thiệp chỉ giữ một nút loa bật/tắt nhạc, không còn navbar.
 - Upload trực tiếp JPG/PNG/WebP/AVIF (tối đa 10 MB và 30 MP). Server kiểm tra nội dung ảnh, tự xoay theo EXIF, giới hạn cạnh 2560px và chuyển sang WebP. File thật nằm trong `public/uploads/editor/`, URL `/uploads/editor/<uuid>.webp`; không dùng dịch vụ lưu ảnh ngoài. File upload được ghi ngay, nhưng chỉ gắn lên thiệp sau khi lưu bản nháp. Thư viện cho chọn lại ảnh trong `public/images` và `public/uploads`.
 - Mỗi lần lưu có bản sao dữ liệu cũ trong `.editor/history/` (không public, không commit). Đăng nhập dùng cookie HttpOnly, giới hạn số lần thử và kiểm tra cùng origin cho API ghi/upload. Không upload SVG hoặc ghi đường dẫn tùy ý.
-- Local `npm run dev` dùng editor filesystem. Production `npm run build` / `npm start` và Vercel dùng API editor Next.js khi có **private Vercel Blob** (hướng dẫn cuối tài liệu). Không có Blob thì thiệp vẫn dùng JSON đi kèm bản build, nhưng editor production sẽ báo thiếu cấu hình; không dùng dev server để chữa production.
+- Local `npm run dev` dùng editor filesystem có đăng nhập. Production `npm run build` / `npm start` và Vercel chỉ xem trước nội dung công khai tại `/admin`, khóa toàn bộ upload/lưu và API ghi. Thiệp lấy JSON và ảnh từ bản commit, không cần kho lưu trữ ngoài.
 
 ## Quà mừng, bản đồ & email hướng dẫn — 2026-11-13
 
@@ -105,7 +105,7 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - Khách chọn không tham dự: hiện lời cảm ơn riêng, sửa được qua `declinedTitle` / `declinedMessage` trong **Form hồi đáp**. Khách không tham dự hoặc không nhập email vẫn được ghi nhận hồi đáp, không gửi thư. Khi SMTP thiếu/lỗi/đạt quota, hồi đáp vẫn được lưu và UI thông báo chưa gửi được email; không báo giả là thư đã tới hộp thư. `sent` nghĩa là máy chủ SMTP đã chấp nhận thư, không đảm bảo thư đã được phát vào Inbox.
 - Admin → **Tùy chọn → Danh sách hồi đáp**: xem tên, email, số khách, nhà được mời, lời nhắn và trạng thái gửi thư. Dữ liệu cá nhân chỉ nằm trong `.rsvp/`, không nằm trong `public` hoặc JSON nội dung; thư mục này đã được bỏ qua bởi Git. Giới hạn hiển thị 500 hồi đáp gần nhất.
 - API kiểm tra cùng origin, giới hạn payload 8 KB, honeypot, 120 lượt gửi mới / 10 phút / process; mã hồi đáp UUID giúp retry không gửi lại cùng thư. Giới hạn email lưu trên đĩa: một lần thử / email / nhà / ngày UTC, tổng mặc định 100 lần thử mỗi ngày qua `RSVP_DAILY_EMAIL_LIMIT`. SMTP lỗi vẫn tính một lần thử để tránh spam; không tự gửi lại khi retry. Cần điều chỉnh quota và bổ sung chống bot chuyên dụng nếu mở cho lưu lượng lớn.
-- `POST /api/rsvp` hoạt động cả khi chạy `npm run dev`, `npm start` và Vercel. Local không có Blob dùng `.rsvp/` và cần filesystem bền vững. Vercel bắt buộc dùng private Blob cho hồi đáp; không ghi vào filesystem serverless hay `/tmp`. Không dùng static export. Với reverse proxy, giữ đúng host/protocol để Origin khớp URL công khai. Chủ thiệp quản lý và xóa dữ liệu khách khi không còn cần thiết.
+- `POST /api/rsvp` hoạt động cả khi chạy `npm run dev`, `npm start` và Vercel. Local lưu `.rsvp/` trên filesystem. Vercel chỉ lưu tạm trong `/tmp/.rsvp/`: **có thể mất khi instance dừng, không đồng bộ giữa các instance, admin local không xem được hồi đáp trên Vercel**. UI báo rõ giới hạn này sau khi gửi. Chống gửi trùng/quota chỉ có hiệu lực trong cùng filesystem còn tồn tại, không đảm bảo toàn deployment. SMTP vẫn gửi hướng dẫn theo đúng nhà khi được cấu hình. Không dùng danh sách tạm làm nguồn chốt khách duy nhất. Không dùng static export.
 
 ### Gmail và tên người gửi — 2026-11-13
 
@@ -117,17 +117,21 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 
 Tài liệu: https://support.google.com/accounts/answer/185833 và https://developers.google.com/workspace/gmail/imap/imap-smtp.
 
-## Deploy Vercel có admin — 2026-11-13
+## Upload local, deploy từ Git — 2026-11-13
 
 1. Giữ preset **Next.js**, Build Command `npm run build`, không dùng static export hoặc chạy `npm run dev` trên production.
-2. Trong Vercel tạo **Blob store loại Private**, kết nối với project. Đảm bảo `BLOB_READ_WRITE_TOKEN` có trong Environment Variables của **Production**. Không dùng public store: kho này chứa cả nội dung thiệp, phiên admin và dữ liệu hồi đáp riêng tư. Không thêm `NEXT_PUBLIC_` trước tên token.
-3. Thêm `ADMIN_USERNAME`, `ADMIN_PASSWORD` (ít nhất 12 ký tự) và các biến `SMTP_*` đã hướng dẫn vào Environment Variables. `.env.local` trên máy không được đưa lên Vercel. **Redeploy** sau khi thay biến môi trường.
-4. Mở `/admin/login`, đăng nhập, sửa và **Lưu**. Nội dung được lưu vào Blob, thiệp và email đọc nội dung đã lưu ở mỗi request, không cần rebuild cho mỗi lần chỉnh. SEO của các trang thiệp cũng đọc cùng nguồn nội dung. Trước lần lưu đầu tiên, hệ thống lấy `src/data/wedding.json` trong deployment làm mẫu ban đầu.
-5. Ảnh mới upload lưu bền vững trên private Blob và chỉ công khai qua route `/uploads/editor/<uuid>.webp`. Không thể ghi thêm trực tiếp vào thư mục `public` của một deployment Vercel đã build. Ảnh được kiểm tra và chuyển WebP; QR dùng lossless. Giới hạn upload server trên Vercel **4 MB / ảnh, 30 MP**, local filesystem vẫn **10 MB**. Admin tự hiển thị đúng giới hạn.
-6. Tên miền chính và miền `vercel.app` đều dùng kiểm tra same-origin theo request; phiên đăng nhập riêng cho mỗi domain, cookie HttpOnly/SameSite/secure khi HTTPS, hết hạn sau 8 giờ. Phiên và giới hạn đăng nhập lưu trên Blob, hoạt động qua nhiều instance. Đăng xuất thu hồi phiên trên server. Đổi username/password sẽ vô hiệu hóa phiên cũ.
-7. Lưu nội dung dùng ETag/conditional write để chống ghi đè giữa hai admin; bản sao trước khi lưu nằm trong `history/`, tự hết hạn sau 30 ngày. Hồi đáp, phiên và quota email đều là private Blob. UUID hồi đáp chống gửi thư trùng; mỗi email/nhà/ngày chỉ thử một lần, quota ngày áp dụng chung các instance. Nếu process dừng giữa lúc gửi mail, trạng thái có thể giữ `pending`; không tự gửi lại để tránh gửi trùng.
-8. Không chia sẻ cùng namespace giữa **Preview** và **Production**. Mặc định prefix là `wedding-production` / `wedding-preview` theo `VERCEL_ENV`. Có thể đặt `WEDDING_BLOB_PREFIX` (chữ/số/`_`/`-`, tối đa 80 ký tự) hoặc dùng store riêng. Không đổi/xóa store đang dùng nếu chưa sao lưu dữ liệu; redeploy không xóa nội dung Blob đã lưu.
+2. Chạy `npm run dev`, đăng nhập admin local, upload ảnh rồi bấm **Lưu thay đổi**. Giới hạn 10 MB / ảnh, 30 MP; ảnh nằm trong `public/uploads/editor/`, nội dung trong `src/data/wedding.json`.
+3. Commit/push **cả JSON lẫn ảnh mới**. Vercel tự build từ commit; deployment mới luôn thay thế nội dung/ảnh theo Git. Không commit `.env.local`, `.editor/` hoặc `.rsvp/`.
+4. Bản online `/admin` chỉ xem trước, không cần đăng nhập vì chỉ chứa dữ liệu thiệp đã công khai; input/upload/lưu đều khóa. `/__editor` và `/api/editor` chặn mọi thao tác ghi ở server. Không có mật khẩu hay hồi đáp khách trong dữ liệu public này.
+5. Chỉ cần các biến `SMTP_*` và `RSVP_DAILY_EMAIL_LIMIT` trên Vercel nếu dùng email. Biến `ADMIN_*` chỉ dùng local. Không cần token kho ảnh hoặc SDK lưu trữ ngoài. Biến môi trường cũ nếu có không còn được code sử dụng.
+6. Hồi đáp Vercel là tạm thời như giới hạn ở trên; email xác nhận vẫn dùng cấu hình SMTP. Nếu cần danh sách khách bền vững sau này, cần bổ sung lưu trữ riêng.
 
-Ghi chú bảo mật 2026-11-13: `overrides` ở cuối `package.json` nâng riêng Zod của `@vercel/cli-config` lên bản vá để SDK Blob không kéo lỗ hổng GHSA-mrhx-c7xc-m3w5. Không chạy `npm audit fix --force` vì có thể hạ SDK và mất conditional-write/private-read cần cho serverless.
+### Nội dung và ảnh responsive — 2026-11-13
 
-Tài liệu: https://vercel.com/docs/vercel-blob/using-blob-sdk và https://vercel.com/docs/functions/limitations.
+- **Hình ảnh & album**: `hero` và `roses` là ảnh ngang của hero/mở màn; `heroPortrait` và `entrancePortrait` là ảnh dọc dùng dưới 700px. Thẻ `picture` để trình duyệt chọn đúng ảnh theo màn hình, không tải hai ảnh chỉ để ẩn bằng CSS.
+- **Chuyện chúng mình**: sửa tiêu đề, dòng tiếng Anh và hai đoạn văn; section nằm ngay sau thông tin ngày/giờ, hiện trên cả hai thiệp.
+- **Hồi đáp**: nội dung Save a Seat giữ xuống dòng giữa các đoạn. **Lời nhắn quà mừng** sửa lời dẫn phía trên QR; QR thu nhỏ còn 180px, mỗi nhà vẫn một mã riêng.
+- **Lời mời**: lời gửi những người thân thương và nội dung hành trình 8 năm nằm phía trên lịch/ngày cưới; sửa `letterTitle` / `letterBody`.
+- **Ngày cưới nhà trai / nhà gái → Lịch trình**: mỗi mốc có ngày riêng (`date`, chọn bằng date picker), giờ, tiêu đề, mô tả và icon. Nhà gái có ăn hỏi **09:30 28/11/2026**, bữa cơm **17:30 28/11/2026** (tạm giữ giờ tiệc đã có, chưa được xác nhận lại), vu quy **10:00 29/11/2026**, thành hôn **11:00 29/11/2026**. Nhà trai dựng tương tự để sửa sau nhưng không có bữa cơm thân mật.
+- **Ngày cưới → Ảnh cưới cạnh bản đồ**: mỗi nhà chọn một ảnh dọc riêng. Cuối thiệp desktop/tablet chia hai cột, ảnh trái và map phải; mobile xếp dọc để bản đồ và ảnh không quá hẹp.
+- **THE BEGINNING OF ALWAYS**: ảnh xếp chồng kiểu scrapbook, nhấn vào phần ảnh lộ ra hoặc dùng bàn phím để xem; không có icon góc ảnh. Hai ảnh cuối **OUR WEDDING GALLERY** đổi sang vòm và chữ nhật bo góc bất đối xứng.

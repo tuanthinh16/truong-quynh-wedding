@@ -16,8 +16,8 @@
     "role": "Cô dâu"
   },
   "photos": {
-    "hero": "/images/wedding-demo.jpg",
-    "roses": "/images/roses-demo.jpg",
+    "hero": "/images/editorial-demo.jpg",
+    "roses": "/images/editorial-demo.jpg",
     "story": [
       {
         "src": "/images/editorial-demo.jpg",
@@ -67,7 +67,12 @@
         "label": "Yêu thương nở hoa"
       }
     ],
-    "heroAlt": "Khoảnh khắc ngày cưới"
+    "heroAlt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+    "heroPortrait": "/images/ceremony-demo.jpg",
+    "entrancePortrait": "/images/ceremony-demo.jpg",
+    "entranceAlt": "Cô dâu và chú rể cùng bắt đầu hành trình mới",
+    "couplePortrait": "/images/ceremony-demo.jpg",
+    "coupleAlt": "Cô dâu và chú rể bên nhau"
   },
   "events": {
     "groom": {
@@ -80,30 +85,28 @@
       "sideLabel": "Nhà trai",
       "schedule": [
         {
-          "time": "13:05",
-          "title": "Nhà trai xuất phát",
-          "detail": "Mang theo yêu thương, đến đón một người.",
-          "icon": "car"
+          "time": "09:30",
+          "title": "Lễ ăn hỏi",
+          "detail": "Hai gia đình gặp gỡ, trao gửi lời hẹn ước.",
+          "icon": "flower",
+          "date": "2026-11-28"
         },
         {
-          "time": "13:25",
-          "title": "Lễ xin dâu",
-          "detail": "Hai gia đình gặp gỡ tại tư gia nhà gái.",
-          "icon": "flower"
+          "time": "10:00",
+          "title": "Lễ vu quy",
+          "detail": "Cùng gia đình nhà gái chúc phúc cho đôi mình.",
+          "icon": "heart",
+          "date": "2026-11-29"
         },
         {
-          "time": "13:45",
-          "title": "Rước dâu",
-          "detail": "Cùng nhau bước về chung một mái nhà.",
-          "icon": "heart"
-        },
-        {
-          "time": "14:00",
-          "title": "Lễ gia tiên",
-          "detail": "Kính cáo tổ tiên, chính thức nên duyên.",
-          "icon": "rings"
+          "time": "11:00",
+          "title": "Lễ thành hôn",
+          "detail": "Nên duyên vợ chồng, cùng bắt đầu một hành trình mới.",
+          "icon": "rings",
+          "date": "2026-11-29"
         }
-      ]
+      ],
+      "locationImage": "/images/ceremony-demo.jpg"
     },
     "bride": {
       "label": "Lễ vu quy",
@@ -113,7 +116,37 @@
       "lunarDate": "20 tháng 10 năm Bính Ngọ",
       "mapUrl": "https://www.google.com/maps/search/?api=1&query=S%C6%A1n%20Tr%C3%A0%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng",
       "sideLabel": "Nhà gái",
-      "schedule": []
+      "schedule": [
+        {
+          "time": "09:30",
+          "title": "Lễ ăn hỏi",
+          "detail": "Hai gia đình gặp gỡ, trao gửi lời hẹn ước.",
+          "icon": "flower",
+          "date": "2026-11-28"
+        },
+        {
+          "time": "17:30",
+          "title": "Bữa cơm thân mật",
+          "detail": "Cùng gia đình nhà gái dùng bữa và chia sẻ niềm vui.",
+          "icon": "heart",
+          "date": "2026-11-28"
+        },
+        {
+          "time": "10:00",
+          "title": "Lễ vu quy",
+          "detail": "Kính cáo tổ tiên, nhận lời chúc phúc từ gia đình nhà gái.",
+          "icon": "flower",
+          "date": "2026-11-29"
+        },
+        {
+          "time": "11:00",
+          "title": "Lễ thành hôn",
+          "detail": "Nên duyên vợ chồng, cùng bắt đầu một hành trình mới.",
+          "icon": "rings",
+          "date": "2026-11-29"
+        }
+      ],
+      "locationImage": "/images/ceremony-demo.jpg"
     }
   },
   "rsvp": {
@@ -145,7 +178,10 @@
       "lunarPrefix": "Nhằm ngày",
       "atVenue": "TẠI",
       "map": "Xem chỉ đường",
-      "closing": "Sự hiện diện của bạn là niềm vinh hạnh và hạnh phúc của gia đình chúng mình."
+      "closing": "Sự hiện diện của bạn là niềm vinh hạnh và hạnh phúc của gia đình chúng mình.",
+      "letterTitle": "Gửi những người thân thương:",
+      "letterBody": "Chúng mình muốn gửi đến những người thân thương nhất lời mời trân quý cho ngày hai đứa chính thức bước sang một hành trình mới. Sau hơn 8 năm cùng đi qua bao nhiêu cung bậc cảm xúc, chúng mình trân trọng khoảnh khắc được chia sẻ niềm vui này cùng mọi người - những người đã dõi theo, chứng kiến và yêu thương chúng mình trong suốt chặng đường ấy.",
+      "locationImageAlt": "Ảnh cưới của chúng mình bên cạnh bản đồ chỉ đường"
     },
     "partner": {
       "eyebrow": "CÔ DÂU & CHÚ RỂ",
@@ -173,7 +209,7 @@
       "eyebrow": "SAVE A SEAT FOR YOU",
       "title": "Hẹn bạn,",
       "accent": "trong ngày hạnh phúc.",
-      "description": "Ngày vui của chúng mình sẽ ý nghĩa hơn khi có bạn cùng chung vui.",
+      "description": "Chúng mình sắp bắt đầu một hành trình mới cùng nhau.\n\nNiềm vui này sẽ trọn vẹn hơn khi có bạn bên cạnh.\n\nCuộc sống quý giá không chỉ ở đích đến, mà còn ở những khoảnh khắc chia sẻ cùng nhau.\n\nVì vậy, chúng mình mong được bạn chung vui trong ngày hạnh phúc này.",
       "button": "Lời hồi đáp",
       "giftButton": "Gửi quà mừng online"
     },
@@ -234,7 +270,7 @@
       "nameError": "Bạn nhập tên để chúng mình biết nhé.",
       "storageError": "Trình duyệt chưa cho phép lưu dữ liệu. Bạn thử lại hoặc đổi trình duyệt nhé.",
       "thanks": "CẢM ƠN BẠN THẬT NHIỀU",
-      "successTitle": "Đã lưu lời hồi đáp!",
+      "successTitle": "Cảm ơn lời hồi đáp của bạn!",
       "successMessage": "Chúng mình đã nhận được lời hồi đáp của bạn.",
       "back": "Trở về thiệp mời",
       "email": "Email nhận hướng dẫn (không bắt buộc)",
@@ -248,13 +284,14 @@
       "emailPending": "Đã ghi nhận hồi đáp. Email hướng dẫn đang được xử lý.",
       "previewMessage": "Đây là bản xem trước: không lưu hồi đáp và không gửi email thật.",
       "declinedTitle": "Hẹn bạn vào một dịp thật gần!",
-      "declinedMessage": "Chúng mình đã nhận được lời hồi đáp của bạn. Dù không thể gặp nhau trong ngày vui, tình cảm và những lời chúc của bạn vẫn là món quà rất quý với Trường & Quỳnh. Cảm ơn bạn đã dành thời gian hồi đáp, mong sớm có dịp gặp lại và cùng chia sẻ niềm vui này!"
+      "declinedMessage": "Chúng mình đã nhận được lời hồi đáp của bạn. Dù không thể gặp nhau trong ngày vui, tình cảm và những lời chúc của bạn vẫn là món quà rất quý với Trường & Quỳnh. Cảm ơn bạn đã dành thời gian hồi đáp, mong sớm có dịp gặp lại và cùng chia sẻ niềm vui này!",
+      "temporaryNotice": "Hồi đáp trên website chỉ được lưu tạm. Bạn nhắn thêm cho cô dâu hoặc chú rể để xác nhận chắc chắn nhé."
     },
     "gift": {
       "label": "Gửi quà mừng cưới online",
       "eyebrow": "MỘT CHÚT YÊU THƯƠNG",
       "title": "Mừng ngày chung đôi",
-      "description": "Sự hiện diện và lời chúc của bạn đã là món quà quý giá. Nếu muốn gửi thêm chút yêu thương, bạn có thể quét mã hoặc sử dụng thông tin tài khoản bên dưới.",
+      "description": "Thật vui khi có bạn bên cạnh trong ngày hạnh phúc. Nếu không thể tham dự nhưng vẫn muốn gửi chút yêu thương, bạn có thể gửi lời chúc và quà mừng qua mã QR bên dưới. Cảm ơn bạn thật nhiều!",
       "qrAlt": "Mã QR nhận quà mừng cưới",
       "bankLabel": "Ngân hàng",
       "accountNameLabel": "Chủ tài khoản",
@@ -265,6 +302,11 @@
       "copyError": "Bạn sao chép số tài khoản hiển thị bên trên nhé.",
       "emptyMessage": "Thông tin nhận quà online sẽ được cập nhật sớm. Cảm ơn bạn đã dành tình cảm cho chúng mình.",
       "safetyNote": "ĐÂY LÀ THÔNG TIN MẪU — KHÔNG CHUYỂN KHOẢN. QR chỉ chứa lời nhắn minh họa. Chủ thiệp cần thay QR và tài khoản thật trước khi gửi khách."
+    },
+    "loveStory": {
+      "title": "Chuyện chúng mình",
+      "subtitle": "From a moment to forever",
+      "description": "Có những cuộc gặp gỡ tưởng chừng thật tình cờ, nhưng lại mở ra một hành trình đặc biệt. Tình yêu của bọn mình là một hành trình kỳ diệu, vượt qua bao thử thách để cùng nhau bước đến ngày trọng đại - Đám cưới của chúng mình.\n\nĐám cưới này là lời cam kết chân thành, là sự bắt đầu của một chương mới - nơi chúng mình cùng vun đắp tổ ấm, cùng sẻ chia mọi vui buồn và cùng nắm tay nhau đi đến cuối con đường mang tên hạnh phúc."
     }
   },
   "experience": {
@@ -325,6 +367,7 @@
   },
   "_meta": {
     "updatedAt": "2026-11-13T07:28:32.605Z",
-    "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor."
+    "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor.",
+    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git."
   }
 }

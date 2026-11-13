@@ -9,13 +9,14 @@ import type { PreviewMessage } from "./preview";
 import { FieldEditor } from "./field-editor";
 import { InPageDialog } from "./in-page-dialog";
 import { GuestResponses } from "./guest-responses";
+import { wedding } from "@/config/wedding";
 
 interface DraftState { data: WeddingData; base: WeddingData; revision: string; past: WeddingData[]; future: WeddingData[] }
 const samePath = (first: EditorPath, second: EditorPath) => JSON.stringify(first) === JSON.stringify(second);
 
-export function WeddingEditor() {
+export function WeddingEditor({ readOnly = false }: { readOnly?: boolean }) {
   const router = useRouter();
-  const [session, setSession] = useState<DraftState | null>(null);
+  const [session, setSession] = useState<DraftState | null>(() => readOnly ? { data: wedding, base: wedding, revision: "deployment", past: [], future: [] } : null);
   const token = useRef("");
   const [busy, setBusy] = useState(false);
   const [maxUploadBytes, setMaxUploadBytes] = useState(10 * 1024 * 1024);
@@ -50,6 +51,7 @@ export function WeddingEditor() {
   }, [router]);
 
   useEffect(() => {
+    if (readOnly) return;
     let active = true;
     async function connect() {
       try {
@@ -61,7 +63,7 @@ export function WeddingEditor() {
     }
     void connect();
     return () => { active = false; };
-  }, [request]);
+  }, [request, readOnly]);
 
   useEffect(() => {
     const element = canvas.current;
@@ -99,7 +101,7 @@ export function WeddingEditor() {
   }, [dirty]);
 
   function change(path: EditorPath, value: FieldValue | unknown[]) {
-    if (lock.current) return;
+    if (lock.current || readOnly) return;
     setSession(current => {
       if (!current || JSON.stringify(readPath(current.data, path)) === JSON.stringify(value)) return current;
       const next = structuredClone(current.data);
@@ -118,7 +120,7 @@ export function WeddingEditor() {
     });
   }
   const save = useCallback(async () => {
-    if (!session || !dirty || lock.current) return;
+    if (!session || !dirty || lock.current || readOnly) return;
     lock.current = true; setBusy(true);
     try {
       const result = await request("content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: session.data, revision: session.revision }) });
@@ -126,7 +128,7 @@ export function WeddingEditor() {
       notice("Đã lưu nội dung thiệp. Bản cũ được sao lưu trong .editor/history.");
     } catch (error) { notice(error instanceof Error ? error.message : "Lưu thất bại.", true); }
     finally { lock.current = false; setBusy(false); }
-  }, [session, dirty, request]);
+  }, [session, dirty, request, readOnly]);
   useEffect(() => { saveRef.current = () => { void save(); }; }, [save]);
   useEffect(() => {
     function keyboard(event: KeyboardEvent) { if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); void save(); } }
@@ -135,7 +137,7 @@ export function WeddingEditor() {
   }, [save]);
 
   async function upload(path: EditorPath, file: File) {
-    if (lock.current) return;
+    if (lock.current || readOnly) return;
     if (file.size > maxUploadBytes) { notice(`Ảnh vượt giới hạn ${maxUploadBytes / 1024 / 1024} MB.`, true); return; }
     lock.current = true; setBusy(true);
     try {
@@ -153,7 +155,7 @@ export function WeddingEditor() {
     finally { lock.current = false; setBusy(false); }
   }
   function listChange(path: EditorPath, operation: "add" | "remove" | "up" | "down", index = 0) {
-    if (!session) return;
+    if (!session || readOnly) return;
     const config = listConfig(path), items = structuredClone(readPath(session.data, path)) as unknown[];
     if (!config) return;
     if (operation === "add" && items.length < config.max) {
@@ -187,12 +189,13 @@ export function WeddingEditor() {
           <label>Chế độ<select value={mode} onChange={event => setMode(event.target.value as PreviewMessage["mode"])}><option value="select">Bấm để sửa</option><option value="browse">Duyệt thiệp</option></select></label>
           <div className="ed-history"><button disabled={!session?.past.length || busy} onClick={() => history("undo")}>Hoàn tác</button><button disabled={!session?.future.length || busy} onClick={() => history("redo")}>Làm lại</button></div>
           <button disabled={!session || busy} onClick={() => { setDocumentId("metadata"); setSelected(null); setInspector(true); }}>SEO & chia sẻ</button>
-          <button disabled={!session || busy} onClick={() => setResponsesOpen(true)}>Danh sách hồi đáp</button>
+          <button disabled={!session || busy || readOnly} onClick={() => setResponsesOpen(true)}>Danh sách hồi đáp</button>
           <button disabled={busy} onClick={() => { if (!dirty || window.confirm("Bỏ bản nháp và tải lại dữ liệu đã lưu?")) location.reload(); }}>Tải lại dữ liệu</button>
-          <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>
+          {!readOnly && <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>}
         </div></details><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button>
       </div>
     </header>
+    {readOnly && <div className="ed-feedback" role="status">Bản online chỉ xem trước, không upload hoặc lưu. Chỉnh sửa/upload bằng admin local, lưu rồi commit/push nội dung và ảnh. Deployment mới luôn dùng dữ liệu trong Git.</div>}
     {feedback.text && <div className={`ed-feedback ${feedback.error ? "is-error" : ""}`} role={feedback.error ? "alert" : "status"}><span>{feedback.text}</span><button aria-label="Đóng thông báo" onClick={() => notice("")}>×</button></div>}
     <section className="ed-workspace"><div className="ed-stage"><p className="ed-preview-hint">{mode === "select" ? "Bấm vào chữ hoặc ảnh trên thiệp để sửa · Mọi trường khác nằm trong Nội dung" : "Duyệt thiệp để mở album và form · Chọn Bấm để sửa khi cần chỉnh nội dung"}</p>
       <div ref={canvas} className="ed-canvas"><div className="ed-preview-surface" style={{ width: viewport * scale, height: frameHeight * scale }}><div className="ed-frame" style={{ width: viewport, height: frameHeight, transform: `scale(${scale})` }}><iframe ref={frame} title="Xem trước thiệp cưới — bản nháp" src="/admin/preview" onLoad={sendPreview} /></div></div></div>
@@ -211,17 +214,17 @@ export function WeddingEditor() {
           const isPhotoList = list.path[0] === "photos";
           return <section className="ed-list" key={listKey}>
             <h3>{list.label} · {items.length}/{list.max}</h3>
-            {items.map((item, index) => <div className="ed-list-row" key={index}>{isPhotoList && <img className="ed-list-thumb" src={String(item.src)} alt="" />}<span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}
+            {items.map((item, index) => <div className="ed-list-row" key={index}>{isPhotoList && <img className="ed-list-thumb" src={String(item.src)} alt="" />}<span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || readOnly || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || readOnly || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || readOnly || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}
             <label className="ed-insert-position">Vị trí chèn {isPhotoList ? "ảnh" : "mục"}
-              <select value={insertion} disabled={busy || items.length >= list.max} onChange={event => setInsertPositions(current => ({ ...current, [listKey]: Number(event.target.value) }))}>
+              <select value={insertion} disabled={busy || readOnly || items.length >= list.max} onChange={event => setInsertPositions(current => ({ ...current, [listKey]: Number(event.target.value) }))}>
                 {Array.from({ length: items.length + 1 }, (_, index) => <option key={index} value={index}>{index === 0 ? "Đầu danh sách" : index === items.length ? `Cuối danh sách · vị trí ${index + 1}` : `Trước mục ${index + 1} · ${String(items[index].alt || items[index].title || "Ảnh")}`}</option>)}
               </select>
             </label>
             <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay, chỉ công khai khi bấm Lưu.</p>
-            <button disabled={busy || items.length >= list.max} onClick={() => listChange(list.path, "add", insertion)}>Thêm {isPhotoList ? "ảnh" : "mục"} tại vị trí {insertion + 1}</button>
+            <button disabled={busy || readOnly || items.length >= list.max} onClick={() => listChange(list.path, "add", insertion)}>Thêm {isPhotoList ? "ảnh" : "mục"} tại vị trí {insertion + 1}</button>
           </section>;
         })}
-        <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
+        <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy || readOnly} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
       </div><footer><span>Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu.</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button></footer>
     </InPageDialog>}
     {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}><header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header><div className="ed-library-grid">{assets.map(asset => <button key={asset.src} title={asset.src} onClick={() => { if (assetTarget) change(assetTarget, asset.src); setAssets(null); setAssetTarget(null); }}><img src={asset.src} alt={asset.name} loading="lazy" /><span>{asset.name}</span></button>)}</div>{!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}</InPageDialog>}

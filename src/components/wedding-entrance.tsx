@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, type MouseEvent } from "react";
 import { useWedding, editable } from "./wedding-content";
 import FloralArt from "./floral-art";
 import Icon from "./icon";
 import { useWeddingAudio } from "./wedding-audio";
+import ResponsiveCouplePhoto from "./responsive-couple-photo";
 
 export default function WeddingEntrance() {
   const wedding = useWedding();
@@ -18,7 +18,7 @@ export default function WeddingEntrance() {
   }
   return (
     <main className="welcome-screen" aria-labelledby="entrance-title">
-      <Image className="welcome-background" src={wedding.photos.roses} alt="" fill sizes="100vw" preload />
+      <ResponsiveCouplePhoto className="welcome-background" landscape={wedding.photos.roses} portrait={wedding.photos.entrancePortrait} alt={wedding.photos.entranceAlt} />
       <FloralArt className="welcome-floral welcome-floral-left" />
       <FloralArt className="welcome-floral welcome-floral-right" />
       <div className="welcome-content">

@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Added 2026-11-13: keep existing editor URLs while serving authenticated Next.js APIs on Vercel.
+  // Updated 2026-11-13: reject online editor writes; the local editor server intercepts these URLs before Next.js.
   async rewrites() {
     return [{ source: "/__editor/:path*", destination: "/api/editor/:path*" }];
   },
