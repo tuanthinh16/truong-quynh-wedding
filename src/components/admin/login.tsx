@@ -12,11 +12,11 @@ export function AdminLogin() {
     async function connect() {
       try {
         const response = await fetch("/__editor/auth/session", { cache: "no-store", signal: controller.signal });
-        if (!response.ok) throw new Error("unavailable");
         const session = await response.json();
+        if (!response.ok) throw new Error(session.error || "Dịch vụ đăng nhập chưa sẵn sàng.");
         if (session.authenticated) { window.location.replace("/admin"); return; }
         setAvailability(session.configured ? "ready" : "unconfigured");
-      } catch { if (!controller.signal.aborted) setAvailability("unavailable"); }
+      } catch (failure) { if (!controller.signal.aborted) { setAvailability("unavailable"); setError(failure instanceof Error ? failure.message : "Không thể kết nối API đăng nhập."); } }
     }
     void connect();
     return () => controller.abort();
@@ -39,8 +39,8 @@ export function AdminLogin() {
   return <main className="ed-root ed-login"><section className="ed-login-card" aria-labelledby="login-title">
     <p className="ed-eyebrow">Thiệp cưới · Quản trị nội dung</p><h1 id="login-title">Đăng nhập admin</h1><p>Đăng nhập để chỉnh sửa nội dung và hình ảnh website.</p>
     {availability === "loading" && <p role="status">Đang kết nối…</p>}
-    {availability === "unconfigured" && <p role="alert" className="ed-login-notice">Cấu hình <code>ADMIN_USERNAME</code> và <code>ADMIN_PASSWORD</code> (ít nhất 12 ký tự) trong <code>.env.local</code>, sau đó khởi động lại <code>npm run dev</code>. Không có tài khoản mặc định.</p>}
-    {availability === "unavailable" && <p role="alert" className="ed-login-notice">Dịch vụ đăng nhập chưa sẵn sàng. Admin hoạt động trên server <code>npm run dev</code>, không hoạt động trên bản static export.</p>}
+    {availability === "unconfigured" && <p role="alert" className="ed-login-notice">Cấu hình <code>ADMIN_USERNAME</code> và <code>ADMIN_PASSWORD</code> (ít nhất 12 ký tự) trong Environment Variables của Vercel rồi redeploy, hoặc trong <code>.env.local</code> và khởi động lại khi chạy local. Không có tài khoản mặc định.</p>}
+    {availability === "unavailable" && <p role="alert" className="ed-login-notice">Kiểm tra API editor và cấu hình lưu trữ. Trên Vercel cần Blob store loại private và <code>BLOB_READ_WRITE_TOKEN</code>.</p>}
     <form onSubmit={event => void submit(event)} aria-busy={busy}>
       <label htmlFor="admin-username">Tên đăng nhập</label><input id="admin-username" name="username" autoComplete="username" required maxLength={256} disabled={busy || availability !== "ready"} />
       <label htmlFor="admin-password">Mật khẩu</label><input id="admin-password" name="password" type="password" autoComplete="current-password" required maxLength={1024} disabled={busy || availability !== "ready"} aria-describedby={error ? "login-error" : undefined} />

@@ -6,6 +6,7 @@ import { parseArgs } from "node:util";
 import next from "next";
 import { createAdminAuth } from "./editor/auth.mjs";
 import { createEditorService } from "./editor/service.mjs";
+import { cloudConfigured } from "../src/lib/cloud-store.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 // Added 2026-11-13: local authenticated visual editing, following the do-tho-dn editor's server lifecycle.
@@ -23,8 +24,10 @@ const editor = createEditorService({ root, origin, aliases, token: randomBytes(3
 const server = createServer(async (request, response) => {
   try {
     response.setHeader("X-Frame-Options", "SAMEORIGIN");
-    if (await auth(request, response)) return;
-    if (await editor(request, response)) return;
+    if (!cloudConfigured()) {
+      if (await auth(request, response)) return;
+      if (await editor(request, response)) return;
+    }
     await nextHandler(request, response);
   } catch (error) {
     console.error(error);

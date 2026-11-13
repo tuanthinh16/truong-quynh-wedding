@@ -15,8 +15,8 @@ export default function WeddingPlayback({ dialogOpen }: { dialogOpen: boolean })
   const wedding = useWedding();
   const { isPlaying, startMusic, pauseMusic } = useWeddingAudio();
   const reducedMotion = useSyncExternalStore(subscribeMotion, () => window.matchMedia("(prefers-reduced-motion: reduce)").matches, () => false);
-  const [preference, setPreference] = useState<"auto" | "on" | "off">("auto");
-  const scrollRequested = preference === "on" || (preference === "auto" && !reducedMotion);
+  const [preference, setPreference] = useState<"auto" | "off">("auto");
+  const scrollRequested = preference === "auto" && !reducedMotion;
   const autoScrolling = isPlaying && scrollRequested && !dialogOpen;
   const copy = wedding.experience.controls;
 
@@ -72,19 +72,9 @@ export default function WeddingPlayback({ dialogOpen }: { dialogOpen: boolean })
     else { setPreference("auto"); void startMusic(); }
   }
 
-  function toggleScroll() {
-    if (autoScrolling) setPreference("off");
-    else { setPreference("on"); if (!isPlaying) void startMusic(); }
-  }
-
   return <div className="wedding-playback" role="group" aria-label={copy.label}>
     <button type="button" onClick={toggleMusic} aria-label={isPlaying ? copy.pause : copy.play} aria-pressed={isPlaying} title={isPlaying ? copy.pause : copy.play}>
-      <Icon name={isPlaying ? "music" : "play"} size={19} />
-      <span className={`sound-bars${isPlaying ? " is-playing" : ""}`} aria-hidden="true"><i /><i /><i /></span>
-    </button>
-    <span className="playback-divider" aria-hidden="true" />
-    <button type="button" onClick={toggleScroll} aria-label={autoScrolling ? copy.scrollPause : copy.scrollStart} aria-pressed={autoScrolling} title={autoScrolling ? copy.scrollPause : copy.scrollStart}>
-      <Icon name={autoScrolling ? "pause" : "scroll"} size={18} />
+      <Icon name={isPlaying ? "volume" : "volume-off"} size={21} />
     </button>
   </div>;
 }

@@ -1,7 +1,9 @@
 import type { CSSProperties } from "react";
 
-export type IconName = "heart" | "arrow" | "pin" | "calendar" | "check" | "close" | "chevron" | "copy" | "car" | "flower" | "rings" | "image" | "music" | "play" | "pause" | "scroll";
+export type IconName = "heart" | "arrow" | "pin" | "calendar" | "check" | "close" | "chevron" | "copy" | "car" | "flower" | "rings" | "image" | "music" | "play" | "pause" | "scroll" | "volume" | "volume-off";
 const paths: Record<IconName, string> = {
+  volume: "M11 5 6 9H3v6h3l5 4V5Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14",
+  "volume-off": "M11 5 6 9H3v6h3l5 4V5Zm5 4 6 6m0-6-6 6",
   music: "M9 18V5l12-2v13M9 8l12-2M9 18a3 3 0 1 1-3-3c1.7 0 3 1.3 3 3Zm12-2a3 3 0 1 1-3-3c1.7 0 3 1.3 3 3Z",
   play: "m9 5 11 7-11 7V5Z",
   pause: "M8 5v14M16 5v14",

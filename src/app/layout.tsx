@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { wedding } from "@/config/wedding";
-import { WeddingAudioProvider } from "@/components/wedding-audio";
+import { Suspense } from "react";
+import WeddingLive from "@/components/wedding-live";
 import "./globals.css";
 
 const bodyFont = localFont({
@@ -43,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="vi"
       className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable}`}
     >
-      <body><WeddingAudioProvider>{children}</WeddingAudioProvider></body>
+      <body><Suspense fallback={null}><WeddingLive audio>{children}</WeddingLive></Suspense></body>
     </html>
   );
 }

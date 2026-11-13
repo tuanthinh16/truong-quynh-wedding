@@ -55,7 +55,6 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
   const pageRef = useRef<HTMLDivElement>(null);
   const event = wedding.events[side];
   const date = event.dateTime ? formatWeddingDate(event.dateTime) : null;
-  const partner = side === "groom" ? wedding.bride : wedding.groom;
 
   useEffect(() => {
     void startMusic();
@@ -105,12 +104,17 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
         </section>
 
         <section id="chung-minh" className="partner-section section-space">
-          <div className="partner-grid content-width">
-            <div className="portrait-composition torn-portrait">
-              <div className="partner-photo photo-reveal" {...editable(side === "groom" ? "bride" : "groom", "portrait")}><ScrollPhoto src={partner.portrait} alt={`${partner.role} ${partner.name}`} sizes="(min-width: 1200px) 480px, (min-width: 900px) 40vw, 90vw" /></div>
-            </div>
-            <div className="partner-copy reveal"><span className="eyebrow">{copy.partner.eyebrow}</span><p className="partner-intro">{copy.partner.intro}</p><h2>{partner.name}</h2><span className="partner-role">{partner.role}</span><div className="short-rule" /><p>{partner.introduction}</p><blockquote>{copy.partner.quote}</blockquote><Icon name="heart" size={22} /></div>
+          <div className="section-heading reveal"><span className="eyebrow" {...editable("content", "partner", "eyebrow")}>{copy.partner.eyebrow}</span><p {...editable("content", "partner", "intro")}>{copy.partner.intro}</p></div>
+          <div className="couple-grid content-width">
+            {(["groom", "bride"] as const).map(personKey => {
+              const person = wedding[personKey];
+              return <article className="couple-card" key={personKey}>
+                <div className="portrait-composition torn-portrait"><div className="partner-photo photo-reveal" {...editable(personKey, "portrait")}><ScrollPhoto src={person.portrait} alt={`${person.role} ${person.name}`} sizes="(min-width: 900px) 400px, (min-width: 600px) 42vw, 85vw" /></div></div>
+                <div className="partner-copy reveal"><span className="partner-role" {...editable(personKey, "role")}>{person.role}</span><h2 {...editable(personKey, "name")}>{person.name}</h2><div className="short-rule" /><p {...editable(personKey, "introduction")}>{person.introduction}</p></div>
+              </article>;
+            })}
           </div>
+          <blockquote className="couple-quote content-width reveal" {...editable("content", "partner", "quote")}>{copy.partner.quote}</blockquote>
         </section>
 
         {event.schedule.length > 0 && <section id="lich-trinh" className="schedule-section section-space">
@@ -122,7 +126,7 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
           <SectionHeading content={copy.story} />
           <div className="editorial-story content-width">
             <span className="editorial-name editorial-name-first">{wedding.groom.name}</span>
-            <div className="editorial-photos">{wedding.photos.story.map((photo, index) => <figure key={`${photo.src}-${index}`} className={`editorial-frame editorial-frame-${index + 1}`}><PhotoButton photo={photo} index={index} className="editorial-photo" onOpen={setGalleryIndex} sizes={index === 0 ? "(min-width: 1200px) 560px, (min-width: 600px) 50vw, 74vw" : "(min-width: 1200px) 350px, (min-width: 600px) 30vw, 45vw"} /></figure>)}</div>
+            <div className="editorial-photos">{wedding.photos.story.map((photo, index) => <figure key={`${photo.src}-${index}`} className="editorial-frame"><PhotoButton photo={photo} index={index} className="editorial-photo" onOpen={setGalleryIndex} sizes="(min-width: 1000px) 435px, (min-width: 700px) 300px, 43vw" /></figure>)}</div>
             <span className="editorial-name editorial-name-second">{wedding.bride.name}</span>
             <FloralArt className="editorial-floral" />
           </div>
@@ -146,7 +150,6 @@ export default function WeddingInvitation({ side }: { side: WeddingSide }) {
         <footer className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{date && <p>{date.day} . {date.month} . {date.year}</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></footer>
       </main>
 
-      <nav className="mobile-nav" aria-label={copy.navigation.label}><a href="#loi-moi"><Icon name="calendar" size={18} /><span>{copy.navigation.invitation}</span></a><a href="#album"><Icon name="image" size={18} /><span>{copy.navigation.album}</span></a><a href="#hoi-dap"><Icon name="heart" size={18} /><span>{copy.navigation.reply}</span></a></nav>
       <WeddingPlayback dialogOpen={rsvpOpen || galleryIndex !== null} />
       {rsvpOpen && <RsvpDialog side={side} onClose={() => setRsvpOpen(false)} />}
       {galleryIndex !== null && <GalleryDialog initialIndex={galleryIndex} onClose={() => setGalleryIndex(null)} />}

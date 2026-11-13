@@ -4,9 +4,9 @@
 import { useId } from "react";
 import type { EditorField, FieldValue } from "@/lib/editor-types";
 
-export function FieldEditor({ field, disabled, change, upload, library }: {
+export function FieldEditor({ field, disabled, change, upload, library, maxUploadBytes = 10 * 1024 * 1024 }: {
   field: EditorField; disabled: boolean; change: (value: FieldValue) => void;
-  upload: (file: File) => void; library: () => void;
+  upload: (file: File) => void; library: () => void; maxUploadBytes?: number;
 }) {
   const id = useId();
   const value = field.value ?? "";
@@ -17,7 +17,7 @@ export function FieldEditor({ field, disabled, change, upload, library }: {
       {value && <img src={String(value)} alt="Ảnh đang chọn" />}
       <input id={id} value={String(value)} disabled={disabled} onChange={event => change(event.target.value)} aria-label={`${field.label} — đường dẫn trong public`} />
       <div className="ed-image-actions"><label className="ed-upload">Upload ảnh<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={disabled} onChange={event => { const file = event.target.files?.[0]; if (file) upload(file); event.target.value = ""; }} /></label><button type="button" disabled={disabled} onClick={library}>Thư viện ảnh</button></div>
-      <small>JPG, PNG, WebP, AVIF · tối đa 10 MB, 30 MP. Ảnh được lưu vào public/uploads/editor; chỉ thay trên thiệp sau khi Lưu.</small>
+      <small>JPG, PNG, WebP, AVIF · tối đa {maxUploadBytes / 1024 / 1024} MB, 30 MP. {maxUploadBytes <= 4 * 1024 * 1024 ? "Ảnh lưu bền vững trên Vercel Blob." : "Ảnh lưu vào public/uploads/editor."} Chỉ thay trên thiệp sau khi Lưu.</small>
     </div> : field.kind === "toggle" ? <div className="ed-toggle"><input id={id} type="checkbox" checked={Boolean(value)} disabled={disabled} onChange={event => change(event.target.checked)} /><span>{value ? "Bật" : "Tắt"}</span></div>
       : field.kind === "icon" ? <select id={id} value={String(value)} disabled={disabled} onChange={event => change(event.target.value)}>{["heart", "arrow", "pin", "calendar", "check", "close", "chevron", "copy", "car", "flower", "rings", "image", "music", "play", "pause", "scroll"].map(icon => <option key={icon}>{icon}</option>)}</select>
       : field.kind === "number" ? <input id={id} type="number" min={0} step="any" value={String(value)} disabled={disabled} onChange={event => { if (event.target.value !== "") change(Number(event.target.value)); }} />

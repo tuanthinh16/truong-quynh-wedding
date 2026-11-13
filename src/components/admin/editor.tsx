@@ -18,6 +18,7 @@ export function WeddingEditor() {
   const [session, setSession] = useState<DraftState | null>(null);
   const token = useRef("");
   const [busy, setBusy] = useState(false);
+  const [maxUploadBytes, setMaxUploadBytes] = useState(10 * 1024 * 1024);
   const [feedback, setFeedback] = useState({ text: "", error: false });
   const [page, setPage] = useState<PreviewMessage["page"]>("groom");
   const [mode, setMode] = useState<PreviewMessage["mode"]>("select");
@@ -28,6 +29,7 @@ export function WeddingEditor() {
   const [inspector, setInspector] = useState(false);
   const [responsesOpen, setResponsesOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [insertPositions, setInsertPositions] = useState<Record<string, number>>({});
   const [assets, setAssets] = useState<MediaAsset[] | null>(null);
   const [assetTarget, setAssetTarget] = useState<EditorPath | null>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -42,7 +44,7 @@ export function WeddingEditor() {
   const request = useCallback(async (url: string, options: RequestInit = {}, credential = token.current) => {
     const response = await fetch(`/__editor/api/${url}`, { ...options, cache: "no-store", headers: { "X-Editor-Token": credential, ...options.headers } });
     if (response.status === 401) { router.replace("/admin/login"); throw new Error("Phiên đăng nhập đã hết hạn."); }
-    const result = await response.json().catch(() => { throw new Error("Dịch vụ editor chưa sẵn sàng. Hãy chạy npm run dev."); });
+    const result = await response.json().catch(() => { throw new Error("API editor chưa sẵn sàng. Kiểm tra deployment và cấu hình lưu trữ trên server."); });
     if (!response.ok) throw new Error(result.error || "Không thể thực hiện yêu cầu.");
     return result;
   }, [router]);
@@ -52,6 +54,7 @@ export function WeddingEditor() {
     async function connect() {
       try {
         const status = await request("status");
+        if (active && status.maxUploadBytes) setMaxUploadBytes(status.maxUploadBytes);
         const content = await request("content", {}, status.token);
         if (active) { token.current = status.token; setSession({ ...content, base: content.data, past: [], future: [] }); }
       } catch (error) { if (active) notice(error instanceof Error ? error.message : "Không thể kết nối.", true); }
@@ -133,12 +136,12 @@ export function WeddingEditor() {
 
   async function upload(path: EditorPath, file: File) {
     if (lock.current) return;
-    if (file.size > 10 * 1024 * 1024) { notice("Ảnh vượt giới hạn 10 MB.", true); return; }
+    if (file.size > maxUploadBytes) { notice(`Ảnh vượt giới hạn ${maxUploadBytes / 1024 / 1024} MB.`, true); return; }
     lock.current = true; setBusy(true);
     try {
       const result = await request("upload", { method: "POST", headers: { "Content-Type": file.type, ...(path.at(-1) === "qrImage" ? { "X-Editor-Image-Purpose": "qr" } : {}) }, body: file });
       lock.current = false; change(path, result.src);
-      notice("Đã upload ảnh vào public. Bấm Lưu để dùng ảnh này trên thiệp.");
+      notice("Đã upload ảnh vào thư viện. Bấm Lưu để dùng ảnh này trên thiệp.");
     } catch (error) { notice(error instanceof Error ? error.message : "Upload thất bại.", true); }
     finally { lock.current = false; setBusy(false); }
   }
@@ -153,7 +156,11 @@ export function WeddingEditor() {
     if (!session) return;
     const config = listConfig(path), items = structuredClone(readPath(session.data, path)) as unknown[];
     if (!config) return;
-    if (operation === "add" && items.length < config.max) items.push(structuredClone(config.template));
+    if (operation === "add" && items.length < config.max) {
+      const position = Math.max(0, Math.min(index, items.length));
+      items.splice(position, 0, structuredClone(config.template));
+      notice(`Đã chèn mục ở vị trí ${position + 1}. Chọn ảnh trong bản xem trước để thay ảnh hoặc upload.`);
+    }
     else if (operation === "remove" && items.length > config.min) items.splice(index, 1);
     else if (operation === "up" && index > 0) [items[index - 1], items[index]] = [items[index], items[index - 1]];
     else if (operation === "down" && index < items.length - 1) [items[index + 1], items[index]] = [items[index], items[index + 1]];
@@ -193,15 +200,28 @@ export function WeddingEditor() {
     {inspector && session && <InPageDialog className="ed-dialog" label="Chỉnh sửa nội dung" inactive={!!assets} onClose={() => { if (!busy) setInspector(false); }}>
       <header><div><p className="ed-eyebrow">Bản nháp · xem trước tức thì</p><h2>{selected ? "Sửa ngay trên thiệp" : "Nội dung thiệp"}</h2></div><button disabled={busy} aria-label="Đóng chỉnh sửa" onClick={() => setInspector(false)}>×</button></header>
       <div className="ed-dialog-body"><label className="ed-document-label">Nhóm nội dung<select value={documentId} disabled={busy} onChange={event => { setDocumentId(event.target.value); setSelected(null); setSearch(""); }}>{documents.map(doc => <option key={doc.id} value={doc.id}>{doc.label}</option>)}</select></label>
-        {documentId === "mail" && <p className="ed-config-help">Chỉ gửi cho khách chọn tham dự và nhập email. Dùng {"{name}, {couple}, {side}, {guests}"} để chèn thông tin. Cấu hình SMTP trong .env.local rồi khởi động lại server; không nhập mật khẩu SMTP vào nội dung thiệp.</p>}
-        {documentId.startsWith("gift-") && <p className="ed-config-help">Upload mã QR thật của đúng người nhận. Kiểm tra thông tin tài khoản riêng cho từng nhà; có thể tắt nút quà mừng bằng Bật chức năng.</p>}
+        {documentId === "mail" && <p className="ed-config-help">Chỉ gửi cho khách chọn tham dự và nhập email. Dùng {"{name}, {couple}, {side}, {guests}"} để chèn thông tin. Cấu hình SMTP trong Environment Variables của Vercel rồi redeploy, hoặc .env.local khi chạy local; không nhập mật khẩu SMTP vào nội dung thiệp.</p>}
+        {documentId.startsWith("gift-") && <p className="ed-config-help">Upload mã QR thật của đúng người nhận. Mỗi nhà dùng một ảnh riêng; có thể ẩn mã QR bằng Bật chức năng.</p>}
         {documentId.startsWith("event-") && <p className="ed-config-help">Địa chỉ là chữ hiển thị ở hero; Link bản đồ là URL Google Maps được mở khi bấm địa chỉ. Điền riêng cho nhà trai và nhà gái. Nội dung này cũng dùng trong email hướng dẫn.</p>}
         {selected ? <button className="ed-show-all" onClick={() => setSelected(null)}>Xem tất cả trường trong nhóm</button> : <input className="ed-search" aria-label="Tìm nội dung trong nhóm" placeholder="Tìm nội dung…" value={search} onChange={event => setSearch(event.target.value)} />}
         {!selected && document?.lists.map(list => {
           const items = readPath(session.data, list.path) as Record<string, unknown>[];
-          return <section className="ed-list" key={list.path.join(".")}><h3>{list.label} · {items.length}/{list.max}</h3>{items.map((item, index) => <div className="ed-list-row" key={index}><span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}<button disabled={busy || items.length >= list.max} onClick={() => listChange(list.path, "add")}>Thêm mục</button></section>;
+          const listKey = list.path.join(".");
+          const insertion = Math.min(insertPositions[listKey] ?? items.length, items.length);
+          const isPhotoList = list.path[0] === "photos";
+          return <section className="ed-list" key={listKey}>
+            <h3>{list.label} · {items.length}/{list.max}</h3>
+            {items.map((item, index) => <div className="ed-list-row" key={index}>{isPhotoList && <img className="ed-list-thumb" src={String(item.src)} alt="" />}<span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}
+            <label className="ed-insert-position">Vị trí chèn {isPhotoList ? "ảnh" : "mục"}
+              <select value={insertion} disabled={busy || items.length >= list.max} onChange={event => setInsertPositions(current => ({ ...current, [listKey]: Number(event.target.value) }))}>
+                {Array.from({ length: items.length + 1 }, (_, index) => <option key={index} value={index}>{index === 0 ? "Đầu danh sách" : index === items.length ? `Cuối danh sách · vị trí ${index + 1}` : `Trước mục ${index + 1} · ${String(items[index].alt || items[index].title || "Ảnh")}`}</option>)}
+              </select>
+            </label>
+            <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay, chỉ công khai khi bấm Lưu.</p>
+            <button disabled={busy || items.length >= list.max} onClick={() => listChange(list.path, "add", insertion)}>Thêm {isPhotoList ? "ảnh" : "mục"} tại vị trí {insertion + 1}</button>
+          </section>;
         })}
-        <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
+        <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
       </div><footer><span>Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu.</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button></footer>
     </InPageDialog>}
     {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}><header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header><div className="ed-library-grid">{assets.map(asset => <button key={asset.src} title={asset.src} onClick={() => { if (assetTarget) change(assetTarget, asset.src); setAssets(null); setAssetTarget(null); }}><img src={asset.src} alt={asset.name} loading="lazy" /><span>{asset.name}</span></button>)}</div>{!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}</InPageDialog>}

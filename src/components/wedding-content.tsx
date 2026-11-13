@@ -5,8 +5,8 @@ import { wedding, type WeddingData } from "@/config/wedding";
 
 const WeddingContext = createContext({ data: wedding as WeddingData, preview: false });
 
-export function WeddingContentProvider({ value, children }: { value: WeddingData; children: ReactNode }) {
-  return <WeddingContext.Provider value={{ data: value, preview: true }}>{children}</WeddingContext.Provider>;
+export function WeddingContentProvider({ value, children, preview = true }: { value: WeddingData; children: ReactNode; preview?: boolean }) {
+  return <WeddingContext.Provider value={{ data: value, preview }}>{children}</WeddingContext.Provider>;
 }
 
 export function useWedding() { return useContext(WeddingContext).data; }
