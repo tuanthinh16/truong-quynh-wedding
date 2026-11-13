@@ -1,0 +1,80 @@
+const unsafe = new Set(["__proto__", "constructor", "prototype"]);
+const labels = {
+  groom: "Chú rể", bride: "Cô dâu", name: "Họ tên", shortName: "Tên ngắn", initial: "Chữ đầu", portrait: "Ảnh chân dung", introduction: "Giới thiệu", role: "Vai trò",
+  photos: "Hình ảnh", hero: "Ảnh bìa", roses: "Ảnh màn mở đầu", heroAlt: "Mô tả ảnh bìa", story: "Khoảnh khắc", gallery: "Album", src: "Ảnh", alt: "Mô tả ảnh", position: "Vị trí ảnh", label: "Nhãn",
+  events: "Ngày cưới", sideLabel: "Tên gia đình", venue: "Địa điểm", address: "Địa chỉ", dateTime: "Ngày và giờ", lunarDate: "Âm lịch", mapUrl: "Link bản đồ", schedule: "Lịch trình", time: "Giờ", title: "Tiêu đề", detail: "Mô tả", icon: "Biểu tượng",
+  content: "Nội dung", entrance: "Màn mở đầu", invitation: "Lời mời", partner: "Giới thiệu", calendar: "Lịch", album: "Album", reply: "Hồi đáp", footer: "Cuối thiệp", navigation: "Điều hướng", modal: "Hộp thoại", rsvp: "Form hồi đáp",
+  metadata: "SEO", openGraph: "Chia sẻ mạng xã hội", description: "Mô tả", locale: "Ngôn ngữ", experience: "Trải nghiệm", audio: "Nhạc nền", volume: "Âm lượng", loop: "Phát lặp", scroll: "Cuộn tự động", pixelsPerSecond: "Tốc độ cuộn (px/s)", rampMilliseconds: "Thời gian tăng tốc (ms)", controls: "Nút điều khiển", decoration: "Trang trí", bouquet: "Bó hoa", storageKey: "Khóa lưu hồi đáp",
+  eyebrow: "Dòng dẫn", accent: "Chữ nhấn", question: "Câu hỏi", button: "Nút bấm", weekdays: "Thứ trong tuần", month: "Tháng", heading: "Đầu mục", note: "Ghi chú", selected: "Ngày chọn", quote: "Lời nhắn", caption: "Chú thích", signature: "Chữ ký", closing: "Lời kết",
+  skip: "Bỏ qua phần mở đầu", invite: "Dòng kính mời", atTime: "Nhãn giờ", lunarPrefix: "Tiền tố âm lịch", atVenue: "Nhãn địa điểm", map: "Nút chỉ đường", intro: "Lời giới thiệu", share: "Nút chia sẻ", copied: "Thông báo đã sao chép", link: "Nhãn đường dẫn", view: "Nút xem ảnh", previous: "Ảnh trước", next: "Ảnh tiếp theo", close: "Nút đóng",
+  namePlaceholder: "Gợi ý nhập tên", attendance: "Câu hỏi tham dự", yes: "Lựa chọn có mặt", no: "Lựa chọn vắng mặt", guests: "Số khách", guestUnit: "Đơn vị số khách", message: "Nhãn lời nhắn", messagePlaceholder: "Gợi ý lời nhắn", submit: "Nút lưu hồi đáp", nameError: "Lỗi chưa nhập tên", storageError: "Lỗi lưu trên thiết bị", thanks: "Dòng cảm ơn", successTitle: "Tiêu đề đã lưu", successMessage: "Thông báo đã lưu", back: "Nút trở về", dateLabel: "Nhãn ngày cưới", timeLabel: "Nhãn giờ cưới", venueLabel: "Nhãn nơi tổ chức", loveLabel: "Nhãn lời hẹn", play: "Nút phát nhạc", pause: "Nút tạm dừng", scrollStart: "Nút tiếp tục cuộn", scrollPause: "Nút dừng cuộn",
+  gifts: "Quà mừng online", gift: "Lời nhắn quà mừng", giftButton: "Nút gửi quà online", enabled: "Bật chức năng", qrImage: "Ảnh mã QR", bankName: "Tên ngân hàng", accountName: "Chủ tài khoản", accountNumber: "Số tài khoản", transferNote: "Nội dung chuyển khoản", mail: "Email hướng dẫn", subject: "Tiêu đề thư", greeting: "Lời chào", instructions: "Hướng dẫn tham dự",
+  email: "Nhãn email", emailPlaceholder: "Gợi ý nhập email", emailHelp: "Mục đích sử dụng email", emailError: "Lỗi email không hợp lệ", submitting: "Nhãn đang gửi", submitError: "Lỗi gửi hồi đáp", emailSent: "Thông báo đã gửi email", emailUnavailable: "Thông báo chưa gửi được email", emailPending: "Thông báo email đang xử lý", previewMessage: "Thông báo bản xem trước", qrAlt: "Mô tả mã QR", bankLabel: "Nhãn ngân hàng", accountNameLabel: "Nhãn chủ tài khoản", accountNumberLabel: "Nhãn số tài khoản", transferNoteLabel: "Nhãn nội dung chuyển khoản", copy: "Nút sao chép", copyError: "Lỗi sao chép", emptyMessage: "Thông báo chưa có mã QR", safetyNote: "Lưu ý kiểm tra người nhận",
+  // 2026-11-13: Noi dung cam on rieng cho khach khong the tham du.
+  declinedTitle: "Tiêu đề khi khách vắng mặt", declinedMessage: "Lời cảm ơn khi khách vắng mặt",
+  // 2026-11-13: Ten hien thi nguoi gui email, tach khoi dia chi SMTP.
+  senderName: "Tên người gửi email",
+};
+
+export function readPath(data, path) {
+  return path.reduce((value, key) => !unsafe.has(String(key)) && value != null && Object.hasOwn(value, key) ? value[key] : undefined, data);
+}
+
+export function writePath(data, path, value) {
+  if (!Array.isArray(path) || !path.length || path.some(key => unsafe.has(String(key)))) throw new Error("Đường dẫn không hợp lệ.");
+  const parent = readPath(data, path.slice(0, -1));
+  if (!parent || typeof parent !== "object" || !Object.hasOwn(parent, path.at(-1))) throw new Error("Trường không tồn tại.");
+  parent[path.at(-1)] = value;
+}
+
+export function listConfig(path) {
+  const key = path.join(".");
+  if (key === "photos.story") return { min: 1, max: 4, template: { src: "/images/editorial-demo.jpg", alt: "Khoảnh khắc ngày cưới", position: "center" } };
+  if (key === "photos.gallery") return { min: 1, max: 100, template: { src: "/images/wedding-demo.jpg", alt: "Khoảnh khắc ngày cưới", label: "" } };
+  if (/^events\.(groom|bride)\.schedule$/.test(key)) return { min: 0, max: 32, template: { time: "09:00", title: "Hoạt động mới", detail: "", icon: "heart" } };
+  return null;
+}
+
+export function fieldKind(path, value) {
+  const key = path.at(-1);
+  if (typeof value === "boolean") return "toggle";
+  if (typeof value === "number") return "number";
+  if (key === "dateTime") return "date";
+  if (key === "icon") return "icon";
+  if (key === "portrait" || key === "bouquet" || key === "qrImage" || path[0] === "photos" && ["hero", "roses", "src"].includes(key)) return "image";
+  if (key === "mapUrl") return "url";
+  return "text";
+}
+
+export function editorDocuments(data) {
+  const documents = [];
+  function add(id, label, path) {
+    const fields = [], lists = [];
+    function walk(value, current, trail) {
+      if (value && typeof value === "object") {
+        const list = Array.isArray(value) && listConfig(current);
+        if (list) lists.push({ path: current, label: trail.join(" / "), min: list.min, max: list.max });
+        for (const [key, child] of Object.entries(value)) {
+          if (key.startsWith("_")) continue;
+          walk(child, [...current, Array.isArray(value) ? Number(key) : key], [...trail, labels[key] || (/^\d+$/.test(key) ? `Mục ${Number(key) + 1}` : key)]);
+        }
+      } else fields.push({ path: current, key: String(current.at(-1)), label: trail.join(" / ") || label, kind: fieldKind(current, value), nullable: value === null || ["dateTime", "mapUrl"].includes(current.at(-1)), value });
+    }
+    walk(readPath(data, path), path, []);
+    documents.push({ id, label, path, fields, lists });
+  }
+  add("groom", "Chú rể", ["groom"]);
+  add("bride", "Cô dâu", ["bride"]);
+  add("event-groom", "Ngày cưới nhà trai", ["events", "groom"]);
+  add("event-bride", "Ngày cưới nhà gái", ["events", "bride"]);
+  add("photos", "Hình ảnh & album", ["photos"]);
+  for (const key of Object.keys(data.content)) add(`content-${key}`, labels[key] || key, ["content", key]);
+  add("metadata", "SEO & chia sẻ", ["metadata"]);
+  add("experience", "Nhạc & chuyển động", ["experience"]);
+  add("decoration", "Hoa trang trí", ["decoration"]);
+  add("rsvp", "Lưu hồi đáp", ["rsvp"]);
+  add("gift-groom", "Quà mừng nhà trai", ["gifts", "groom"]);
+  add("gift-bride", "Quà mừng nhà gái", ["gifts", "bride"]);
+  add("mail", "Email hướng dẫn", ["mail"]);
+  return documents;
+}

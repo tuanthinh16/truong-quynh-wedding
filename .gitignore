@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Added 2026-11-13: keep private editor backups out of Git; share only the credential template.
+.editor/
+!.env.example
+
+# Added 2026-11-13: private guest responses and email deduplication/quota files must never be committed.
+.rsvp/
+.agents/

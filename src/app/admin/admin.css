@@ -1,0 +1,180 @@
+/* Added 2026-10-30: local visual-editor workspace, using the storefront red, ivory and editorial typography. */
+.ed-root { --ed-line: #e3d9cc; --ed-muted: #827163; --ed-paper: #fffdf9; color: var(--ink); height: 100dvh; display: flex; flex-direction: column; background: #eee8df; font-size: 13px; }
+.ed-root button, .ed-root input, .ed-root select, .ed-root textarea { font: inherit; }
+.ed-root button { border: 1px solid var(--ed-line); background: var(--ed-paper); color: var(--ink); padding: 9px 13px; border-radius: 5px; }
+.ed-root button:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
+.ed-root button:disabled { opacity: .45; }
+.ed-root input:not([type="checkbox"]), .ed-root select, .ed-root textarea { width: 100%; min-width: 0; border: 1px solid var(--ed-line); border-radius: 5px; padding: 10px 12px; color: var(--ink); background: white; line-height: 1.5; }
+.ed-root textarea { resize: vertical; }
+.ed-topbar { display: flex; flex-shrink: 0; align-items: center; gap: 20px; padding: 12px 24px; background: var(--ed-paper); border-bottom: 1px solid var(--ed-line); position: relative; z-index: 5; }
+.ed-brand { flex-shrink: 0; font: 700 23px/1.2 "Playfair Display", Georgia, serif; color: var(--red); }
+.ed-brand strong { display: block; font: 700 23px/1.2 "Playfair Display", Georgia, serif; color: var(--red); }
+.ed-brand small { display: block; margin-top: 3px; color: var(--ed-muted); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.ed-connection { padding: 5px 9px; border: 1px solid var(--ed-line); border-radius: 30px; color: var(--ed-muted); font-size: 11px; white-space: nowrap; }
+.ed-connection.connected { color: #35634a; border-color: #cedbce; background: #f1f6ef; }
+.ed-top-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+.ed-root .ed-save { background: var(--red); color: white; border-color: var(--red); padding-inline: 20px; }
+.ed-root .ed-save:hover:not(:disabled) { background: var(--red-dark); color: white; }
+.ed-workspace { flex: 1; min-height: 0; }
+.ed-eyebrow { font-size: 10px; color: var(--gold); font-weight: 700; text-transform: uppercase; letter-spacing: .11em; margin: 0 0 8px; }
+.ed-search { margin-bottom: 16px; font-size: 12px !important; }
+.ed-stage { height: 100%; display: flex; flex-direction: column; padding: 0 16px 16px; }
+.ed-root [aria-pressed="true"] { background: var(--ed-paper); color: var(--red); box-shadow: 0 1px 4px #39271f12; }
+.ed-canvas { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; }
+.ed-frame { margin: 0; background: var(--paper); transform-origin: top left; box-shadow: 0 4px 24px #39271f12; }
+.ed-preview-surface { margin-inline: auto; }
+.ed-preview-surface .ed-frame { margin: 0; transform-origin: top left; }
+.ed-canvas-tablet .ed-frame { width: 768px; }
+.ed-canvas-mobile .ed-frame { width: 390px; }
+.ed-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+.ed-preview-hint { margin: 10px 0; font-size: 11px; color: var(--ed-muted); text-align: center; }
+.ed-tabs { display: flex; border-bottom: 1px solid var(--ed-line); margin-bottom: 16px; }
+.ed-root .ed-tabs button { flex: 1; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; font-size: 11px; padding: 10px 5px; }
+.ed-root .ed-tabs [aria-selected="true"] { border-bottom-color: var(--red); color: var(--red); font-weight: 600; }
+.ed-field { margin: 0 0 22px; padding: 12px 0; border-bottom: 1px solid var(--ed-line); scroll-margin-top: 20px; }
+.ed-field.is-selected { background: #f9f0e7; padding: 12px; margin-inline: -12px; border: 1px solid #d7a48f; border-radius: 6px; }
+.ed-field > label { display: block; margin-bottom: 8px; font-size: 11px; font-weight: 600; line-height: 1.7; }
+.ed-field > code { display: block; overflow-wrap: anywhere; color: var(--ed-muted); font-size: 9px; margin-top: 7px; }
+.ed-image-field > img { width: 100%; height: 150px; object-fit: contain; background: #f0ebe3; border: 1px solid var(--ed-line); border-radius: 5px; margin-bottom: 10px; }
+.ed-image-field > small { display: block; color: var(--ed-muted); font-size: 10px; line-height: 1.7; margin-top: 8px; }
+.ed-image-empty { display: grid; place-items: center; height: 100px; border: 1px dashed #cabaac; color: var(--ed-muted); margin-bottom: 10px; }
+.ed-image-actions { display: flex; gap: 8px; margin-top: 10px; }
+.ed-image-actions button { flex: 1; font-size: 11px; }
+.ed-toggle { display: flex; gap: 10px; align-items: center; }
+.ed-toggle input { width: 18px; height: 18px; accent-color: var(--red); }
+.ed-rich { border: 1px solid var(--ed-line); border-radius: 5px; overflow: hidden; background: white; }
+.ed-rich-toolbar { display: flex; gap: 3px; flex-wrap: wrap; background: #f5f0e9; padding: 5px; border-bottom: 1px solid var(--ed-line); }
+.ed-root .ed-rich-toolbar button { font-size: 10px; padding: 5px 7px; }
+.ed-rich-content { padding: 12px; min-height: 150px; max-height: 360px; overflow-y: auto; font-size: 12px; line-height: 1.8; outline-offset: -3px; }
+.ed-rich-content p { margin: 0 0 10px; }
+.ed-rich-content h2 { font-family: inherit; font-size: 18px; }
+.ed-rich-content a { color: var(--red); text-decoration: underline; }
+.ed-rich-content ul, .ed-rich-content ol { padding-left: 20px; }
+.ed-empty { padding-block: 25px; color: var(--ed-muted); font-size: 11px; line-height: 1.8; }
+.ed-feedback { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: #edf3e8; color: #3c5e35; font-size: 12px; }
+.ed-feedback.is-error { background: #fae8e3; color: #8e271d; }
+.ed-feedback button { padding: 0 8px; background: transparent; border: 0; font-size: 22px; }
+.ed-library { width: min(1000px, calc(100vw - 36px)); max-height: 88dvh; border: 1px solid var(--ed-line); border-radius: 12px; background: var(--ed-paper); color: var(--ink); padding: 24px; }
+.ed-library header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px; }
+.ed-library h2 { margin: 0; font: 600 30px "Playfair Display", Georgia, serif; }
+.ed-library header button { font-size: 24px; padding: 0 12px; }
+.ed-library > p { color: var(--ed-muted); font-size: 11px; }
+.ed-library-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.ed-library-grid button { padding: 0; overflow: hidden; min-width: 0; }
+.ed-library-grid img { width: 100%; aspect-ratio: 1; height: auto; object-fit: cover; }
+.ed-library-grid span { display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: 10px; padding: 7px; }
+.editor-selecting [data-editor-ref] { cursor: pointer !important; }
+.editor-selecting [data-editor-ref]:hover { outline: 2px dashed #981c18; outline-offset: 3px; }
+.editor-selecting [data-editor-selected="true"] { outline: 3px solid #981c18; outline-offset: 4px; }
+
+/* Updated 2026-11-01: contextual editing dialogs, with secondary controls tucked into a single menu. */
+.ed-root .ed-page-select { max-width: 320px; text-overflow: ellipsis; }
+.ed-tools { position: relative; }
+.ed-tools > summary { list-style: none; white-space: nowrap; border: 1px solid var(--ed-line); padding: 9px 13px; border-radius: 5px; cursor: pointer; }
+.ed-tools > summary::-webkit-details-marker { display: none; }
+.ed-tools-menu { position: absolute; right: 0; top: calc(100% + 10px); width: 250px; padding: 16px; display: grid; gap: 12px; border: 1px solid var(--ed-line); border-radius: 8px; background: var(--ed-paper); box-shadow: 0 12px 36px #39271f20; }
+.ed-tools-menu label { display: grid; gap: 5px; font-size: 11px; color: var(--ed-muted); }
+.ed-history { display: flex; gap: 8px; }
+.ed-history button { flex: 1; }
+.ed-dialog { margin: auto; width: min(580px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 0; border: 1px solid var(--ed-line); border-radius: 10px; background: var(--ed-paper); color: var(--ink); box-shadow: 0 24px 80px #281b1533; }
+.ed-dialog, .ed-library { overflow-y: auto; }
+.ed-dialog > header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 22px 24px; border-bottom: 1px solid var(--ed-line); }
+.ed-dialog h2 { margin: 0; font: 600 25px/1.3 "Playfair Display", Georgia, serif; }
+.ed-dialog-body { padding: 20px 24px; }
+.ed-dialog > footer { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; background: var(--ed-paper); border-top: 1px solid var(--ed-line); padding: 16px 24px; }
+.ed-dialog > footer > span { width: 100%; font-size: 11px; color: var(--ed-muted); }
+.ed-field:first-child { padding-top: 0; }
+.ed-field:last-child { border-bottom: 0; padding-bottom: 0; }
+.ed-search + .ed-fields { margin-top: 20px; }
+.ed-inline-edit { position: fixed; z-index: 10000; padding: 6px 12px; border: 1px solid #981c18; border-radius: 20px; background: #fffdf9; color: #981c18; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1.4; box-shadow: 0 3px 12px #39271f20; cursor: pointer; }
+@media (max-width: 760px) {
+  .ed-topbar { flex-wrap: wrap; padding: 10px 12px; gap: 10px; }
+  .ed-brand { font-size: 20px; }
+  .ed-root .ed-page-select { max-width: none; flex: 1; width: 0; }
+  .ed-top-actions { width: 100%; justify-content: flex-end; }
+  .ed-connection { margin-right: auto; }
+  .ed-stage { padding: 0 0 8px; }
+  .ed-preview-hint { font-size: 10px; padding-inline: 8px; }
+  .ed-tools-menu { right: -80px; }
+  .ed-library-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ed-dialog > header, .ed-dialog-body, .ed-dialog > footer { padding: 16px; }
+  .ed-dialog h2 { font-size: 22px; }
+}
+@media (max-width: 420px) { .ed-library-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .ed-root * { scroll-behavior: auto !important; } }
+
+/* Added 2026-11-01: render editing forms inside the page, without browser popup or native dialog APIs. */
+.ed-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px 16px; overflow-y: auto; background: #281b1580; backdrop-filter: blur(3px); }
+.ed-overlay[inert] { pointer-events: none; }
+.ed-unavailable { margin: auto; max-width: 560px; padding: 32px; line-height: 1.8; }
+.ed-unavailable h1 { font: 600 28px/1.3 "Playfair Display", Georgia, serif; }
+.ed-unavailable a { margin-left: 16px; text-decoration: underline; }
+
+/* Added 2026-11-03: admin sign-in using the existing storefront palette and typography. */
+.ed-login { min-height: 100dvh; height: auto; display: grid; place-items: center; padding: 28px 16px; background: radial-gradient(ellipse at 50% 0%, #fdf6e9, #eee8df 70%); }
+.ed-login-card { width: min(100%, 440px); background: var(--ed-paper); border: 1px solid var(--ed-line); padding: clamp(24px, 5vw, 40px); border-radius: 10px; box-shadow: 0 16px 60px #39271f10; }
+.ed-login-card h1 { margin: 10px 0; font: 600 30px/1.3 "Playfair Display", Georgia, serif; }
+.ed-login-card > p { line-height: 1.8; color: var(--ed-muted); }
+.ed-login-card form { display: grid; gap: 10px; margin-block: 24px; }
+.ed-login-card label { font-weight: 600; margin-top: 8px; }
+.ed-login-card form > button { margin-top: 14px; min-height: 44px; }
+.ed-login-card > a { color: var(--ed-muted); text-decoration: underline; }
+.ed-login-card .ed-login-notice { padding: 12px; background: #f8edce; color: #685425; font-size: 12px; overflow-wrap: anywhere; }
+.ed-login-error { margin: 4px 0; color: var(--red); line-height: 1.7; }
+
+/* Added 2026-11-13: wedding editor typography, accessible controls, responsive lists and selectable preview assets. */
+.ed-root { --ed-muted: #6f5c51; font-family: var(--font-body), sans-serif; line-height: 1.6; }
+.ed-root .ed-brand, .ed-root .ed-dialog h2, .ed-root .ed-library h2, .ed-root .ed-login-card h1 { font-family: var(--font-display), Georgia, serif; }
+.ed-root button, .ed-root select, .ed-tools > summary, .ed-upload { min-height: 44px; }
+.ed-root button, .ed-tools > summary, .ed-upload { cursor: pointer; }
+.ed-root button:disabled { cursor: not-allowed; }
+.ed-root input:not([type="checkbox"]), .ed-root textarea, .ed-root select { font-size: 16px; }
+.ed-root .ed-field > label { font-size: 13px; }
+.ed-root small { line-height: 1.7; }
+.ed-root .ed-route { width: min(220px, 24vw); }
+.ed-root .ed-connection { font-size: 12px; }
+.ed-root .ed-document-label { display: grid; gap: 8px; margin-bottom: 18px; font-weight: 600; }
+.ed-root .ed-show-all { margin-bottom: 20px; }
+.ed-root .ed-list { margin: 0 0 24px; padding: 14px; background: #f5efe8; border: 1px solid var(--ed-line); border-radius: 6px; }
+.ed-root .ed-list h3 { margin: 0 0 12px; font: 600 16px/1.5 var(--font-body), sans-serif; }
+.ed-list-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.ed-list-row > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ed-root .ed-list-row button { padding-inline: 10px; min-width: 44px; }
+.ed-upload { position: relative; display: flex; flex: 1; justify-content: center; align-items: center; overflow: hidden; border: 1px solid var(--ed-line); border-radius: 5px; font-size: 12px; background: white; }
+.ed-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.ed-upload:focus-within { outline: 2px solid var(--red); outline-offset: 3px; }
+.ed-upload:has(input:disabled) { opacity: .45; }
+.ed-dialog footer > p { width: 100%; margin: 0; font-size: 12px; }
+.ed-root .ed-dialog-error { color: var(--red-dark); }
+.ed-root .ed-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.editor-preview .reveal, .editor-preview .photo-reveal img { opacity: 1 !important; visibility: visible !important; translate: 0 0 !important; transform: none !important; }
+.editor-selecting [data-edit], .editor-selecting .floral-art { pointer-events: auto !important; }
+.editor-selecting [data-editor-ref]:hover { outline-offset: -2px; }
+
+/* 2026-11-13: Chon ban do trong visual editor de sua dia chi, khong bat click trong iframe. */
+.editor-selecting .location-map iframe { pointer-events: none; }
+@media (max-width: 900px) {
+  .ed-topbar { flex-wrap: wrap; gap: 10px; padding: 10px 12px; }
+  .ed-root .ed-route { flex: 1; width: auto; }
+  .ed-top-actions { width: 100%; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+  .ed-root .ed-connection { margin-right: auto; }
+  .ed-tools-menu { right: 0; max-width: calc(100vw - 24px); }
+  .ed-stage { padding-inline: 4px; }
+}
+@media (max-width: 480px) {
+  .ed-root .ed-connection { width: 100%; border: 0; padding: 0; background: transparent; }
+  .ed-root .ed-top-actions > button, .ed-root .ed-tools { flex: 1; text-align: center; }
+  .ed-topbar { gap: 6px; }
+  .ed-dialog, .ed-library { max-height: calc(100dvh - 24px); }
+}
+
+/* Added 2026-11-13: private RSVP list, SMTP health and shared-data configuration help. */
+.ed-root .ed-responses { width: min(760px, calc(100vw - 32px)); }
+.ed-root .ed-config-help, .ed-mail-health { padding: 12px; background: #f6eee3; border-radius: 6px; font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; margin-bottom: 18px; }
+.ed-response-list { display: grid; gap: 12px; margin-block: 20px; }
+.ed-response-list article { padding: 16px; border: 1px solid var(--ed-line); border-radius: 8px; overflow-wrap: anywhere; }
+.ed-response-heading { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.ed-response-heading > span { color: var(--red); font-size: 12px; }
+.ed-response-list article p { font-size: 13px; margin: 8px 0; }
+.ed-response-list small { color: var(--ed-muted); }
+.ed-response-message { white-space: pre-wrap; }

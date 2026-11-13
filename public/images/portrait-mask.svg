@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 640">
+  <defs>
+    <linearGradient id="edge" x1="0" x2="1" y1="0" y2="0">
+      <stop stop-color="white" stop-opacity="0"/>
+      <stop offset=".085" stop-color="white" stop-opacity=".65"/>
+      <stop offset=".18" stop-color="white"/>
+      <stop offset=".92" stop-color="white"/>
+      <stop offset="1" stop-color="white" stop-opacity=".2"/>
+    </linearGradient>
+    <filter id="paper" x="-15%" y="-10%" width="130%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency=".055 .19" numOctaves="3" seed="12" result="grain"/>
+      <feDisplacementMap in="SourceGraphic" in2="grain" scale="27" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <path fill="url(#edge)" filter="url(#paper)" d="M38 20 98 13 131 21 189 11 221 17 279 9 323 18 379 11 433 19 463 14 468 62 460 98 471 143 462 188 472 236 463 277 471 321 464 368 473 406 463 458 470 507 461 557 469 608 433 621 390 614 345 626 301 615 252 628 209 618 157 627 119 615 77 625 28 613 36 573 22 535 40 493 21 451 32 413 18 371 37 329 22 291 40 251 23 216 38 178 20 141 35 101 26 63Z"/>
+</svg>
