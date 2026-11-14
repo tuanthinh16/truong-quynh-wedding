@@ -75,7 +75,53 @@
     "heroAlt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
     "entranceAlt": "Cô dâu và chú rể cùng bắt đầu hành trình mới",
     "couplePortrait": "/images/DSC05841.jpg",
-    "coupleAlt": "Cô dâu và chú rể bên nhau"
+    "coupleAlt": "Cô dâu và chú rể bên nhaua",
+    "heroSlides": {
+      "groom": [
+        {
+          "src": "/images/DSC05692.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06269.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06773.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06373.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        }
+      ],
+      "bride": [
+        {
+          "src": "/images/DSC06132.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05742.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06362.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05513.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        }
+      ]
+    }
   },
   "events": {
     "groom": {
@@ -361,7 +407,7 @@
   "gifts": {
     "groom": {
       "enabled": true,
-      "qrImage": "/images/gift-qr-demo.png",
+      "qrImage": "/images/qr-trai.png",
       "bankName": "Ngân hàng mẫu",
       "accountName": "DUY TRUONG (MAU)",
       "accountNumber": "DEMO-KHONG-CHUYEN-KHOAN",
@@ -369,7 +415,7 @@
     },
     "bride": {
       "enabled": true,
-      "qrImage": "/images/gift-qr-demo.png",
+      "qrImage": "/images/qr-gai.png",
       "bankName": "Ngân hàng mẫu",
       "accountName": "DIEM QUYNH (MAU)",
       "accountNumber": "DEMO-KHONG-CHUYEN-KHOAN",
@@ -387,17 +433,18 @@
   },
   "_meta": {
     "partyConceptNote": "2026-11-13: partyConcept dùng chung cho hai nhà, sửa trong admin; tones và dressCode chỉ hiện hai dòng chữ nhỏ dưới lịch và trong email, không chấm màu hay border; tắt enabled để ẩn cả hai.",
-    "updatedAt": "2026-11-13T15:01:59.712Z",
+    "updatedAt": "2026-11-14T04:40:48.559Z",
     "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor.",
     "personalizationNote": "2026-11-13: Thêm content.personalization để sửa lời kính mời, tên mặc định và lời cảm ơn theo {name}; tên khách lấy từ query name, danh sách tạo link chỉ xử lý trong trình duyệt.",
     "entranceDateNote": "2026-11-13: Thêm content.entrance.date cho ngày tháng năm của màn mở đầu trước khi chọn gia đình, sửa riêng trong admin; lời kính mời, tên khách hoặc Bạn và ngày nằm ở 1/3 phía trên ảnh.",
-    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin. 2026-11-13: Thêm events.<side>.mapEmbedUrl độc lập địa chỉ/link chỉ đường, sửa trực tiếp trong admin; cấu hình upload 30 MB và WebP responsive dựng lúc build tại image-settings.mjs. 2026-11-13: Bootstrap defaults only; wedding.json is ignored. Added presentation.typography and presentation.blocks for local fonts and removable sections; removed party concept."
+    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin. 2026-11-13: Thêm events.<side>.mapEmbedUrl độc lập địa chỉ/link chỉ đường, sửa trực tiếp trong admin; cấu hình upload 30 MB và WebP responsive dựng lúc build tại image-settings.mjs."
   },
   "presentation": {
     "typography": {
       "body": "quicksand",
       "display": "cormorant-garamond",
-      "script": "great-vibes"
+      "script": "great-vibes",
+      "numbers": "charmonman"
     },
     "blocks": {
       "hero": {
@@ -430,7 +477,7 @@
       },
       "reply": {
         "visible": true,
-        "font": ""
+        "font": "lora"
       },
       "location": {
         "visible": true,
