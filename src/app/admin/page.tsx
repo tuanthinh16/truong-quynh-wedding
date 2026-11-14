@@ -1,7 +1,14 @@
 import { WeddingEditor } from "@/components/admin/editor";
-import { getEditorMedia, getWeddingData } from "@/lib/wedding-server";
+import { getEditorMedia } from "@/lib/wedding-server";
+import { requireOnlineAdmin } from "@/lib/editor-session";
+import { Suspense } from "react";
 
-export default async function AdminPage() {
+async function AdminContent() {
+  await requireOnlineAdmin();
   const deployment = process.env.NODE_ENV === "production";
-  return <WeddingEditor initialData={await getWeddingData()} deployment={deployment} initialAssets={deployment ? await getEditorMedia() : []} />;
+  return <WeddingEditor deployment={deployment} initialAssets={deployment ? await getEditorMedia() : []} />;
+}
+
+export default function AdminPage() {
+  return <Suspense fallback={<p role="status">Đang mở trang quản trị…</p>}><AdminContent /></Suspense>;
 }

@@ -39,8 +39,8 @@ export function AdminLogin() {
   return <main className="ed-root ed-login"><section className="ed-login-card" aria-labelledby="login-title">
     <p className="ed-eyebrow">Thiệp cưới · Quản trị nội dung</p><h1 id="login-title">Đăng nhập admin</h1><p>Đăng nhập để chỉnh sửa nội dung và hình ảnh website.</p>
     {availability === "loading" && <p role="status">Đang kết nối…</p>}
-    {availability === "unconfigured" && <p role="alert" className="ed-login-notice">Cấu hình <code>ADMIN_USERNAME</code> và <code>ADMIN_PASSWORD</code> (ít nhất 12 ký tự) trong <code>.env.local</code> và khởi động lại server local. Không có tài khoản mặc định.</p>}
-    {availability === "unavailable" && <p role="alert" className="ed-login-notice">Đăng nhập để chỉnh sửa chỉ khả dụng khi chạy admin local. Bản online chỉ xem trước dữ liệu đã commit.</p>}
+    {availability === "unconfigured" && <p role="alert" className="ed-login-notice">Cấu hình <code>ADMIN_USERNAME</code> và <code>ADMIN_PASSWORD</code> (ít nhất 12 ký tự) trong biến môi trường server/Vercel. Không có tài khoản mặc định.</p>}
+    {availability === "unavailable" && <p role="alert" className="ed-login-notice">Không thể kết nối dịch vụ đăng nhập. Kiểm tra server rồi tải lại trang.</p>}
     <form onSubmit={event => void submit(event)} aria-busy={busy}>
       <label htmlFor="admin-username">Tên đăng nhập</label><input id="admin-username" name="username" autoComplete="username" required maxLength={256} disabled={busy || availability !== "ready"} />
       <label htmlFor="admin-password">Mật khẩu</label><input id="admin-password" name="password" type="password" autoComplete="current-password" required maxLength={1024} disabled={busy || availability !== "ready"} aria-describedby={error ? "login-error" : undefined} />

@@ -19,13 +19,10 @@ import { formatImageSize, imageSettings, validateUploadServer } from "@/lib/imag
 interface DraftState { data: WeddingData; base: WeddingData; revision: string; past: WeddingData[]; future: WeddingData[] }
 const samePath = (first: EditorPath, second: EditorPath) => JSON.stringify(first) === JSON.stringify(second);
 
-export function WeddingEditor({ initialData, deployment = false, initialAssets = [] }: { initialData: WeddingData; deployment?: boolean; initialAssets?: MediaAsset[] }) {
+export function WeddingEditor({ deployment = false, initialAssets = [] }: { deployment?: boolean; initialAssets?: MediaAsset[] }) {
   const router = useRouter();
-  const [session, setSession] = useState<DraftState | null>(() => {
-    if (!deployment) return null;
-    const data = withPresentation(initialData);
-    return { data, base: data, revision: "deployment", past: [], future: [] };
-  });
+  const [session, setSession] = useState<DraftState | null>(null);
+  const [storageConfigured, setStorageConfigured] = useState(true);
   const token = useRef("");
   const [busy, setBusy] = useState(false);
   const [maxUploadBytes, setMaxUploadBytes] = useState(imageSettings.maxUploadBytes);
@@ -62,7 +59,7 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
     const result = await response.json().catch(() => { throw new Error("API editor chưa sẵn sàng. Kiểm tra deployment và cấu hình lưu trữ trên server."); });
     if (!response.ok) throw new Error(result.error || "Không thể thực hiện yêu cầu.");
     return result;
-  }, [router]);
+  }, []);
 
   const loadAssets = useCallback((): Promise<MediaAsset[]> => {
     const cache = mediaCache.current;
@@ -79,7 +76,6 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
   }, [request]);
 
   useEffect(() => {
-    if (deployment) return;
     let active = true;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 20000);
@@ -87,6 +83,7 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
     async function connect() {
       try {
         const status = await request("status", { signal: controller.signal });
+        if (active) setStorageConfigured(!deployment || status.storageConfigured === true);
         if (active && status.maxUploadBytes) setMaxUploadBytes(status.maxUploadBytes);
         const content = await request("content", { signal: controller.signal }, status.token);
         if (active) {
@@ -169,27 +166,27 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
     if (!session || !dirty || lock.current) return;
     lock.current = true; setBusy(true);
     try {
-      if (deployment) {
-        const url = URL.createObjectURL(new Blob([JSON.stringify(session.data, null, 2) + "\n"], { type: "application/json" }));
-        const link = window.document.createElement("a");
-        link.href = url; link.download = "wedding.json";
-        window.document.body.appendChild(link); link.click(); link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
-        notice("Đã xuất wedding.json để sao lưu hoặc mở bằng admin local. File runtime không nằm trong Git. Bản online chưa đổi; cần kho lưu trữ ngoài để xuất bản và giữ dữ liệu qua redeploy.");
-        return;
-      }
       const result = await request("content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: session.data, revision: session.revision }) });
       const data = withPresentation(result.data);
       setSession(current => current ? { ...current, data, base: data, revision: result.revision } : current);
-      notice("Đã lưu nội dung thiệp. Bản cũ được sao lưu trong .editor/history.");
+      notice(deployment ? "Đã lưu nội dung online. Trang công khai sẽ dùng dữ liệu mới, không cần deploy lại." : "Đã lưu nội dung thiệp. Bản cũ được sao lưu trong .editor/history.");
     } catch (error) { notice(error instanceof Error ? error.message : "Lưu thất bại.", true); }
     finally { lock.current = false; setBusy(false); }
   }, [session, dirty, request, deployment]);
+  function exportJson() {
+    if (!session) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(session.data, null, 2) + "\n"], { type: "application/json" }));
+    const link = window.document.createElement("a");
+    link.href = url; link.download = "wedding.json";
+    window.document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    notice("Đã tải bản sao JSON. Thao tác này không lưu hoặc thay đổi dữ liệu trên server.");
+  }
   async function reloadContent() {
     if (lock.current || dirty && !window.confirm("Bỏ bản nháp và tải lại dữ liệu đã lưu?")) return;
     lock.current = true; setBusy(true);
     try {
-      const result = deployment ? { data: initialData, revision: "deployment" } : await request("content");
+      const result = await request("content");
       const data = withPresentation(result.data);
       setSession({ data, base: data, revision: result.revision, past: [], future: [] });
       setSelected(null);
@@ -271,6 +268,7 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
         <button disabled={!session || busy} onClick={() => { setSelected(null); setSearch(""); setInspector(true); }}>Nội dung</button>
         <button onClick={() => setInvitationLinksOpen(true)}>Tạo link mời</button>
         <button disabled={!session || busy} onClick={() => { setDocumentId("presentation"); setSelected(null); setSearch(""); setInspector(true); }}>Font chung &amp; số</button>
+        <button disabled={!session || busy} onClick={exportJson}>Xuất JSON</button>
         <details className="ed-tools"><summary>Tùy chọn</summary><div className="ed-tools-menu">
           <label>Khung xem<select value={viewport} onChange={event => setViewport(Number(event.target.value))}><option value={1440}>Desktop · 1440</option><option value={768}>Tablet · 768</option><option value={390}>Mobile · 390</option></select></label>
           <label>Chế độ<select value={mode} onChange={event => setMode(event.target.value as PreviewMessage["mode"])}><option value="select">Bấm để sửa</option><option value="browse">Duyệt thiệp</option></select></label>
@@ -278,11 +276,11 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
           <button disabled={!session || busy} onClick={() => { setDocumentId("metadata"); setSelected(null); setInspector(true); }}>SEO & chia sẻ</button>
           <button disabled={!session || busy || deployment} onClick={() => setResponsesOpen(true)}>Danh sách hồi đáp</button>
           <button disabled={!session || busy} onClick={() => void reloadContent()}>Tải lại dữ liệu</button>
-          {!deployment && <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>}
-        </div></details><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : deployment ? "Xuất JSON" : "Lưu thay đổi"}</button>
+          <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>
+        </div></details><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button>
       </div>
     </header>
-    {deployment && <div className="ed-feedback" role="status">Có thể sửa nội dung, font, block và chọn ảnh có sẵn; upload cần admin local. Bản nháp chưa được xuất bản và sẽ mất khi tải lại: bấm Xuất JSON để sao lưu. Lưu online bền vững cần kết nối kho dữ liệu riêng.</div>}
+    {deployment && <div className={`ed-feedback ${storageConfigured ? "" : "is-error"}`} role="status">{storageConfigured ? "Lưu thay đổi cập nhật trực tiếp trang online. Xuất JSON chỉ tải bản sao lưu; upload mới cần admin local, ảnh có sẵn vẫn chọn bình thường." : "Chưa kết nối kho lưu online. Cần cấu hình UPSTASH_REDIS_REST_URL và UPSTASH_REDIS_REST_TOKEN trên Vercel. Bản nháp vẫn được giữ khi lưu lỗi; Xuất JSON chỉ là sao lưu."}</div>}
     {feedback.text && <div className={`ed-feedback ${feedback.error ? "is-error" : ""}`} role={feedback.error ? "alert" : "status"}><span>{feedback.text}</span><button aria-label="Đóng thông báo" onClick={() => notice("")}>×</button></div>}
     <section className="ed-workspace"><div className="ed-stage"><p className="ed-preview-hint">{mode === "select" ? "Bấm vào chữ hoặc ảnh trên thiệp để sửa · Mọi trường khác nằm trong Nội dung" : "Duyệt thiệp để mở album và form · Chọn Bấm để sửa khi cần chỉnh nội dung"}</p>
       <div ref={canvas} className="ed-canvas"><div className="ed-preview-surface" style={{ width: viewport * scale, height: frameHeight * scale }}><div className="ed-frame" style={{ width: viewport, height: frameHeight, transform: `scale(${scale})` }}><iframe ref={frame} title="Xem trước thiệp cưới — bản nháp" src="/admin/preview" onLoad={sendPreview} /></div></div></div>
@@ -352,14 +350,14 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
                     {Array.from({ length: items.length + 1 }, (_, index) => <option key={index} value={index}>{index === 0 ? "Đầu danh sách" : index === items.length ? `Cuối danh sách · vị trí ${index + 1}` : `Trước mục ${index + 1} · ${String(items[index].alt || items[index].title || "Ảnh")}`}</option>)}
                   </select>
                 </label>
-                <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay. {deployment ? "Xuất JSON để sao lưu bản nháp; chưa xuất bản online." : "Bấm Lưu để lưu vào dữ liệu local."}</p>
+                <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay. {deployment ? "Bấm Lưu để cập nhật trực tiếp trang online." : "Bấm Lưu để lưu vào dữ liệu local."}</p>
                 <button disabled={busy || items.length >= list.max} onClick={() => listKey === "photos.gallery" ? setGalleryInsertion(insertion) : listChange(list.path, "add", insertion)}>{listKey === "photos.gallery" ? "Chọn ảnh & xem trước" : `Thêm ${isPhotoList ? "ảnh" : "mục"} tại vị trí ${insertion + 1}`}</button>
               </section>;
             })}
             <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy} uploadEnabled={!deployment} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
           </>;
         })()}
-      </div><footer><span>{deployment ? "Thay đổi chỉ ở bản xem trước. Xuất JSON để sao lưu, không xuất bản online." : "Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu."}</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : deployment ? "Xuất JSON" : "Lưu thay đổi"}</button></footer>
+      </div><footer><span>Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu.</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button></footer>
     </InPageDialog>}
     {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}>
       <header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header>
@@ -388,7 +386,7 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
       change(["photos", "gallery"], items);
       setGalleryInsertion(null); setSelected(["photos", "gallery", position, "src"]);
       setPage(page === "entrance" ? "groom" : page);
-      notice(`Đã thêm ảnh vào gallery tại vị trí ${position + 1}. ${deployment ? "Xuất JSON để sao lưu bản nháp; chưa xuất bản online." : "Bấm Lưu để lưu thay đổi."}`);
+      notice(`Đã thêm ảnh vào gallery tại vị trí ${position + 1}. Bấm Lưu để lưu thay đổi.`);
     }} />}
     {responsesOpen && <GuestResponses request={request} onClose={() => setResponsesOpen(false)} />}
     {invitationLinksOpen && <InvitationLinks initialPath={page === "entrance" ? "/" : page === "bride" ? "/nha-gai" : "/nha-trai"} onClose={() => setInvitationLinksOpen(false)} />}

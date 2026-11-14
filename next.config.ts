@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       },
     },
   },
-  // Updated 2026-11-13: reject online editor writes; the local editor server intercepts these URLs before Next.js.
+  // Updated 2026-11-14: production routes authenticate and persist editor saves; the local server retains file-based editing.
   async rewrites() {
     return [{ source: "/__editor/:path*", destination: "/api/editor/:path*" }];
   },
@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
   // Added 2026-11-13: match build-time responsive variants; newly uploaded preview images retain the Next optimizer fallback.
   images: { deviceSizes: imageSettings.deviceSizes, imageSizes: imageSettings.imageSizes, minimumCacheTTL: 86400 },
   // Added 2026-11-13: ship the build-time media catalog for online selection without runtime uploads or filesystem writes.
-  outputFileTracingIncludes: { "/*": ["./src/data/wedding.json", "./src/data/wedding.defaults.json"], "/admin": ["./.generated/media.json"], "/admin/login": ["./.generated/media.json"] },
+  outputFileTracingIncludes: { "/*": ["./src/data/wedding.json", "./src/data/wedding.defaults.json"], "/admin": ["./.generated/media.json"], "/admin/login": ["./.generated/media.json"], "/api/editor/[...path]": ["./.generated/media.json"] },
 };
 
 export default nextConfig;
