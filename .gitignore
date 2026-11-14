@@ -53,4 +53,3 @@ next-env.d.ts
 /.generated/
 
 # Added 2026-11-13: runtime wedding content is managed separately; only the bootstrap defaults belong in Git.
-/src/data/wedding.json

@@ -1,0 +1,539 @@
+{
+  "groom": {
+    "name": "Duy Trường",
+    "portrait": "/images/DSC05841.jpg",
+    "introduction": "Người sẽ cùng Quỳnh đi qua những ngày bình dị, lắng nghe những câu chuyện nhỏ và vun đắp một mái nhà đầy yêu thương.",
+    "shortName": "Trường",
+    "initial": "T",
+    "role": "Chú rể"
+  },
+  "bride": {
+    "name": "Dương Quỳnh",
+    "portrait": "/images/DSC05696.jpg",
+    "introduction": "Người sẽ cùng Trường viết tiếp những tháng ngày hạnh phúc, biến từng điều giản dị thành những kỷ niệm thật đáng trân trọng.",
+    "shortName": "Quỳnh",
+    "initial": "Q",
+    "role": "Cô dâu"
+  },
+  "photos": {
+    "hero": "/images/DSC06132.jpg",
+    "roses": "/images/DSC06132.jpg",
+    "story": [
+      {
+        "src": "/images/DSC06362.jpg",
+        "alt": "Bên nhau trong ngày hạnh phúc",
+        "position": "40% center"
+      },
+      {
+        "src": "/images/DSC06014.jpg",
+        "alt": "Một khoảnh khắc yêu thương",
+        "position": "center"
+      },
+      {
+        "src": "/images/DSC05696.jpg",
+        "alt": "Lời hẹn ngày chung đôi",
+        "position": "center"
+      },
+      {
+        "src": "/images/DSC05513.jpg",
+        "alt": "Dấu ấn ngày cưới",
+        "position": "center"
+      }
+    ],
+    "gallery": [
+      {
+        "src": "/images/DSC06269.jpg",
+        "alt": "Chạm vào hạnh phúc",
+        "label": "Một đời thương"
+      },
+      {
+        "src": "/images/DSC05841.jpg",
+        "alt": "Khoảnh khắc bên nhau",
+        "label": "Bên nhau"
+      },
+      {
+        "src": "/images/DSC06373.jpg",
+        "alt": "Ngày chung đôi",
+        "label": "Ngày chung đôi"
+      },
+      {
+        "src": "/images/DSC05513.jpg",
+        "alt": "Chi tiết ngày cưới",
+        "label": "Lời hẹn ước"
+      },
+      {
+        "src": "/images/DSC05696.jpg",
+        "alt": "Yêu thương nở hoa",
+        "label": "Yêu thương nở hoa"
+      },
+      {
+        "src": "/images/DSC06362.jpg",
+        "alt": "Khoảnh khắc ngày cưới",
+        "label": ""
+      }
+    ],
+    "heroAlt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+    "entranceAlt": "Cô dâu và chú rể cùng bắt đầu hành trình mới",
+    "couplePortrait": "/images/DSC05841.jpg",
+    "coupleAlt": "Cô dâu và chú rể bên nhaua",
+    "heroSlides": {
+      "groom": [
+        {
+          "src": "/images/DSC05692.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06486.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06545.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        }
+      ],
+      "bride": [
+        {
+          "src": "/images/DSC06132.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05742.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06362.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05513.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        }
+      ]
+    },
+    "entranceLandscape": "/images/DSC06486.jpg",
+    "heroLandscapeSlides": {
+      "groom": [
+        {
+          "src": "/images/DSC06486.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06545.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05759.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05742.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05513.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        }
+      ],
+      "bride": [
+        {
+          "src": "/images/DSC05513.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC05742.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06486.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        },
+        {
+          "src": "/images/DSC06545.jpg",
+          "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
+          "position": "center"
+        }
+      ]
+    }
+  },
+  "events": {
+    "groom": {
+      "label": "Lễ thành hôn",
+      "venue": "Tư gia nhà trai",
+      "address": "Xóm Tân Mai, xã Nghĩa Đàn, tỉnh Nghệ An",
+      "dateTime": "2026-11-29T11:00:00+07:00",
+      "lunarDate": "21 tháng 10 năm Bính Ngọ",
+      "mapUrl": "https://maps.app.goo.gl/VB8o5ydCx86aRmEGA",
+      "sideLabel": "Nhà trai",
+      "schedule": [
+        {
+          "time": "09:30",
+          "title": "Lễ ăn hỏi",
+          "detail": "Hai gia đình gặp gỡ, trao gửi lời hẹn ước.",
+          "icon": "flower",
+          "date": "2026-11-28"
+        },
+        {
+          "time": "10:00",
+          "title": "Lễ vu quy",
+          "detail": "Cùng gia đình nhà gái chúc phúc cho đôi mình.",
+          "icon": "heart",
+          "date": "2026-11-29"
+        },
+        {
+          "time": "11:00",
+          "title": "Lễ thành hôn",
+          "detail": "Nên duyên vợ chồng, cùng bắt đầu một hành trình mới.",
+          "icon": "rings",
+          "date": "2026-11-29"
+        }
+      ],
+      "locationImage": "/images/DSC05696.jpg",
+      "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3764.56201171724!2d105.487301!3d19.344802999999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDIwJzQxLjMiTiAxMDXCsDI5JzE0LjMiRQ!5e0!3m2!1sen!2s!4v1794575401796!5m2!1sen!2s"
+    },
+    "bride": {
+      "label": "Lễ vu quy",
+      "venue": "Tư gia nhà gái",
+      "address": "Xóm Nghĩa Lâm, Xã Nghĩa Đàn, Nghệ An",
+      "dateTime": "2026-11-28T17:30:00+07:00",
+      "lunarDate": "20 tháng 10 năm Bính Ngọ",
+      "mapUrl": "https://maps.app.goo.gl/dCCZR9wb9qEVrLdX9",
+      "sideLabel": "Nhà gái",
+      "schedule": [
+        {
+          "time": "09:30",
+          "title": "Lễ ăn hỏi",
+          "detail": "Hai gia đình gặp gỡ, trao gửi lời hẹn ước.",
+          "icon": "flower",
+          "date": "2026-11-28"
+        },
+        {
+          "time": "17:30",
+          "title": "Bữa cơm thân mật",
+          "detail": "Cùng gia đình nhà gái dùng bữa và chia sẻ niềm vui.",
+          "icon": "heart",
+          "date": "2026-11-28"
+        },
+        {
+          "time": "10:00",
+          "title": "Lễ vu quy",
+          "detail": "Kính cáo tổ tiên, nhận lời chúc phúc từ gia đình nhà gái.",
+          "icon": "flower",
+          "date": "2026-11-29"
+        },
+        {
+          "time": "11:00",
+          "title": "Lễ thành hôn",
+          "detail": "Nên duyên vợ chồng, cùng bắt đầu một hành trình mới.",
+          "icon": "rings",
+          "date": "2026-11-29"
+        }
+      ],
+      "locationImage": "/images/DSC06014.jpg",
+      "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3138.2010383649927!2d105.4758421394395!3d19.388234009547038!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDIwJzQxLjMiTiAxMDXCsDI5JzE0LjMiRQ!5e0!3m2!1sen!2s!4v1794577677066!5m2!1sen!2s"
+    }
+  },
+  "rsvp": {
+    "storageKey": "truong-quynh-rsvp-v1"
+  },
+  "metadata": {
+    "title": "Duy Trường & Dương Quỳnh | Thiệp mời cưới",
+    "description": "Một lời hẹn, một đời thương. Trân trọng mời bạn chung vui trong ngày cưới của Duy Trường và Dương Quỳnh.",
+    "openGraph": {
+      "title": "Duy Trường & Dương Quỳnh | Chúng mình cưới!",
+      "description": "Trân trọng mời bạn đến chung vui trong ngày hạnh phúc của chúng mình.",
+      "locale": "vi_VN",
+      "type": "website"
+    }
+  },
+  "content": {
+    "entrance": {
+      "eyebrow": "WE'RE GETTING MARRIED",
+      "question": "Bạn được mời dự bên nào?",
+      "date": "2026-11-29"
+    },
+    "invitation": {
+      "skip": "Đến lời mời",
+      "invite": "Trân trọng kính mời",
+      "eyebrow": "THÂN MỜI BẠN ĐẾN CHUNG VUI",
+      "title": "Bữa tiệc",
+      "accent": "yêu thương",
+      "description": "Đến dự bữa cơm thân mật và chung vui cùng gia đình chúng mình.",
+      "atTime": "Vào lúc",
+      "lunarPrefix": "Nhằm ngày",
+      "atVenue": "TẠI",
+      "map": "Xem chỉ đường",
+      "closing": "Sự hiện diện của bạn là niềm vinh hạnh và hạnh phúc của gia đình chúng mình.",
+      "letterTitle": "Gửi những người thân thương:",
+      "letterBody": "Chúng mình muốn gửi đến những người thân thương nhất lời mời trân quý cho ngày hai đứa chính thức bước sang một hành trình mới. Sau hơn 8 năm cùng đi qua bao nhiêu cung bậc cảm xúc, chúng mình trân trọng khoảnh khắc được chia sẻ niềm vui này cùng mọi người - những người đã dõi theo, chứng kiến và yêu thương chúng mình trong suốt chặng đường ấy.",
+      "locationImageAlt": "Ảnh cưới của chúng mình bên cạnh bản đồ chỉ đường",
+      "locationTitle": "Address"
+    },
+    "partner": {
+      "eyebrow": "CÔ DÂU & CHÚ RỂ",
+      "intro": "Chúng mình là Trường và Quỳnh",
+      "quote": "“Giữa muôn vàn người, thật may vì chúng mình tìm thấy nhau.”"
+    },
+    "schedule": {
+      "title": "Timeline",
+      "accent": ""
+    },
+    "story": {
+      "eyebrow": "THE BEGINNING OF ALWAYS",
+      "title": "Chuyện của",
+      "accent": "chúng mình",
+      "description": "Một người. Một lời hẹn. Một đời bên nhau.",
+      "caption": "you, me & forever."
+    },
+    "album": {
+      "eyebrow": "OUR WEDDING GALLERY",
+      "title": "Thước phim",
+      "accent": "tình yêu",
+      "description": "Những khoảnh khắc, muốn giữ lại cả đời."
+    },
+    "reply": {
+      "eyebrow": "SAVE A SEAT FOR YOU",
+      "title": "Hẹn bạn,",
+      "accent": "trong ngày hạnh phúc.",
+      "description": "Chúng mình sắp bắt đầu một hành trình mới cùng nhau.\n\nNiềm vui này sẽ trọn vẹn hơn khi có bạn bên cạnh.\n\nCuộc sống quý giá không chỉ ở đích đến, mà còn ở những khoảnh khắc chia sẻ cùng nhau.\n\nVì vậy, chúng mình mong được bạn chung vui trong ngày hạnh phúc này.",
+      "button": "Lời hồi đáp",
+      "giftButton": "Gửi quà mừng online"
+    },
+    "footer": {
+      "eyebrow": "THANK YOU FOR BEING PART OF OUR DAY",
+      "quote": "“Yêu là khi hai trái tim cùng đập một nhịp.”",
+      "share": "Chia sẻ thiệp",
+      "copied": "Đã sao chép đường dẫn thiệp mời.",
+      "link": "Đường dẫn thiệp:",
+      "signature": "WITH LOVE, TRƯỜNG & QUỲNH."
+    },
+    "calendar": {
+      "heading": "Save the date",
+      "month": "THÁNG",
+      "weekdays": [
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6",
+        "T7",
+        "CN"
+      ],
+      "label": "Lịch tháng {month} năm {year}, ngày cưới {day}",
+      "selected": "{day}, ngày cưới",
+      "note": "Một ngày hẹn, một đời bên nhau"
+    },
+    "navigation": {
+      "label": "Điều hướng thiệp mời",
+      "invitation": "Lời mời",
+      "album": "Album",
+      "reply": "Hồi đáp"
+    },
+    "gallery": {
+      "label": "Album ảnh cưới",
+      "view": "Xem ảnh",
+      "previous": "Ảnh trước",
+      "next": "Ảnh tiếp theo"
+    },
+    "modal": {
+      "close": "Đóng cửa sổ"
+    },
+    "rsvp": {
+      "label": "Hồi đáp lời mời cưới",
+      "eyebrow": "MỘT LỜI HẸN YÊU THƯƠNG",
+      "title": "Bạn sẽ đến chứ?",
+      "invitation": "Thiệp",
+      "name": "Tên của bạn",
+      "namePlaceholder": "Cho chúng mình biết tên bạn nhé",
+      "attendance": "Bạn có thể đến chung vui không?",
+      "yes": "Mình sẽ có mặt",
+      "no": "Tiếc quá, mình không thể tham dự",
+      "guests": "Số người tham dự (bao gồm bạn)",
+      "guestUnit": "người",
+      "message": "Một lời nhắn yêu thương",
+      "messagePlaceholder": "Gửi đôi lời đến Trường & Quỳnh…",
+      "submit": "Gửi lời hồi đáp",
+      "nameError": "Bạn nhập tên để chúng mình biết nhé.",
+      "storageError": "Trình duyệt chưa cho phép lưu dữ liệu. Bạn thử lại hoặc đổi trình duyệt nhé.",
+      "thanks": "CẢM ƠN BẠN THẬT NHIỀU",
+      "successTitle": "Cảm ơn lời hồi đáp của bạn!",
+      "successMessage": "Chúng mình đã nhận được lời hồi đáp của bạn.",
+      "back": "Trở về thiệp mời",
+      "email": "Email nhận hướng dẫn (không bắt buộc)",
+      "emailPlaceholder": "ban@example.com",
+      "emailHelp": "Nếu bạn tham dự, chúng mình sẽ gửi thời gian, địa chỉ và hướng dẫn đến email này. Email chỉ dùng cho thông tin về buổi tiệc.",
+      "emailError": "Bạn kiểm tra lại địa chỉ email nhé.",
+      "submitting": "Đang gửi lời hồi đáp…",
+      "submitError": "Chưa gửi được hồi đáp. Bạn thử lại sau nhé.",
+      "emailSent": "Hướng dẫn tham dự đã được gửi đến email của bạn. Bạn kiểm tra cả hộp thư rác nhé.",
+      "emailUnavailable": "Đã ghi nhận hồi đáp, nhưng chưa gửi được email hướng dẫn. Bạn có thể xem thời gian và chỉ đường ngay trên thiệp.",
+      "emailPending": "Đã ghi nhận hồi đáp. Email hướng dẫn đang được xử lý.",
+      "previewMessage": "Đây là bản xem trước: không lưu hồi đáp và không gửi email thật.",
+      "declinedTitle": "Hẹn bạn vào một dịp thật gần!",
+      "declinedMessage": "Chúng mình đã nhận được lời hồi đáp của bạn. Dù không thể gặp nhau trong ngày vui, tình cảm và những lời chúc của bạn vẫn là món quà rất quý với Trường & Quỳnh. Cảm ơn bạn đã dành thời gian hồi đáp, mong sớm có dịp gặp lại và cùng chia sẻ niềm vui này!",
+      "temporaryNotice": "Hồi đáp trên website chỉ được lưu tạm. Bạn nhắn thêm cho cô dâu hoặc chú rể để xác nhận chắc chắn nhé."
+    },
+    "gift": {
+      "label": "Gửi quà",
+      "eyebrow": "MỘT CHÚT YÊU THƯƠNG",
+      "title": "Mừng ngày chung đôi",
+      "description": "Thật vui khi có bạn bên cạnh trong ngày hạnh phúc.\n\nNếu không thể tham dự, bạn vẫn có thể gửi chút yêu thương đến chúng mình qua hộp quà bên dưới. Cảm ơn bạn thật nhiều!",
+      "qrAlt": "Mã QR nhận quà mừng cưới",
+      "bankLabel": "Ngân hàng",
+      "accountNameLabel": "Chủ tài khoản",
+      "accountNumberLabel": "Số tài khoản",
+      "transferNoteLabel": "Nội dung chuyển khoản",
+      "copy": "Sao chép số tài khoản",
+      "copied": "Đã sao chép số tài khoản.",
+      "copyError": "Bạn sao chép số tài khoản hiển thị bên trên nhé.",
+      "emptyMessage": "Thông tin nhận quà online sẽ được cập nhật sớm. Cảm ơn bạn đã dành tình cảm cho chúng mình.",
+      "safetyNote": "ĐÂY LÀ THÔNG TIN MẪU — KHÔNG CHUYỂN KHOẢN. QR chỉ chứa lời nhắn minh họa. Chủ thiệp cần thay QR và tài khoản thật trước khi gửi khách."
+    },
+    "loveStory": {
+      "title": "Chuyện chúng mình",
+      "subtitle": "From a moment to forever",
+      "description": "Có những cuộc gặp gỡ tưởng chừng thật tình cờ, nhưng lại mở ra một hành trình đặc biệt. Tình yêu của bọn mình là một hành trình kỳ diệu, vượt qua bao thử thách để cùng nhau bước đến ngày trọng đại - Đám cưới của chúng mình.\n\nĐám cưới này là lời cam kết chân thành, là sự bắt đầu của một chương mới - nơi chúng mình cùng vun đắp tổ ấm, cùng sẻ chia mọi vui buồn và cùng nắm tay nhau đi đến cuối con đường mang tên hạnh phúc."
+    },
+    "countdown": {
+      "label": "Đếm ngược đến ngày chung đôi",
+      "days": "ngày",
+      "hours": "giờ",
+      "minutes": "phút",
+      "seconds": "giây"
+    },
+    "personalization": {
+      "inviteLabel": "Trân trọng kính mời",
+      "fallbackName": "Bạn",
+      "thankYou": "Cảm ơn {name} đã luôn yêu thương và là một phần trong hành trình của chúng mình. Mong được gặp bạn trong ngày chung đôi!",
+      "genericThanks": "Cảm ơn bạn đã là một phần trong hành trình của chúng mình. Mong được gặp bạn trong ngày chung đôi!"
+    }
+  },
+  "experience": {
+    "audio": {
+      "src": "/i-do.mp3",
+      "volume": 0.2,
+      "loop": true
+    },
+    "scroll": {
+      "pixelsPerSecond": 19.8,
+      "rampMilliseconds": 5000
+    },
+    "hero": {
+      "eyebrow": "Are getting married.",
+      "button": "Xem lời mời",
+      "dateLabel": "NGÀY CHUNG ĐÔI",
+      "timeLabel": "Vào lúc",
+      "venueLabel": "NƠI HẸN ƯỚC",
+      "loveLabel": "MỘT ĐỜI BÊN NHAU"
+    },
+    "controls": {
+      "label": "Nhạc và chuyển động",
+      "play": "Phát nhạc",
+      "pause": "Tạm dừng nhạc",
+      "scrollStart": "Tiếp tục cuộn chậm",
+      "scrollPause": "Dừng cuộn tự động"
+    }
+  },
+  "decoration": {
+    "bouquet": "/images/wedding-bouquet.webp"
+  },
+  "gifts": {
+    "groom": {
+      "enabled": true,
+      "qrImage": "/images/qr-trai.png",
+      "bankName": "Ngân hàng mẫu",
+      "accountName": "DUY TRUONG (MAU)",
+      "accountNumber": "DEMO-KHONG-CHUYEN-KHOAN",
+      "transferNote": "Mung cuoi Truong va Quynh"
+    },
+    "bride": {
+      "enabled": true,
+      "qrImage": "/images/qr-gai.png",
+      "bankName": "Ngân hàng mẫu",
+      "accountName": "DIEM QUYNH (MAU)",
+      "accountNumber": "DEMO-KHONG-CHUYEN-KHOAN",
+      "transferNote": "Mung cuoi Truong va Quynh"
+    }
+  },
+  "mail": {
+    "enabled": true,
+    "subject": "Chỉ dẫn đường đi đến {side} | Trường Quỳnh Wedding",
+    "greeting": "Chào {name},",
+    "introduction": "Cảm ơn bạn đã xác nhận tham dự lễ cưới tại {side}. Chúng mình gửi bạn thời gian, địa chỉ và bản đồ chỉ đường đến đúng địa điểm tổ chức để bạn thuận tiện sắp xếp hành trình.",
+    "instructions": "Bạn bấm vào link Chỉ đường Google Maps ở trên, chọn vị trí xuất phát của mình và bắt đầu chỉ đường đến {side}. Hãy kiểm tra đúng địa điểm và thời gian trên thư nhé. Rất mong được đón bạn trong ngày vui!",
+    "closing": "Thân mến,\nTrường Quỳnh Wedding",
+    "senderName": "Trường Quỳnh Wedding"
+  },
+  "_meta": {
+    "partyConceptNote": "2026-11-13: partyConcept dùng chung cho hai nhà, sửa trong admin; tones và dressCode chỉ hiện hai dòng chữ nhỏ dưới lịch và trong email, không chấm màu hay border; tắt enabled để ẩn cả hai.",
+    "updatedAt": "2026-11-14T06:03:11.748Z",
+    "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor.",
+    "personalizationNote": "2026-11-13: Thêm content.personalization để sửa lời kính mời, tên mặc định và lời cảm ơn theo {name}; tên khách lấy từ query name, danh sách tạo link chỉ xử lý trong trình duyệt.",
+    "entranceDateNote": "2026-11-13: Thêm content.entrance.date cho ngày tháng năm của màn mở đầu trước khi chọn gia đình, sửa riêng trong admin; lời kính mời, tên khách hoặc Bạn và ngày nằm ở 1/3 phía trên ảnh.",
+    "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin. 2026-11-13: Thêm events.<side>.mapEmbedUrl độc lập địa chỉ/link chỉ đường, sửa trực tiếp trong admin; cấu hình upload 30 MB và WebP responsive dựng lúc build tại image-settings.mjs."
+  },
+  "presentation": {
+    "typography": {
+      "body": "quicksand",
+      "display": "cormorant-garamond",
+      "script": "great-vibes",
+      "numbers": "charmonman"
+    },
+    "blocks": {
+      "hero": {
+        "visible": true,
+        "font": ""
+      },
+      "invitation": {
+        "visible": true,
+        "font": ""
+      },
+      "loveStory": {
+        "visible": true,
+        "font": ""
+      },
+      "partner": {
+        "visible": true,
+        "font": ""
+      },
+      "schedule": {
+        "visible": true,
+        "font": ""
+      },
+      "story": {
+        "visible": true,
+        "font": ""
+      },
+      "album": {
+        "visible": true,
+        "font": ""
+      },
+      "reply": {
+        "visible": true,
+        "font": "lora"
+      },
+      "location": {
+        "visible": true,
+        "font": ""
+      },
+      "footer": {
+        "visible": true,
+        "font": ""
+      }
+    }
+  }
+}
