@@ -13,14 +13,14 @@ export default function Modal({ children, onClose, label, className = "" }: { ch
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const scrollX = window.scrollX;
     const scrollY = window.scrollY;
-    const body = document.body;
-    const properties = ["position", "top", "left", "width", "overflow"] as const;
-    const previousStyles = properties.map(property => [property, body.style[property]] as const);
-    Object.assign(body.style, { position: "fixed", top: `${-scrollY}px`, left: `${-scrollX}px`, width: "100%", overflow: "hidden" });
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
     dialog.showModal();
+    window.scrollTo({ left: scrollX, top: scrollY, behavior: "instant" });
     return () => {
       dialog.close();
-      previousStyles.forEach(([property, value]) => { body.style[property] = value; });
+      root.style.overflow = previousOverflow;
       window.scrollTo({ left: scrollX, top: scrollY, behavior: "instant" });
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     };

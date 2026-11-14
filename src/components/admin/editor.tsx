@@ -3,7 +3,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { editorDocuments, listConfig, readPath, writePath } from "@/lib/editor-schema.mjs";
+import { editorDocuments, isHeroPhotoList, listConfig, readPath, writePath } from "@/lib/editor-schema.mjs";
 import type { EditorDocument, EditorPath, FieldValue, MediaAsset, WeddingData } from "@/lib/editor-types";
 import type { PreviewMessage } from "./preview";
 import { FieldEditor } from "./field-editor";
@@ -256,7 +256,12 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
   const frameHeight = Math.max(480, Math.floor((canvasSize.height - 4) / scale));
   const selectedIsImage = document?.fields.some(field => selected && samePath(field.path, selected) && field.kind === "image");
   const selectedIsLocation = selected?.[0] === "events" && selected.length === 3 && ["address", "venue", "mapUrl", "mapEmbedUrl"].includes(String(selected.at(-1)));
-  const visibleFields = document?.fields.filter(field => selected ? samePath(field.path, selected) || field.kind !== "image" && samePath(field.path.slice(0, -1), selected.slice(0, -1)) && (selectedIsImage || selectedIsLocation) : `${field.label} ${field.path.join(".")}`.toLowerCase().includes(search.toLowerCase())) || [];
+  const entranceImageKeys = ["roses", "entranceLandscape"];
+  const selectedIsEntranceImage = selected?.[0] === "photos" && selected.length === 2 && entranceImageKeys.includes(String(selected[1]));
+  const visibleFields = document?.fields.filter(field => selected ? samePath(field.path, selected)
+    || selectedIsEntranceImage && field.path[0] === "photos" && field.path.length === 2 && entranceImageKeys.includes(String(field.path[1]))
+    || field.kind !== "image" && samePath(field.path.slice(0, -1), selected.slice(0, -1)) && (selectedIsImage || selectedIsLocation)
+    : `${field.label} ${field.path.join(".")}`.toLowerCase().includes(search.toLowerCase())) || [];
 
   return <main className="ed-root">
     <header className="ed-topbar"><div className="ed-brand">Thiệp cưới<small>Visual editor</small></div>
@@ -340,7 +345,7 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
               const isPhotoList = list.path[0] === "photos";
               return <section className="ed-list" key={listKey}>
                 <h3>{list.label} · {items.length}/{list.max}</h3>
-                {list.path[1] === "heroSlides" && <><p className="ed-config-help">Chọn nhiều ảnh liên tiếp trong thư viện. Một ảnh đứng yên; nhiều ảnh tự trượt mỗi 2 giây, lặp vô hạn. Danh sách trống dùng ảnh hero mặc định.</p><button disabled={busy || items.length >= list.max} onClick={() => void library(list.path)}>Chọn nhiều ảnh hero từ thư viện</button></>}
+                {isHeroPhotoList(list.path) && <><p className="ed-config-help">Chọn nhiều ảnh liên tiếp trong thư viện. Một ảnh đứng yên; nhiều ảnh tự trượt mỗi 2 giây, lặp vô hạn. Danh sách ngang trống dùng ảnh dọc; danh sách dọc trống dùng ảnh hero mặc định.</p><button disabled={busy || items.length >= list.max} onClick={() => void library(list.path)}>Chọn nhiều ảnh hero từ thư viện</button></>}
                 {items.map((item, index) => <div className="ed-list-row" key={index}>{isPhotoList && <img className="ed-list-thumb" src={String(item.src)} alt="" />}<span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}
                 <label className="ed-insert-position">Vị trí chèn {isPhotoList ? "ảnh" : "mục"}
                   <select value={insertion} disabled={busy || items.length >= list.max} onChange={event => setInsertPositions(current => ({ ...current, [listKey]: Number(event.target.value) }))}>
@@ -358,9 +363,9 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
     </InPageDialog>}
     {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}>
       <header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header>
-      {assetTarget?.[1] === "heroSlides" && <p>Chọn lần lượt các ảnh muốn thêm. Ảnh đã chọn được đánh dấu; bấm Xong khi hoàn tất.</p>}
-      <MediaLibraryGrid assets={assets} usedLabel={assetTarget?.[1] === "heroSlides" ? "Đã chọn cho hero" : undefined} usedSources={assetTarget?.[1] === "heroSlides" && session && assetTarget.length === 3 ? (readPath(session.data, assetTarget) as { src: string }[]).map(photo => photo.src) : assetTarget?.[0] === "photos" && assetTarget[1] === "gallery" ? session?.data.photos.gallery.map(photo => photo.src) : undefined} onChoose={source => {
-        if (assetTarget?.[1] === "heroSlides" && assetTarget.length === 3 && session) {
+      {isHeroPhotoList(assetTarget) && <p>Chọn lần lượt các ảnh muốn thêm. Ảnh đã chọn được đánh dấu; bấm Xong khi hoàn tất.</p>}
+      <MediaLibraryGrid assets={assets} usedLabel={isHeroPhotoList(assetTarget) ? "Đã chọn cho hero" : undefined} usedSources={isHeroPhotoList(assetTarget) && session && assetTarget ? (readPath(session.data, assetTarget) as { src: string }[]).map(photo => photo.src) : assetTarget?.[0] === "photos" && assetTarget[1] === "gallery" ? session?.data.photos.gallery.map(photo => photo.src) : undefined} onChoose={source => {
+        if (isHeroPhotoList(assetTarget) && assetTarget && session) {
           const items = readPath(session.data, assetTarget) as WeddingData["photos"]["heroSlides"]["groom"];
           const config = listConfig(assetTarget);
           if (!config || items.length >= config.max) { notice("Tối đa 20 ảnh hero cho mỗi nhà.", true); return; }
@@ -370,7 +375,7 @@ export function WeddingEditor({ initialData, deployment = false, initialAssets =
         if (assetTarget) change(assetTarget, source);
         setAssets(null); setAssetTarget(null);
       }} />
-      {assetTarget?.[1] === "heroSlides" && <button onClick={() => { setAssets(null); setAssetTarget(null); }}>Xong</button>}
+      {isHeroPhotoList(assetTarget) && <button onClick={() => { setAssets(null); setAssetTarget(null); }}>Xong</button>}
       {!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}
     </InPageDialog>}
     {galleryInsertion !== null && session && <GalleryInsert data={session.data} initialPosition={galleryInsertion} page={page === "entrance" ? "groom" : page} busy={busy} uploadEnabled={!deployment} maxUploadBytes={maxUploadBytes} upload={uploadImage} loadAssets={loadAssets} onClose={() => { if (!lock.current) setGalleryInsertion(null); }} onInsert={(photo, position) => {

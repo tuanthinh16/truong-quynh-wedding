@@ -182,9 +182,11 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 - Phần đầu Save a Seat dùng Be Vietnam Pro nét đứng để hiển thị dấu tiếng Việt/dấu câu rõ ràng; vẫn đổi được bằng font riêng của block trong admin.
 - Ngày giờ, số lịch, lịch trình và đếm ngược dùng Tahoma, dự phòng Verdana/sans-serif, độc lập font trang trí. Không thay đổi nội dung hoặc giá trị ngày giờ trong JSON.
 
-### Editor server tự cập nhật schema — 2026-11-14
+### Editor server và cập nhật schema — 2026-11-14
 
-- `npm run dev` và `npm run editor` chỉ watch `scripts/editor.mjs`, `scripts/editor/` và `src/lib/` để khởi động lại API khi schema thay đổi, tránh UI mới gửi dữ liệu đến validator cũ (ví dụ `presentation.typography`, `photos.heroSlides`). Không watch toàn bộ cây module: Next.js nạp module sinh trong `.next/`, có thể gây vòng lặp restart và trang admin trắng. Tiến trình đã chạy trước thay đổi này cần dừng và chạy lại một lần.
+- Album công khai lấy đầy đủ ảnh cưới từ danh mục cho phép `src/data/album.json`, gộp với ảnh story/gallery và bỏ trùng đường dẫn; không quét toàn bộ thư viện assets của admin. QR và hoa trang trí không thuộc danh mục album. Dev/build chuẩn bị WebP cho cả danh mục này. Modal hiển thị ảnh không khung, hỗ trợ vuốt vòng lặp; tải component trực tiếp để tránh Suspense ẩn trang và đưa vị trí cuộn về đầu khi mở lần đầu.
+
+- `npm run dev` và `npm run editor` chạy custom server trực tiếp, không dùng Node watch mode vì gây lỗi IPC worker và restart lặp với Next.js. Next.js vẫn tự cập nhật UI. Khi sửa `scripts/editor.mjs`, `scripts/editor/` hoặc schema dùng bởi API, cần dừng và chạy lại server để tránh UI mới gửi dữ liệu đến validator cũ.
 - Server khởi động lại sẽ làm hết hạn phiên đăng nhập trong bộ nhớ; cần đăng nhập lại. Bản nháp chưa lưu nằm trong trình duyệt: không tải lại trang khi còn nội dung cần giữ. File `src/data/wedding.json` đã lưu không bị thay thế khi restart.
 
 ### Mask giấy ban đầu, khoảng cách section & form RSVP gọn — 2026-11-14

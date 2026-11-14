@@ -26,6 +26,8 @@ export async function prepareImages(root = projectRoot) {
     } else if (value && fieldKind(trail, value) === "image" && trail.at(-1) !== "qrImage") sources.add(value);
   }
   visit(wedding);
+  const album = JSON.parse(await fs.readFile(path.join(root, "src/data/album.json"), "utf8"));
+  for (const photo of album.photos) sources.add(photo.src);
   const publicRoot = await fs.realpath(path.join(root, "public"));
   const destination = path.join(publicRoot, "optimized");
   const manifestFolder = path.join(root, ".generated");

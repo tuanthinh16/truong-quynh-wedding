@@ -1,7 +1,7 @@
 const unsafe = new Set(["__proto__", "constructor", "prototype"]);
 const labels = {
   groom: "Chú rể", bride: "Cô dâu", name: "Họ tên", shortName: "Tên ngắn", initial: "Chữ đầu", portrait: "Ảnh chân dung", introduction: "Giới thiệu", role: "Vai trò",
-  photos: "Hình ảnh", hero: "Ảnh hero · mọi màn hình", roses: "Ảnh mở đầu · mọi màn hình", heroAlt: "Mô tả ảnh hero", story: "Khoảnh khắc", gallery: "Album", src: "Ảnh", alt: "Mô tả ảnh", position: "Vị trí ảnh", label: "Nhãn",
+  photos: "Hình ảnh", hero: "Ảnh hero · mọi màn hình", roses: "Ảnh mở đầu · dọc (mobile)", heroAlt: "Mô tả ảnh hero", story: "Khoảnh khắc", gallery: "Album", src: "Ảnh", alt: "Mô tả ảnh", position: "Vị trí ảnh", label: "Nhãn",
   events: "Ngày cưới", sideLabel: "Tên gia đình", venue: "Địa điểm", address: "Địa chỉ", dateTime: "Ngày và giờ", lunarDate: "Âm lịch", mapUrl: "Link bản đồ", schedule: "Lịch trình", time: "Giờ", title: "Tiêu đề", detail: "Mô tả", icon: "Biểu tượng",
   content: "Nội dung", entrance: "Màn mở đầu", invitation: "Lời mời", partner: "Giới thiệu", calendar: "Lịch", album: "Album", reply: "Hồi đáp", footer: "Cuối thiệp", navigation: "Điều hướng", modal: "Hộp thoại", rsvp: "Form hồi đáp",
   metadata: "SEO", openGraph: "Chia sẻ mạng xã hội", description: "Mô tả", locale: "Ngôn ngữ", experience: "Trải nghiệm", audio: "Nhạc nền", volume: "Âm lượng", loop: "Phát lặp", scroll: "Cuộn tự động", pixelsPerSecond: "Tốc độ cuộn (px/s)", rampMilliseconds: "Thời gian tăng tốc (ms)", controls: "Nút điều khiển", decoration: "Trang trí", bouquet: "Bó hoa", storageKey: "Khóa lưu hồi đáp",
@@ -27,7 +27,11 @@ const labels = {
   // Added 2026-11-13: shared party concept, palette and dress code for invitations and email.
   partyConcept: "Concept bữa tiệc", paletteLabel: "Nhãn concept", tones: "Tone màu (văn bản)", dressCodeLabel: "Nhãn trang phục", dressCode: "Trang phục",
   // Added 2026-11-14: per-family slideshow labels in the visual editor.
-  heroSlides: "Ảnh hero tự chuyển · mỗi 2 giây",
+  heroSlides: "Ảnh hero dọc (mobile) · mỗi 2 giây",
+  // Added 2026-11-14: select a separate landscape photo before choosing a family.
+  entranceLandscape: "Ảnh mở đầu · ngang (desktop)",
+  // Added 2026-11-14: separate multi-image desktop hero albums for both families.
+  heroLandscapeSlides: "Ảnh hero ngang (desktop) · mỗi 2 giây",
 };
 
 export function readPath(data, path) {
@@ -44,11 +48,15 @@ export function writePath(data, path, value) {
 export function listConfig(path) {
   const key = path.join(".");
   // Added 2026-11-14: optional per-family hero slides, editable with the existing image library.
-  if (/^photos\.heroSlides\.(groom|bride)$/.test(key)) return { min: 0, max: 20, template: { src: "/images/wedding-demo.jpg", alt: "Ảnh bìa thiệp cưới", position: "center" } };
+  if (isHeroPhotoList(path)) return { min: 0, max: 20, template: { src: "/images/wedding-demo.jpg", alt: "Ảnh bìa thiệp cưới", position: "center" } };
   if (key === "photos.story") return { min: 1, max: 4, template: { src: "/images/editorial-demo.jpg", alt: "Khoảnh khắc ngày cưới", position: "center" } };
   if (key === "photos.gallery") return { min: 1, max: 100, template: { src: "/images/wedding-demo.jpg", alt: "Khoảnh khắc ngày cưới", label: "" } };
   if (/^events\.(groom|bride)\.schedule$/.test(key)) return { min: 0, max: 32, template: { time: "09:00", title: "Hoạt động mới", detail: "", icon: "heart", date: "" } };
   return null;
+}
+
+export function isHeroPhotoList(path) {
+  return /^photos\.(heroSlides|heroLandscapeSlides)\.(groom|bride)$/.test(path?.join(".") ?? "");
 }
 
 export function fieldKind(path, value) {
@@ -58,7 +66,7 @@ export function fieldKind(path, value) {
   if (key === "dateTime") return "date";
   if (key === "date") return "day";
   if (key === "icon") return "icon";
-  if (key === "portrait" || key === "bouquet" || key === "qrImage" || key === "locationImage" || path[0] === "photos" && ["hero", "roses", "couplePortrait", "src"].includes(key)) return "image";
+  if (key === "portrait" || key === "bouquet" || key === "qrImage" || key === "locationImage" || path[0] === "photos" && ["hero", "roses", "couplePortrait", "src", "entranceLandscape"].includes(key)) return "image";
   if (["mapUrl", "mapEmbedUrl"].includes(key)) return "url";
   return "text";
 }

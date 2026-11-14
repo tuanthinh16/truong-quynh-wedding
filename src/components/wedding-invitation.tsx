@@ -1,9 +1,10 @@
 "use client";
 
 import ViewportPhoto from "./viewport-photo";
-import dynamic from "next/dynamic";
+import RsvpDialog from "./rsvp-dialog";
+import GalleryDialog from "./gallery-dialog";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { type WeddingSide, type WeddingPhoto } from "@/config/wedding";
+import { albumPhotos, type WeddingSide, type WeddingPhoto } from "@/config/wedding";
 import { useWedding, editable } from "./wedding-content";
 import Icon, { type IconName } from "./icon";
 import FloralArt from "./floral-art";
@@ -18,9 +19,7 @@ import { useWeddingAudio } from "./wedding-audio";
 import { isMapEmbedUrl } from "@/lib/map-embed.mjs";
 import { GuestDedication } from "./guest-personalization";
 import { invitationHref } from "@/lib/guest-invitation";
-
-const RsvpDialog = dynamic(() => import("./rsvp-dialog"));
-const GalleryDialog = dynamic(() => import("./gallery-dialog"));
+import "./gallery-dialog.css";
 
 function Ornament() {
   return <div className="ornament" aria-hidden="true"><span /><Icon name="heart" size={15} /><span /></div>;
@@ -124,7 +123,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
         </WeddingBlock>
 
         {event.schedule.length > 0 && <WeddingBlock block="schedule" id="lich-trinh" className="schedule-section section-space">
-          <div className="section-heading reveal"><span className="eyebrow" {...editable("events", side, "sideLabel")}>{event.sideLabel}</span><h2>{copy.schedule.title} <em>{copy.schedule.accent}</em></h2><p>{event.label}</p></div>
+          <div className="section-heading reveal"><h2 {...editable("content", "schedule", "title")}>{copy.schedule.title}</h2></div>
           <ol className="wedding-timeline content-width">{event.schedule.map((item, index) => {
             const milestoneDate = item.date ? formatWeddingDate(item.date) : null;
             return <li key={`${item.date}-${item.time}-${index}`} className="reveal"><span className="timeline-number">{String(index + 1).padStart(2, "0")}</span><div className="timeline-icon" {...editable("events", side, "schedule", index, "icon")}><Icon name={item.icon as IconName} size={25} /></div><time dateTime={item.date ? `${item.date}T${item.time}:00+07:00` : undefined} {...editable("events", side, "schedule", index, "time")}>{item.time}</time>{milestoneDate && <span className="timeline-day" {...editable("events", side, "schedule", index, "date")}>{milestoneDate.day}/{milestoneDate.month}/{milestoneDate.year}</span>}<h3 {...editable("events", side, "schedule", index, "title")}>{item.title}</h3><p {...editable("events", side, "schedule", index, "detail")}>{item.detail}</p></li>;
@@ -142,6 +141,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
         <WeddingBlock block="album" id="album" className="album-section section-space">
           <SectionHeading content={copy.album} />
           <div className="album-mosaic content-width">{wedding.photos.gallery.map((photo, index) => <figure className="mosaic-frame" key={`${photo.src}-${index}`}><PhotoButton photo={photo} index={wedding.photos.story.length + index} className="mosaic-photo" onOpen={setGalleryIndex} sizes={index === 0 ? "(min-width: 1200px) 700px, (min-width: 700px) 55vw, 90vw" : "(min-width: 1200px) 450px, 45vw"} /></figure>)}{galleryAppend}</div>
+          {albumPhotos(wedding).length > 0 && <div className="album-library-action"><button className="button button-red" onClick={() => setGalleryIndex(0)}><Icon name="image" size={18} /> Xem thư viện ảnh</button></div>}
         </WeddingBlock>
 
         <WeddingBlock block="reply" id="hoi-dap" className="reply-section section-space">

@@ -4,7 +4,7 @@ import { useEffect, type MouseEvent } from "react";
 import { useWedding, editable } from "./wedding-content";
 import Icon from "./icon";
 import { useWeddingAudio } from "./wedding-audio";
-import ResponsiveCouplePhoto from "./responsive-couple-photo";
+import EntrancePhoto from "./entrance-photo";
 import { GuestDedication, PersonalizedInvitationLink } from "./guest-personalization";
 import { formatWeddingDate } from "./wedding-date";
 import "./wedding-entrance.css";
@@ -20,7 +20,7 @@ export default function WeddingEntrance() {
   }
   return (
     <main className="welcome-screen mobile-photo-scene" aria-labelledby="entrance-title">
-      <div className="welcome-portrait"><ResponsiveCouplePhoto className="welcome-background" src={wedding.photos.roses} alt={wedding.photos.entranceAlt} /></div>
+      <div className="welcome-portrait"><EntrancePhoto portrait={wedding.photos.roses} landscape={wedding.photos.entranceLandscape} alt={wedding.photos.entranceAlt} /></div>
       <div className="welcome-content">
         <div className="welcome-invitation">
           <GuestDedication />

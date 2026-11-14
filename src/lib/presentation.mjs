@@ -30,6 +30,7 @@ export function fontFamily(id) {
 export function resolveBlockId(documentId, selectedPath) {
   if (Array.isArray(selectedPath) && selectedPath.length > 0) {
     const [first, second] = selectedPath;
+    if (first === "experience" && second === "hero") return "hero";
     if (first === "content" && typeof second === "string") {
       if (second === "invitation") return "invitation";
       if (second === "loveStory") return "loveStory";
@@ -52,7 +53,7 @@ export function resolveBlockId(documentId, selectedPath) {
       if (second === "story") return "story";
       if (second === "gallery") return "album";
       if (second === "couplePortrait" || second === "coupleAlt") return "partner";
-      if (second === "hero" || second === "heroSlides" || second === "roses") return "hero";
+      if (second === "hero" || second === "heroSlides" || second === "heroLandscapeSlides" || second === "roses" || second === "entranceLandscape") return "hero";
     }
     if (first === "gifts") return "reply";
   }
@@ -105,6 +106,10 @@ export function withPresentation(data) {
     photos: {
       ...data.photos,
       heroSlides: { groom: [], bride: [], ...data.photos?.heroSlides },
+      // Added 2026-11-14: separate desktop entrance photo, preserving legacy content.
+      entranceLandscape: data.photos?.entranceLandscape || data.photos?.roses || "",
+      // Added 2026-11-14: desktop hero albums, without replacing existing portrait albums.
+      heroLandscapeSlides: { groom: [], bride: [], ...data.photos?.heroLandscapeSlides },
     },
   };
 }

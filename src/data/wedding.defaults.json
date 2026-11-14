@@ -8,7 +8,7 @@
     "role": "Chú rể"
   },
   "bride": {
-    "name": "Diễm Quỳnh",
+    "name": "Dương Quỳnh",
     "portrait": "/images/DSC05696.jpg",
     "introduction": "Người sẽ cùng Trường viết tiếp những tháng ngày hạnh phúc, biến từng điều giản dị thành những kỷ niệm thật đáng trân trọng.",
     "shortName": "Quỳnh",
@@ -204,10 +204,10 @@
     "storageKey": "truong-quynh-rsvp-v1"
   },
   "metadata": {
-    "title": "Duy Trường & Diễm Quỳnh | Thiệp mời cưới",
-    "description": "Một lời hẹn, một đời thương. Trân trọng mời bạn chung vui trong ngày cưới của Duy Trường và Diễm Quỳnh.",
+    "title": "Duy Trường & Dương Quỳnh | Thiệp mời cưới",
+    "description": "Một lời hẹn, một đời thương. Trân trọng mời bạn chung vui trong ngày cưới của Duy Trường và Dương Quỳnh.",
     "openGraph": {
-      "title": "Duy Trường & Diễm Quỳnh | Chúng mình cưới!",
+      "title": "Duy Trường & Dương Quỳnh | Chúng mình cưới!",
       "description": "Trân trọng mời bạn đến chung vui trong ngày hạnh phúc của chúng mình.",
       "locale": "vi_VN",
       "type": "website"
@@ -242,8 +242,8 @@
       "quote": "“Giữa muôn vàn người, thật may vì chúng mình tìm thấy nhau.”"
     },
     "schedule": {
-      "title": "Ngày mình",
-      "accent": "chung đôi"
+      "title": "Timeline",
+      "accent": ""
     },
     "story": {
       "eyebrow": "THE BEGINNING OF ALWAYS",
@@ -386,7 +386,7 @@
       "rampMilliseconds": 5000
     },
     "hero": {
-      "eyebrow": "CÙNG NHAU VIẾT NÊN MỘT ĐỜI THƯƠNG",
+      "eyebrow": "Are getting married.",
       "button": "Xem lời mời",
       "dateLabel": "NGÀY CHUNG ĐÔI",
       "timeLabel": "Vào lúc",
