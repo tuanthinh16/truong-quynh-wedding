@@ -7,6 +7,7 @@ import { isMapEmbedUrl } from "../../src/lib/map-embed.mjs";
 import { fieldKind, listConfig } from "../../src/lib/editor-schema.mjs";
 import { listRsvps } from "../../src/lib/rsvp-service.mjs";
 import { mailConfigured } from "../../src/lib/rsvp-mail.mjs";
+import { fontOptions, withPresentation } from "../../src/lib/presentation.mjs";
 
 // Added 2026-11-13: bounded, same-origin uploads and atomic JSON writes with revision checks and private backups.
 const maxUpload = imageSettings.maxUploadBytes;
@@ -60,6 +61,7 @@ export function validateContent(input, baseline) {
       }
       if (kind === "toggle") { if (typeof value !== "boolean") invalid("cần true hoặc false."); return; }
       if (typeof value !== "string" || value.length > 10000) invalid("cần văn bản không quá 10000 ký tự.");
+      if (trail[0] === "presentation" && key !== "visible" && !(key === "font" && value === "") && !fontOptions.some(font => font.id === value)) invalid("chọn font có sẵn trong thư viện.");
       if (kind === "image" && !(key === "qrImage" && value === "") && !/^\/(?!\/)(?!.*(?:\.\.|[\\?#\u0000-\u001f])).+\.(?:jpe?g|png|webp|avif)$/i.test(value)) invalid("chọn ảnh JPG, PNG, WebP hoặc AVIF trong public.");
       if (kind === "url" && value) { try { if (!["http:", "https:"].includes(new URL(value).protocol)) invalid("link chỉ hỗ trợ http/https."); } catch { invalid("link không hợp lệ."); } }
       if (key === "mapEmbedUrl" && value && !isMapEmbedUrl(value)) invalid("cần link HTTPS Google Maps nhúng. Vào Chia sẻ → Nhúng bản đồ và sao chép src của iframe, không dùng link rút gọn.");
@@ -79,7 +81,7 @@ export function validateContent(input, baseline) {
       if (trail.join(".") === "experience.audio.src" && !/^\/(?!\/)(?!.*(?:\.\.|[\\?#])).+\.(?:mp3|m4a|ogg|wav)$/i.test(value)) invalid("nhạc cần đường dẫn file âm thanh trong public.");
     }
   }
-  visit(input, baseline, []);
+  visit(input, withPresentation(baseline), []);
 }
 
 export function createEditorService({ root, origin, aliases = [], token }) {
@@ -101,14 +103,14 @@ export function createEditorService({ root, origin, aliases = [], token }) {
   async function read() {
     if ((await fs.lstat(contentFile)).isSymbolicLink() || !(await fs.realpath(contentFile)).startsWith(await fs.realpath(root) + path.sep)) throw new EditorError(403, "File dữ liệu không hợp lệ.");
     const bytes = await fs.readFile(contentFile);
-    return { data: JSON.parse(bytes.toString("utf8")), revision: revisionOf(bytes), bytes };
+    return { data: withPresentation(JSON.parse(bytes.toString("utf8"))), revision: revisionOf(bytes), bytes };
   }
   async function save(input) {
     if (!input || typeof input !== "object" || Array.isArray(input) || typeof input.revision !== "string" || !input.data) throw new EditorError(400, "Cần nội dung và revision hợp lệ.");
     const current = await read();
     if (input.revision !== current.revision) throw new EditorError(409, "Nội dung đã thay đổi ở phiên khác. Tải lại dữ liệu trước khi lưu; bản nháp chưa bị ghi đè.");
-    validateContent(input.data, current.data);
-    const next = structuredClone(input.data);
+    const next = withPresentation(structuredClone(input.data));
+    validateContent(next, current.data);
     const publicRoot = await fs.realpath(path.join(root, "public"));
     async function verifyImages(value, previous, trail = []) {
       if (value && typeof value === "object") { for (const [key, entry] of Object.entries(value)) if (!key.startsWith("_")) await verifyImages(entry, previous?.[key], [...trail, Array.isArray(value) ? Number(key) : key]); }

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { fieldKind } from "../src/lib/editor-schema.mjs";
 import { imageSettings } from "../src/lib/image-settings.mjs";
+import { ensureWeddingData } from "./wedding-data.mjs";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -17,7 +18,7 @@ async function writeAtomic(filename, bytes) {
 }
 
 export async function prepareImages(root = projectRoot) {
-  const wedding = JSON.parse(await fs.readFile(path.join(root, "src/data/wedding.json"), "utf8"));
+  const wedding = JSON.parse(await fs.readFile(await ensureWeddingData(root), "utf8"));
   const sources = new Set();
   function visit(value, trail = []) {
     if (value && typeof value === "object") {
@@ -61,6 +62,39 @@ export async function prepareImages(root = projectRoot) {
   const serialized = JSON.stringify(manifest, null, 2) + "\n";
   const previous = await fs.readFile(manifestFile, "utf8").catch(() => "");
   if (previous !== serialized) await writeAtomic(manifestFile, serialized);
+  const assets = [];
+  async function scanMedia(relative) {
+    const folder = path.join(publicRoot, relative);
+    const entries = await fs.readdir(folder, { withFileTypes: true }).catch(error => {
+      if (error.code === "ENOENT") return [];
+      throw error;
+    });
+    for (const entry of entries.sort((first, second) => first.name.localeCompare(second.name))) {
+      if (entry.isSymbolicLink()) continue;
+      const local = path.posix.join(relative, entry.name);
+      if (entry.isDirectory()) { await scanMedia(local); continue; }
+      if (!entry.isFile() || !/\.(?:jpe?g|png|webp|avif)$/i.test(entry.name)) continue;
+      const filename = await fs.realpath(path.join(publicRoot, local));
+      if (!filename.startsWith(publicRoot + path.sep)) continue;
+      const stat = await fs.stat(filename);
+      const hash = createHash("sha256").update(`${local}:${stat.size}:${stat.mtimeMs}:${imageSettings.editorThumbnailSize}:${imageSettings.editorThumbnailQuality}:${sharp.versions.sharp}`).digest("hex").slice(0, 24);
+      const thumbnailSrc = `/optimized/editor-${hash}.webp`;
+      const thumbnailFile = path.join(publicRoot, thumbnailSrc);
+      try { await fs.access(thumbnailFile); }
+      catch {
+        try {
+          const bytes = await sharp(filename, { limitInputPixels: imageSettings.maxInputPixels, animated: false }).rotate().resize({ width: imageSettings.editorThumbnailSize, height: imageSettings.editorThumbnailSize, fit: "inside", withoutEnlargement: true }).webp({ quality: imageSettings.editorThumbnailQuality }).toBuffer();
+          await writeAtomic(thumbnailFile, bytes);
+        } catch { console.warn(`Cannot prepare editor thumbnail: /${local}`); continue; }
+      }
+      assets.push({ src: `/${local}`, name: entry.name, size: stat.size, thumbnailSrc });
+    }
+  }
+  await scanMedia("images");
+  await scanMedia("uploads");
+  const mediaFile = path.join(manifestFolder, "media.json");
+  const mediaJson = JSON.stringify(assets, null, 2) + "\n";
+  if (await fs.readFile(mediaFile, "utf8").catch(() => "") !== mediaJson) await writeAtomic(mediaFile, mediaJson);
   return { sources: sources.size, generated, manifest };
 }
 

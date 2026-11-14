@@ -233,3 +233,80 @@
 .ed-library-grid img { display: block; }
 .ed-library-grid .ed-library-placeholder { display: grid; place-items: center; aspect-ratio: 1; white-space: normal; color: var(--ed-muted); background: #f5efe8; }
 .ed-root .ed-library-more { display: block; margin: 20px auto 0; min-height: 44px; }
+/* Added 2026-11-13: accessible block controls and local font samples alongside the live preview. */
+.ed-presentation h3 { margin: 20px 0 8px; font: 600 16px/1.5 var(--font-body), sans-serif; }
+.ed-block-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.ed-block-heading h4 { margin: 0; font-size: 13px; }
+.ed-root .ed-font-sample { margin: 12px 0 0; font-size: 24px; line-height: 1.7; overflow-wrap: anywhere; }
+
+/* Added 2026-11-14: direct block font selection, live preview and block deletion inside the content edit modal. */
+.ed-modal-block-config {
+  background: #fbf7f2;
+  border: 1px solid #ebdcd5;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.ed-modal-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.ed-block-badge {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--red-dark);
+}
+.ed-btn-block-toggle {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.ed-btn-delete-block {
+  background: #fff;
+  border: 1px solid #d99a9a;
+  color: #a82828;
+}
+.ed-btn-delete-block:hover {
+  background: #a82828;
+  color: #fff;
+}
+.ed-btn-restore-block {
+  background: #2e7d32;
+  border: 1px solid #2e7d32;
+  color: #fff;
+}
+.ed-btn-restore-block:hover {
+  background: #1b5e20;
+}
+.ed-modal-font-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ed-modal-font-row label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #634d49;
+}
+.ed-modal-font-row select {
+  padding: 7px 10px;
+  border: 1px solid #d9bdb3;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13px;
+}
+.ed-block-hidden-notice {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  background: #fff0f0;
+  border-left: 3px solid #d32f2f;
+  color: #c62828;
+  font-size: 12px;
+  line-height: 1.5;
+}

@@ -28,8 +28,8 @@ const nextConfig: NextConfig = {
   },
   // Added 2026-11-13: match build-time responsive variants; newly uploaded preview images retain the Next optimizer fallback.
   images: { deviceSizes: imageSettings.deviceSizes, imageSizes: imageSettings.imageSizes, minimumCacheTTL: 86400 },
-  // Added 2026-11-13: ship server-read wedding content to Vercel without importing editable JSON into the HMR graph.
-  outputFileTracingIncludes: { "/*": ["./src/data/wedding.json"] },
+  // Added 2026-11-13: ship the build-time media catalog for online selection without runtime uploads or filesystem writes.
+  outputFileTracingIncludes: { "/*": ["./src/data/wedding.json", "./src/data/wedding.defaults.json"], "/admin": ["./.generated/media.json"], "/admin/login": ["./.generated/media.json"] },
 };
 
 export default nextConfig;

@@ -28,3 +28,312 @@
   .welcome-screen.mobile-photo-scene::before, .hero-paper.mobile-photo-scene::before { content: ""; display: block; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(0deg, #13201dee, #13201d99 22%, #13201d00 46%); }
   .mobile-photo-scene .guest-dedication > p { font-size: 19px; }
 }
+
+/* Added 2026-11-13: reduce stacked mobile section, caption and stagger gaps while retaining desktop compositions. */
+@media (max-width: 699px) {
+  .invitation-page .section-space { padding: 36px 20px; }
+  .invitation-page .section-heading { margin-bottom: 24px; }
+  .invitation-page .section-heading .eyebrow { margin-bottom: 8px; }
+  .invitation-page .section-heading p { margin-top: 10px; }
+  .invitation-page .family-names { margin-bottom: 24px; }
+  .invitation-page .invitation-letter { margin-bottom: 24px; }
+  .invitation-page .date-invitation-grid { gap: 24px; }
+  .invitation-page .invitation-closing { margin-top: 24px; }
+  .invitation-page .couple-profile { gap: 20px; grid-template-columns: 1fr; }
+  .invitation-page .couple-profile > .portrait-composition { width: min(100%, 320px); }
+  .invitation-page .couple-profile-copy { align-items: center; text-align: center; }
+  .invitation-page .couple-profile-copy > h2 { font-size: clamp(34px, 8.5vw, 44px); }
+  .invitation-page .couple-profile-copy .ornament { align-self: center; margin: 14px auto 16px; }
+  .invitation-page .couple-profile-copy blockquote { text-align: center; font-size: 18px; line-height: 1.6; max-width: 320px; }
+  .invitation-page .portrait-composition { margin-bottom: 0; }
+  .invitation-page .wedding-timeline { margin-top: 28px; row-gap: 24px; }
+  .invitation-page .editorial-photos { gap: 18px 12px; padding: 10px 6px 28px; }
+  .invitation-page .editorial-photos .editorial-frame:nth-child(even) { transform: translateY(14px) rotate(2deg); }
+  .invitation-page .editorial-name-first { margin-bottom: 8px; }
+  .invitation-page .editorial-name-second { margin-top: 8px; }
+  .invitation-page .album-mosaic { gap: 14px 12px; }
+  .invitation-page .album-mosaic .mosaic-frame:nth-child(even) { padding-top: 16px; }
+  .invitation-page .reply-message { margin-top: 18px; }
+  .invitation-page .gift-block { margin-top: 24px; padding-top: 20px; }
+  .invitation-page .location-section { padding-top: 0; }
+  .invitation-page .reply-location { row-gap: 18px; }
+  .invitation-page .invitation-footer { padding: 64px 20px 32px; background: linear-gradient(180deg, var(--paper), var(--red-dark) 40px); }
+}
+
+/* Added 2026-11-14: compact section spacing across all screen sizes (mobile, tablet, desktop) to avoid oversized gaps. */
+.invitation-page .section-space {
+  padding: clamp(32px, 4.5vw, 48px) clamp(16px, 4vw, 36px) !important;
+}
+.invitation-page .section-heading {
+  margin-bottom: 24px !important;
+}
+.invitation-page .section-heading .eyebrow {
+  margin-bottom: 8px !important;
+}
+.invitation-page .section-heading p {
+  margin-top: 10px !important;
+}
+.invitation-page .family-names {
+  margin-bottom: 24px !important;
+  gap: clamp(24px, 4vw, 54px) !important;
+}
+.invitation-page .invitation-letter {
+  margin-block: 20px 28px !important;
+}
+.invitation-page .date-invitation-grid {
+  gap: clamp(24px, 4vw, 48px) !important;
+}
+.invitation-page .invitation-closing {
+  margin-top: 24px !important;
+}
+.invitation-page .wedding-timeline {
+  margin-top: 28px !important;
+  row-gap: 22px !important;
+}
+.invitation-page .reply-location {
+  row-gap: 20px !important;
+  margin-top: 32px !important;
+}
+.invitation-page .location-section {
+  padding-top: 0 !important;
+}
+.invitation-page .invitation-footer {
+  padding: clamp(48px, 6vw, 68px) clamp(16px, 4vw, 32px) 24px !important;
+}
+
+/* Added 2026-11-14: restore couple portrait torn paper mask with original portrait-mask.svg structure. */
+.invitation-page .couple-profile > .portrait-composition {
+  position: relative;
+  width: min(100%, 410px);
+  margin: 0 auto;
+  padding: 0;
+  aspect-ratio: 2/3;
+  filter: drop-shadow(0 16px 28px rgba(84, 44, 44, 0.12));
+}
+
+.invitation-page .couple-profile .partner-photo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 2/3;
+  margin: 0;
+  border-radius: 0;
+  -webkit-mask-image: url("/images/portrait-mask.svg");
+  mask-image: url("/images/portrait-mask.svg");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.invitation-page .couple-profile .partner-photo > .viewport-photo > img {
+  border-radius: 0;
+  object-fit: cover;
+  filter: none;
+}
+
+/* Added 2026-11-14: Hide couple names on mobile in partner block; keep eyebrow, ornament and quote. */
+@media (max-width: 699px) {
+  .invitation-page .couple-profile-copy > h2 {
+    display: none !important;
+  }
+}
+
+/* Updated 2026-11-14: separate attendance choices from stable guest/email fields to prevent overlap and layout jumps. */
+.modal.rsvp-modal-compact {
+  padding: 24px 20px 20px !important;
+  width: min(calc(100% - 24px), 520px) !important;
+  max-height: calc(100dvh - 24px) !important;
+  border-radius: 16px !important;
+  overflow-y: auto !important;
+  box-shadow: 0 20px 60px rgba(37, 18, 28, 0.28) !important;
+}
+
+.modal.rsvp-modal-compact .modal-close {
+  top: 8px !important;
+  right: 8px !important;
+  width: 44px !important;
+  height: 44px !important;
+}
+
+.rsvp-compact-wrap .rsvp-dialog-header {
+  text-align: left;
+  margin-bottom: 16px;
+  padding-right: 32px;
+}
+
+.rsvp-compact-wrap .rsvp-dialog-header .eyebrow {
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-bottom: 2px;
+}
+
+.rsvp-compact-wrap .rsvp-dialog-header h2 {
+  font-size: 26px;
+  line-height: 1.25;
+  margin: 2px 0 0;
+  color: var(--red);
+}
+
+.rsvp-compact-wrap .rsvp-dialog-header .form-intro {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.rsvp-compact-wrap .rsvp-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.rsvp-compact-wrap .rsvp-form-row {
+  min-width: 0;
+}
+
+.rsvp-compact-wrap label {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.rsvp-compact-wrap label span {
+  color: var(--red);
+}
+
+.rsvp-compact-wrap input:not([type="radio"]),
+.rsvp-compact-wrap select {
+  width: 100%;
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 6px 10px !important;
+  font-size: 16px !important;
+  border: 1px solid #d5bdb7 !important;
+  border-radius: 6px !important;
+  background: var(--white) !important;
+  color: var(--ink) !important;
+  box-sizing: border-box !important;
+}
+
+.rsvp-compact-wrap textarea {
+  width: 100%;
+  min-height: 56px !important;
+  height: 56px !important;
+  padding: 6px 10px !important;
+  font-size: 16px !important;
+  border: 1px solid #d5bdb7 !important;
+  border-radius: 6px !important;
+  background: var(--white) !important;
+  color: var(--ink) !important;
+  resize: none !important;
+  box-sizing: border-box !important;
+}
+
+.rsvp-compact-wrap input:focus,
+.rsvp-compact-wrap select:focus,
+.rsvp-compact-wrap textarea:focus {
+  border-color: var(--red) !important;
+  outline: 2px solid var(--red) !important;
+  outline-offset: 2px;
+}
+
+.rsvp-compact-wrap .rsvp-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.rsvp-compact-wrap .rsvp-form-col {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.rsvp-compact-wrap .rsvp-form-col > label {
+  flex: 1;
+}
+
+.rsvp-compact-wrap .rsvp-attendance {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.rsvp-compact-wrap .rsvp-attendance legend {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 5px;
+}
+
+.rsvp-radio-group {
+  display: grid;
+  gap: 6px;
+}
+
+.rsvp-radio-group .radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px !important;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 0;
+  cursor: pointer;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.rsvp-radio-group .radio-option:has(input:checked) {
+  border-color: var(--red);
+  background: var(--cream);
+}
+
+.rsvp-radio-group .radio-option span {
+  min-width: 0;
+  color: inherit;
+}
+
+.rsvp-radio-group .radio-option input {
+  width: 15px !important;
+  height: 15px !important;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--red);
+}
+
+.rsvp-submit-btn {
+  width: 100%;
+  min-height: 44px !important;
+  height: auto !important;
+  font-size: 13px !important;
+  padding: 6px 14px !important;
+  margin-top: 14px;
+  gap: 10px;
+  border-radius: 6px;
+}
+
+.rsvp-compact-wrap .form-error {
+  font-size: 11px;
+  color: var(--red);
+  margin: 4px 0;
+}
+
+/* Added 2026-11-14: preserve readable RSVP labels on narrow phones and inactive fields without moving the form. */
+.rsvp-compact-wrap input:disabled,
+.rsvp-compact-wrap select:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 359px) {
+  .rsvp-compact-wrap .rsvp-form-grid { grid-template-columns: minmax(0, 1fr); }
+}

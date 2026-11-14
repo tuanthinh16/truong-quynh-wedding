@@ -51,3 +51,6 @@ next-env.d.ts
 # Added 2026-11-13: responsive image derivatives and manifest are regenerated locally and by Vercel builds.
 /public/optimized/
 /.generated/
+
+# Added 2026-11-13: runtime wedding content is managed separately; only the bootstrap defaults belong in Git.
+/src/data/wedding.json

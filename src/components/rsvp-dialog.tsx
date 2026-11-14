@@ -18,6 +18,7 @@ export default function RsvpDialog({ side, onClose }: { side: WeddingSide; onClo
   const [temporaryStorage, setTemporaryStorage] = useState(false);
   const pending = useRef<{ id: string; payload: string } | null>(null);
   const submitting = useRef(false);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting.current) return;
@@ -41,14 +42,15 @@ export default function RsvpDialog({ side, onClose }: { side: WeddingSide; onClo
     } catch { setError(copy.submitError); }
     finally { window.clearTimeout(timeout); submitting.current = false; setBusy(false); }
   }
+
   return (
-    <Modal onClose={() => { if (!submitting.current) onClose(); }} label={copy.label}>
+    <Modal onClose={() => { if (!submitting.current) onClose(); }} label={copy.label} className="rsvp-modal-compact">
       {saved ? (
         <div className="rsvp-success">
           <span className="success-icon"><Icon name="check" size={28} /></span>
-          <span className="eyebrow">{copy.thanks} </span>
-          <h2>{attending === "no" ? copy.declinedTitle : copy.successTitle} </h2>
-          <p>{attending === "no" ? copy.declinedMessage : copy.successMessage} </p>
+          <span className="eyebrow">{copy.thanks}</span>
+          <h2>{attending === "no" ? copy.declinedTitle : copy.successTitle}</h2>
+          <p>{attending === "no" ? copy.declinedMessage : copy.successMessage}</p>
           {emailStatus === "preview" && <p className="rsvp-mail-status" role="status">{copy.previewMessage}</p>}
           {emailStatus === "sent" && <p className="rsvp-mail-status" role="status">{copy.emailSent}</p>}
           {["failed", "unconfigured", "disabled", "rate-limited"].includes(emailStatus) && <p className="rsvp-mail-status" role="status">{copy.emailUnavailable}</p>}
@@ -57,29 +59,65 @@ export default function RsvpDialog({ side, onClose }: { side: WeddingSide; onClo
           <button className="button button-red" onClick={onClose}>{copy.back} <Icon name="heart" size={17} /></button>
         </div>
       ) : (
-        <>
-          <span className="eyebrow">{copy.eyebrow} </span>
-          <h2>{copy.title} </h2>
-          <p className="form-intro">{copy.invitation} {wedding.events[side].sideLabel.toLocaleLowerCase("vi-VN")} · {wedding.events[side].label}</p>
-          <form onSubmit={event => void submit(event)} aria-busy={busy}>
+        <div className="rsvp-compact-wrap">
+          <div className="rsvp-dialog-header">
+            <span className="eyebrow">{copy.eyebrow}</span>
+            <h2>{copy.title}</h2>
+            <p className="form-intro">{copy.invitation} {wedding.events[side].sideLabel.toLocaleLowerCase("vi-VN")} · {wedding.events[side].label}</p>
+          </div>
+          <form onSubmit={event => void submit(event)} aria-busy={busy} className="rsvp-form">
             <fieldset className="rsvp-fields" disabled={busy}>
-            <label htmlFor="guest-name">{copy.name} <span aria-hidden="true">*</span></label>
-            <input id="guest-name" name="name" autoComplete="name" placeholder={copy.namePlaceholder} required maxLength={100} />
-            <fieldset>
-              <legend>{copy.attendance} </legend>
-              <label className="radio-option"><input type="radio" name="attending" value="yes" checked={attending === "yes"} onChange={() => setAttending("yes")} />{copy.yes} </label>
-              <label className="radio-option"><input type="radio" name="attending" value="no" checked={attending === "no"} onChange={() => setAttending("no")} />{copy.no} </label>
+              <div className="rsvp-form-row">
+                <label htmlFor="guest-name">{copy.name} <span aria-hidden="true">*</span></label>
+                <input id="guest-name" name="name" autoComplete="name" placeholder={copy.namePlaceholder} required maxLength={100} />
+              </div>
+
+              <fieldset className="rsvp-attendance">
+                  <legend>{copy.attendance}</legend>
+                  <div className="rsvp-radio-group">
+                    <label className="radio-option">
+                      <input type="radio" name="attending" value="yes" checked={attending === "yes"} onChange={() => setAttending("yes")} />
+                      <span>{copy.yes}</span>
+                    </label>
+                    <label className="radio-option">
+                      <input type="radio" name="attending" value="no" checked={attending === "no"} onChange={() => setAttending("no")} />
+                      <span>{copy.no}</span>
+                    </label>
+                  </div>
+              </fieldset>
+
+              <div className="rsvp-form-grid">
+                  <div className="rsvp-form-col">
+                    <label htmlFor="guest-count">{copy.guests}</label>
+                    <select id="guest-count" name="guests" defaultValue="1" disabled={attending !== "yes"}>
+                      {Array.from({ length: 10 }, (_, index) => (
+                        <option key={index} value={index + 1}>{index + 1} {copy.guestUnit}</option>
+                      ))}
+                    </select>
+                  </div>
+                <div className="rsvp-form-col">
+                  <label htmlFor="guest-email">{copy.email}</label>
+                  <input id="guest-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder={copy.emailPlaceholder} maxLength={254} disabled={attending !== "yes"} />
+                </div>
+              </div>
+
+              <div className="rsvp-form-row">
+                <label htmlFor="guest-message">{copy.message}</label>
+                <textarea id="guest-message" name="message" rows={2} maxLength={1000} placeholder={copy.messagePlaceholder} />
+              </div>
+
+              <div className="rsvp-trap" aria-hidden="true">
+                <label htmlFor="guest-website">Website</label>
+                <input id="guest-website" name="website" tabIndex={-1} autoComplete="off" />
+              </div>
             </fieldset>
-            {attending === "yes" && <><label htmlFor="guest-count">{copy.guests} </label><select id="guest-count" name="guests" defaultValue="1">{Array.from({ length: 10 }, (_, index) => <option key={index} value={index + 1}>{index + 1} {copy.guestUnit}</option>)}</select></>}
-            {attending === "yes" && <><label htmlFor="guest-email">{copy.email}</label><input id="guest-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder={copy.emailPlaceholder} maxLength={254} aria-describedby="guest-email-help" /><p id="guest-email-help" className="rsvp-email-help">{copy.emailHelp}</p></>}
-            <label htmlFor="guest-message">{copy.message} </label>
-            <textarea id="guest-message" name="message" rows={3} maxLength={1000} placeholder={copy.messagePlaceholder} />
-            <div className="rsvp-trap" aria-hidden="true"><label htmlFor="guest-website">Website</label><input id="guest-website" name="website" tabIndex={-1} autoComplete="off" /></div>
-            </fieldset>
-            <p role="alert" className="form-error">{error}</p>
-            <button type="submit" className="button button-red" disabled={busy}>{busy ? copy.submitting : copy.submit} <Icon name="arrow" size={18} /></button>
+
+            {error && <p role="alert" className="form-error">{error}</p>}
+            <button type="submit" className="button button-red rsvp-submit-btn" disabled={busy}>
+              {busy ? copy.submitting : copy.submit} <Icon name="arrow" size={17} />
+            </button>
           </form>
-        </>
+        </div>
       )}
     </Modal>
   );

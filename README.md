@@ -72,7 +72,7 @@ npm run build
 | ceremony-demo.jpg | photo-1537633552985-df8429e8048b |
 | flowers-demo.jpg | photo-1529636798458-92182e662485 |
 
-Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội bộ; giấy phép SIL Open Font License trong `public/fonts/`. Bộ font trước vẫn giữ nguyên file, không xóa tài nguyên ngoài phạm vi. Họa tiết hoa hồng là SVG nội bộ, không dùng ảnh riêng của cặp đôi trong thiệp tham khảo.
+Các font Quicksand, Be Vietnam Pro, Cormorant Garamond, Lora, Great Vibes, Charmonman và Tahoma lưu nội bộ; giấy phép SIL Open Font License trong `public/fonts/`. Font của từng thành phần được chọn và xem trước trực tiếp ngay trong modal chỉnh sửa nội dung của thành phần đó (kèm nút xóa/khôi phục block). Tab **Font chung & số** chỉ cấu hình font dùng chung toàn trang và font hiển thị số, không load danh sách block riêng lẻ. Không gọi Google Fonts.
 
 ## Hero và trải nghiệm nghe nhạc — 2026-11-12
 
@@ -94,7 +94,7 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - Phần giới thiệu dùng **một ảnh chung bên trái, nội dung cả hai bên phải** trên desktop; mobile xếp ảnh trước, chữ sau. Sửa ảnh tại **Hình ảnh & album → Ảnh chung cô dâu & chú rể**; tên, vai trò và lời giới thiệu tại **Chú rể** / **Cô dâu**; dòng dẫn và lời nhắn chung tại **Giới thiệu**. Thiệp chỉ giữ một nút loa bật/tắt nhạc, không còn navbar.
 - Upload trực tiếp JPG/PNG/WebP/AVIF (tối đa 30 MB và 60 MP). Server kiểm tra nội dung ảnh, tự xoay theo EXIF, giới hạn cạnh 2560px và chuyển sang WebP. File thật nằm trong `public/uploads/editor/`, URL `/uploads/editor/<uuid>.webp`; không dùng dịch vụ lưu ảnh ngoài. File upload được ghi ngay, nhưng chỉ gắn lên thiệp sau khi lưu bản nháp. Thư viện cho chọn lại ảnh trong `public/images` và `public/uploads`.
 - Mỗi lần lưu có bản sao dữ liệu cũ trong `.editor/history/` (không public, không commit). Đăng nhập dùng cookie HttpOnly, giới hạn số lần thử và kiểm tra cùng origin cho API ghi/upload. Không upload SVG hoặc ghi đường dẫn tùy ý.
-- Local `npm run dev` dùng editor filesystem có đăng nhập. Production `npm run build` / `npm start` và Vercel chỉ xem trước nội dung công khai tại `/admin`, khóa toàn bộ upload/lưu và API ghi. Thiệp lấy JSON và ảnh từ bản commit, không cần kho lưu trữ ngoài.
+- Local `npm run dev` dùng editor filesystem có đăng nhập. Production/Vercel mở sửa bản nháp, chọn ảnh có sẵn và xuất JSON; không upload hoặc ghi nội dung lên server. Dữ liệu bền vững trên Vercel cần kho lưu trữ riêng, hiện chưa được kết nối.
 - Cập nhật 2026-11-13: thư viện admin chỉ tải thumbnail WebP tối đa 256×256, không tải ảnh gốc để dựng danh sách. Thumbnail tạo với số tác vụ giới hạn, cache tại `public/optimized/editor-thumbnails/` và tự đổi URL khi ảnh gốc thay đổi; lần tạo đầu có thể mất vài giây. Danh sách dùng cache chung trong phiên admin, upload bổ sung trực tiếp vào cache, lưới render từng đợt 24 ảnh khi cuộn. Sau khi sửa `scripts/editor/service.mjs`, lưu bản nháp rồi khởi động lại `npm run dev` để server nhận thay đổi.
 
 ## Quà mừng, bản đồ & email hướng dẫn — 2026-11-13
@@ -108,11 +108,11 @@ Font Quicksand, Cormorant Garamond, Charmonman Bold và Great Vibes lưu nội b
 - API kiểm tra cùng origin, giới hạn payload 8 KB, honeypot, 120 lượt gửi mới / 10 phút / process; mã hồi đáp UUID giúp retry không gửi lại cùng thư. Giới hạn email lưu trên đĩa: một lần thử / email / nhà / ngày UTC, tổng mặc định 100 lần thử mỗi ngày qua `RSVP_DAILY_EMAIL_LIMIT`. SMTP lỗi vẫn tính một lần thử để tránh spam; không tự gửi lại khi retry. Cần điều chỉnh quota và bổ sung chống bot chuyên dụng nếu mở cho lưu lượng lớn.
 - `POST /api/rsvp` hoạt động cả khi chạy `npm run dev`, `npm start` và Vercel. Local lưu `.rsvp/` trên filesystem. Vercel chỉ lưu tạm trong `/tmp/.rsvp/`: **có thể mất khi instance dừng, không đồng bộ giữa các instance, admin local không xem được hồi đáp trên Vercel**. UI báo rõ giới hạn này sau khi gửi. Chống gửi trùng/quota chỉ có hiệu lực trong cùng filesystem còn tồn tại, không đảm bảo toàn deployment. SMTP vẫn gửi hướng dẫn theo đúng nhà khi được cấu hình. Không dùng danh sách tạm làm nguồn chốt khách duy nhất. Không dùng static export.
 
-### Concept bữa tiệc và email màu sắc — 2026-11-13
+### Bố cục và email — 2026-11-13
 
-- Admin → **Nội dung → Concept bữa tiệc**: bật/tắt, sửa tone màu và trang phục bằng văn bản. Cấu hình `partyConcept` đặt cuối JSON, dùng chung cho hai nhà.
-- Dưới cụm lịch và trong email chỉ hiện hai dòng chữ nhỏ: “Concept chính: …” và “Trang phục: …”; không chấm màu, border hay nội dung thêm.
-- Email hướng dẫn dùng HTML đỏ rượu–kem: tên cô dâu/chú rể, thẻ thời gian/địa điểm theo đúng nhà, nút Google Maps và concept đồng bộ từ dữ liệu đã **Lưu**. Luôn kèm bản plain text cho ứng dụng không hiển thị HTML. Tắt concept sẽ ẩn trong cả thiệp và thư; email đã gửi không tự thay đổi.
+- Đã bỏ concept/tone màu/trang phục khỏi thiệp, admin và email HTML/plain text. JSON cũ được loại `partyConcept` khi đọc, không cần chỉnh tay.
+- Xóa/khôi phục block và đổi font riêng thực hiện trực tiếp ngay trong modal chỉnh sửa nội dung của block đó; khối bị xóa được gỡ sạch khỏi DOM không để lại khoảng trống. Thiết lập dùng chung cho hai thiệp; địa chỉ/bản đồ độc lập với hồi đáp.
+- Email hướng dẫn vẫn dùng HTML đỏ rượu–kem: tên cô dâu/chú rể, thời gian/địa điểm theo đúng nhà, nút Google Maps và bản plain text. Email đã gửi không tự thay đổi.
 
 ### Gmail và tên người gửi — 2026-11-13
 
@@ -128,8 +128,8 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 
 1. Giữ preset **Next.js**, Build Command `npm run build`, không dùng static export hoặc chạy `npm run dev` trên production.
 2. Chạy `npm run dev`, đăng nhập admin local, upload ảnh rồi bấm **Lưu thay đổi**. Giới hạn 30 MB / ảnh, 60 MP; ảnh nằm trong `public/uploads/editor/`, nội dung trong `src/data/wedding.json`.
-3. Commit/push **cả JSON lẫn ảnh mới**. Vercel tự build từ commit; deployment mới luôn thay thế nội dung/ảnh theo Git. Không commit `.env.local`, `.editor/` hoặc `.rsvp/`.
-4. Bản online `/admin` chỉ xem trước, không cần đăng nhập vì chỉ chứa dữ liệu thiệp đã công khai; input/upload/lưu đều khóa. `/__editor` và `/api/editor` chặn mọi thao tác ghi ở server. Không có mật khẩu hay hồi đáp khách trong dữ liệu public này.
+3. `src/data/wedding.json` là dữ liệu runtime, **không theo dõi trong Git** và không bị ghi đè khi chạy dev/build. `src/data/wedding.defaults.json` là dữ liệu khởi tạo được theo dõi: nếu runtime JSON chưa tồn tại, dev/build tạo một lần từ defaults; file đang có tuyệt đối không bị thay thế. Commit ảnh mới và code, không commit `.env.local`, `.editor/` hoặc `.rsvp/`.
+4. Bản online `/admin` không cần đăng nhập vì chỉ chứa dữ liệu thiệp và ảnh đã công khai. Có thể sửa nội dung, font, block và chọn/thay ảnh từ thư viện; chỉ upload ảnh mới bị tắt. Thư viện được quét từ `public/images/` và `public/uploads/` khi dev/build, gồm cả ảnh chưa dùng trong thiệp và thumbnail dựng sẵn. Bản nháp chỉ ở bộ nhớ trang, tải lại sẽ mất; **Xuất JSON** tải `wedding.json` để sao lưu hoặc dùng với admin local. `/__editor` và `/api/editor` vẫn chặn thao tác ghi ở server; không lưu giả vào filesystem Vercel. **Git ignore không phải lưu trữ Vercel:** một deployment mới chưa kết nối database/object storage sẽ khởi tạo từ defaults; không thể giữ thay đổi online qua redeploy chỉ bằng bỏ JSON khỏi Git. Không có mật khẩu hay hồi đáp khách trong dữ liệu public này.
 5. Chỉ cần các biến `SMTP_*` và `RSVP_DAILY_EMAIL_LIMIT` trên Vercel nếu dùng email. Biến `ADMIN_*` chỉ dùng local. Không cần token kho ảnh hoặc SDK lưu trữ ngoài. Biến môi trường cũ nếu có không còn được code sử dụng.
 6. Hồi đáp Vercel là tạm thời như giới hạn ở trên; email xác nhận vẫn dùng cấu hình SMTP. Nếu cần danh sách khách bền vững sau này, cần bổ sung lưu trữ riêng.
 
@@ -146,7 +146,7 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 
 ### Tối ưu ảnh và map nhúng — 2026-11-13
 
-- Giới hạn upload dùng chung `src/lib/image-settings.mjs`: 30 MB dung lượng file, 60 MP chống ảnh quá lớn gây tràn bộ nhớ; cập nhật ngày 2026-11-13 để nhận bộ ảnh máy ảnh 32,74 MP hiện có. Upload chỉ thực hiện local; bản online vẫn chỉ xem trước.
+- Giới hạn upload dùng chung `src/lib/image-settings.mjs`: 30 MB dung lượng file, 60 MP chống ảnh quá lớn gây tràn bộ nhớ; cập nhật ngày 2026-11-13 để nhận bộ ảnh máy ảnh 32,74 MP hiện có. Upload chỉ thực hiện local; bản online vẫn cho sửa bản nháp và chọn ảnh có sẵn.
 - Cập nhật 2026-11-13: custom editor server không hot-reload theo Next.js. Sau khi sửa backend hoặc giới hạn upload, cần dừng terminal dev và chạy lại `npm run dev`. Admin kiểm tra giới hạn thực tế trước khi gửi file, chặn server cũ thay vì hiển thị 30 MB nhưng bị backend từ chối. Lưu bản nháp trước khi tải lại admin. Upload dùng raw binary, không base64; thông báo lỗi tách dung lượng MB và độ phân giải MP, upload thành công hiển thị dung lượng/kích thước ảnh sau nén. Ảnh nguồn 30 MB không được gửi nguyên dung lượng đó cho khách xem: server lưu WebP tối đa 2560px, build tiếp tục tạo responsive variants có hash/cache.
 - `npm run dev`, `npm run editor` và `npm run build` tự tạo ảnh WebP nhiều kích thước vào `public/optimized/` và manifest `.generated/images.json`. Có thể chạy riêng `npm run prepare:images`. Không commit hai thư mục sinh tự động; Vercel tạo lại lúc build. Build Command trên Vercel cần là `npm run build`, không ghi đè thành `next build` trực tiếp. Trước khi chạy `tsc` trực tiếp trên checkout mới, chạy `npm run prepare:images`.
 - Hero/mở màn dùng một nguồn ảnh dọc cho mọi màn hình, ưu tiên tải ngay; desktop đặt ảnh bên phải và giữ trọn khung, nội dung bên trái. Album dùng khung dọc 2:3, collage xếp hai cột lệch nhịp để từng ảnh đều nhìn rõ; ảnh dưới trang vẫn lazy-load. Gallery và hoa dùng cùng ảnh dựng sẵn, không chờ nén ảnh theo từng request đầu tiên. Ảnh vừa upload trong bản nháp chưa có variant vẫn dùng Next Image Optimization để preview; build tiếp theo sẽ tạo variant.
@@ -174,3 +174,21 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 - Ảnh xuất hiện luân phiên từ trái/phải khi vào màn hình; cuộn ra rồi quay lại sẽ chạy lại. Màn chọn gia đình và hero mở từ trên xuống. Tôn trọng `prefers-reduced-motion`.
 - Reload thiệp công khai đưa về đầu trang, không khôi phục vị trí cuộn cũ; không áp dụng cho admin.
 - 2026-11-13: Reset cuộn chỉ chạy lúc khởi tạo trang, không dùng `pageshow` vì sự kiện này có thể đến muộn khi ảnh tải chậm và kéo khách đang xem về đầu. Observer lấy trạng thái giao cắt cuối mỗi batch để ảnh không kẹt trạng thái cũ khi cuộn nhanh; ảnh nội dung giữ native lazy loading, hero vẫn tải ngay.
+
+### Tinh gọn nội dung và font số — 2026-11-13
+
+- Section cô dâu/chú rể: phục hồi mask giấy rách với nền đục 100% và giữ nguyên màu sắc gốc của ảnh (không bị lớp phủ làm mờ hay nhạt màu). Bố cục nội dung được cân đối lại với UI: giữ tiêu đề, tên cô dâu & chú rể, họa tiết trái tim và câu trích dẫn nổi bật; loại bỏ đoạn văn giới thiệu dài để phần chữ và ảnh hài hòa trên cả desktop và mobile.
+- THE BEGINNING OF ALWAYS chỉ giữ dòng tiếng Anh, mô tả và ảnh; bỏ tên hai người và tiêu đề “Chuyện của chúng mình” ở section này, không ảnh hưởng section Chuyện chúng mình phía trên.
+- Phần đầu Save a Seat dùng Be Vietnam Pro nét đứng để hiển thị dấu tiếng Việt/dấu câu rõ ràng; vẫn đổi được bằng font riêng của block trong admin.
+- Ngày giờ, số lịch, lịch trình và đếm ngược dùng Tahoma, dự phòng Verdana/sans-serif, độc lập font trang trí. Không thay đổi nội dung hoặc giá trị ngày giờ trong JSON.
+
+### Editor server tự cập nhật schema — 2026-11-14
+
+- `npm run dev` và `npm run editor` chỉ watch `scripts/editor.mjs`, `scripts/editor/` và `src/lib/` để khởi động lại API khi schema thay đổi, tránh UI mới gửi dữ liệu đến validator cũ (ví dụ `presentation.typography`, `photos.heroSlides`). Không watch toàn bộ cây module: Next.js nạp module sinh trong `.next/`, có thể gây vòng lặp restart và trang admin trắng. Tiến trình đã chạy trước thay đổi này cần dừng và chạy lại một lần.
+- Server khởi động lại sẽ làm hết hạn phiên đăng nhập trong bộ nhớ; cần đăng nhập lại. Bản nháp chưa lưu nằm trong trình duyệt: không tải lại trang khi còn nội dung cần giữ. File `src/data/wedding.json` đã lưu không bị thay thế khi restart.
+
+### Mask giấy ban đầu, khoảng cách section & form RSVP gọn — 2026-11-14
+
+- **Section Cô dâu & chú rể:** Khôi phục trọn vẹn cấu trúc file mask gốc `public/images/portrait-mask.svg` (`viewBox="0 0 480 640"`, `<linearGradient id="edge">`, bộ lọc `feTurbulence` & `feDisplacementMap` giấy rách tự nhiên cùng đường path nguyên bản). Giữ nguyên màu sắc gốc của ảnh chân dung (`filter: none; object-fit: cover`). Trên UI mobile ẩn tên cô dâu chú rể ở block này, chỉ giữ dòng dẫn, họa tiết hoa văn và câu trích dẫn; desktop vẫn hiển thị tên hài hòa cân đối.
+- **Khoảng cách (gap) giữa các section:** Áp dụng padding gọn gàng (`clamp(32px, 4.5vw, 48px)`) và margin section ngắn đồng bộ cho toàn bộ các màn hình (mobile, tablet, desktop), loại bỏ các khoảng trống thừa lớn trước đây.
+- **Form RSVP gọn gàng:** Thiết kế lại form với cấu trúc hàng ngang 2 cột cho lựa chọn tham dự và số lượng khách, input/select cao 36px, textarea 2 dòng, padding modal 18–20px; form hiển thị vừa vặn trọn vẹn trong màn hình di động mà không phải cuộn.

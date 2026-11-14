@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/prepare-images.mjs && node scripts/editor.mjs",
-    "editor": "node scripts/prepare-images.mjs && node scripts/editor.mjs",
+    "dev": "node scripts/prepare-images.mjs && node --watch --watch-path=scripts/editor.mjs --watch-path=scripts/editor --watch-path=src/lib --watch-preserve-output scripts/editor.mjs",
+    "editor": "node scripts/prepare-images.mjs && node --watch --watch-path=scripts/editor.mjs --watch-path=scripts/editor --watch-path=src/lib --watch-preserve-output scripts/editor.mjs",
     "build": "node scripts/prepare-images.mjs && next build",
     "start": "next start",
     "lint": "eslint",
@@ -27,5 +27,5 @@
     "tailwindcss": "4.3.3",
     "typescript": "^5"
   },
-  "_configNotes": "2026-11-13: Prepare responsive WebP assets before dev/build so deployed visitors use versioned static images rather than waiting for image transformations."
+  "_configNotes": "2026-11-13: Prepare responsive WebP assets before dev/build so deployed visitors use versioned static images rather than waiting for image transformations. 2026-11-14: Watch only editor source paths to reload API schemas without watching Next.js generated modules, which cause restart loops and blank admin pages; a server restart requires signing in again."
 }

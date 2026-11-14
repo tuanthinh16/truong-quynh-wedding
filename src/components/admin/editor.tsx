@@ -12,18 +12,26 @@ import { GuestResponses } from "./guest-responses";
 import { InvitationLinks } from "./invitation-links";
 import { GalleryInsert } from "./gallery-insert";
 import { MediaLibraryGrid } from "./media-library-grid";
+import { PresentationEditor } from "./presentation-editor";
+import { blockDefinitions, fontFamily, fontOptions, resolveBlockId, withPresentation } from "@/lib/presentation.mjs";
 import { formatImageSize, imageSettings, validateUploadServer } from "@/lib/image-settings.mjs";
 
 interface DraftState { data: WeddingData; base: WeddingData; revision: string; past: WeddingData[]; future: WeddingData[] }
 const samePath = (first: EditorPath, second: EditorPath) => JSON.stringify(first) === JSON.stringify(second);
 
-export function WeddingEditor({ initialData, readOnly = false }: { initialData: WeddingData; readOnly?: boolean }) {
+export function WeddingEditor({ initialData, deployment = false, initialAssets = [] }: { initialData: WeddingData; deployment?: boolean; initialAssets?: MediaAsset[] }) {
   const router = useRouter();
-  const [session, setSession] = useState<DraftState | null>(() => readOnly ? { data: initialData, base: initialData, revision: "deployment", past: [], future: [] } : null);
+  const [session, setSession] = useState<DraftState | null>(() => {
+    if (!deployment) return null;
+    const data = withPresentation(initialData);
+    return { data, base: data, revision: "deployment", past: [], future: [] };
+  });
   const token = useRef("");
   const [busy, setBusy] = useState(false);
   const [maxUploadBytes, setMaxUploadBytes] = useState(imageSettings.maxUploadBytes);
   const [feedback, setFeedback] = useState({ text: "", error: false });
+  const [connectionError, setConnectionError] = useState("");
+  const [connectionAttempt, setConnectionAttempt] = useState(0);
   const [page, setPage] = useState<PreviewMessage["page"]>("groom");
   const [mode, setMode] = useState<PreviewMessage["mode"]>("select");
   const [viewport, setViewport] = useState(1440);
@@ -37,7 +45,7 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
   const [insertPositions, setInsertPositions] = useState<Record<string, number>>({});
   const [galleryInsertion, setGalleryInsertion] = useState<number | null>(null);
   const [assets, setAssets] = useState<MediaAsset[] | null>(null);
-  const mediaCache = useRef<{ assets: MediaAsset[]; loaded: boolean; pending: Promise<MediaAsset[]> | null }>({ assets: [], loaded: false, pending: null });
+  const mediaCache = useRef<{ assets: MediaAsset[]; loaded: boolean; pending: Promise<MediaAsset[]> | null }>({ assets: initialAssets, loaded: deployment, pending: null });
   const [assetTarget, setAssetTarget] = useState<EditorPath | null>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
@@ -50,7 +58,7 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
 
   const request = useCallback(async (url: string, options: RequestInit = {}, credential = token.current) => {
     const response = await fetch(`/__editor/api/${url}`, { ...options, cache: "no-store", headers: { "X-Editor-Token": credential, ...options.headers } });
-    if (response.status === 401) { router.replace("/admin/login"); throw new Error("Phiên đăng nhập đã hết hạn."); }
+    if (response.status === 401) { window.location.replace("/admin/login"); throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."); }
     const result = await response.json().catch(() => { throw new Error("API editor chưa sẵn sàng. Kiểm tra deployment và cấu hình lưu trữ trên server."); });
     if (!response.ok) throw new Error(result.error || "Không thể thực hiện yêu cầu.");
     return result;
@@ -71,22 +79,32 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
   }, [request]);
 
   useEffect(() => {
-    if (readOnly) return;
+    if (deployment) return;
     let active = true;
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20000);
+    setConnectionError("");
     async function connect() {
       try {
-        const status = await request("status");
+        const status = await request("status", { signal: controller.signal });
         if (active && status.maxUploadBytes) setMaxUploadBytes(status.maxUploadBytes);
-        const content = await request("content", {}, status.token);
+        const content = await request("content", { signal: controller.signal }, status.token);
         if (active) {
-          token.current = status.token; setSession({ ...content, base: content.data, past: [], future: [] });
+          const data = withPresentation(content.data);
+          token.current = status.token; setSession({ ...content, data, base: data, past: [], future: [] });
           void loadAssets().catch(error => { if (active) notice(error instanceof Error ? error.message : "Không thể tải thư viện ảnh. Mở thư viện để thử lại.", true); });
         }
-      } catch (error) { if (active) notice(error instanceof Error ? error.message : "Không thể kết nối.", true); }
+      } catch (error) {
+        if (active) {
+          const message = controller.signal.aborted ? "Kết nối quá thời gian. Kiểm tra server editor rồi thử lại." : error instanceof Error ? error.message : "Không thể kết nối.";
+          setConnectionError(message);
+          notice(message, true);
+        }
+      } finally { window.clearTimeout(timeout); }
     }
     void connect();
-    return () => { active = false; };
-  }, [request, readOnly, loadAssets]);
+    return () => { active = false; window.clearTimeout(timeout); controller.abort(); };
+  }, [request, deployment, loadAssets, connectionAttempt]);
 
   useEffect(() => {
     const element = canvas.current;
@@ -97,20 +115,22 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
   }, []);
 
   const sendPreview = useCallback(() => {
-    if (session) frame.current?.contentWindow?.postMessage({ type: "wedding:render", state: { data: session.data, page, mode, selected, canInsertGallery: !readOnly && !busy } satisfies PreviewMessage }, location.origin);
-  }, [session, page, mode, selected, readOnly, busy]);
+    if (session) frame.current?.contentWindow?.postMessage({ type: "wedding:render", state: { data: session.data, page, mode, selected, canInsertGallery: !busy } satisfies PreviewMessage }, location.origin);
+  }, [session, page, mode, selected, busy]);
   useEffect(() => { sendPreview(); }, [sendPreview]);
   useEffect(() => {
     function receive(event: MessageEvent) {
       if (event.origin !== location.origin || event.source !== frame.current?.contentWindow) return;
       if (event.data?.type === "wedding:ready") sendPreview();
       if (event.data?.type === "wedding:save") saveRef.current();
-      if (event.data?.type === "wedding:gallery-add" && session && !readOnly && !lock.current && session.data.photos.gallery.length < listConfig(["photos", "gallery"])!.max) {
+      if (event.data?.type === "wedding:gallery-add" && session && !lock.current && session.data.photos.gallery.length < listConfig(["photos", "gallery"])!.max) {
         setDocumentId("photos"); setSelected(null); setGalleryInsertion(session.data.photos.gallery.length);
       }
       if (event.data?.type === "wedding:select" && !lock.current) {
         const path = event.data.path;
         if (!Array.isArray(path)) return;
+        const listTarget = documents.find(doc => doc.lists.some(list => samePath(list.path, path)));
+        if (listTarget) { setDocumentId(listTarget.id); setSelected(null); setSearch(""); setInspector(true); return; }
         const target = documents.find(doc => doc.fields.some(field => samePath(field.path, path)));
         if (target) { setDocumentId(target.id); setSelected(path); setSearch(""); setInspector(true); }
       }
@@ -118,7 +138,7 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
     }
     window.addEventListener("message", receive);
     return () => window.removeEventListener("message", receive);
-  }, [documents, sendPreview, session, readOnly]);
+  }, [documents, sendPreview, session]);
   useEffect(() => {
     if (!dirty) return;
     const prevent = (event: BeforeUnloadEvent) => { event.preventDefault(); };
@@ -127,10 +147,10 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
   }, [dirty]);
 
   function change(path: EditorPath, value: FieldValue | unknown[]) {
-    if (lock.current || readOnly) return;
+    if (lock.current) return;
     setSession(current => {
       if (!current || JSON.stringify(readPath(current.data, path)) === JSON.stringify(value)) return current;
-      const next = structuredClone(current.data);
+      const next = withPresentation(structuredClone(current.data));
       writePath(next, path, value);
       return { ...current, data: next, past: [...current.past, current.data].slice(-30), future: [] };
     });
@@ -146,21 +166,32 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
     });
   }
   const save = useCallback(async () => {
-    if (!session || !dirty || lock.current || readOnly) return;
+    if (!session || !dirty || lock.current) return;
     lock.current = true; setBusy(true);
     try {
+      if (deployment) {
+        const url = URL.createObjectURL(new Blob([JSON.stringify(session.data, null, 2) + "\n"], { type: "application/json" }));
+        const link = window.document.createElement("a");
+        link.href = url; link.download = "wedding.json";
+        window.document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        notice("Đã xuất wedding.json để sao lưu hoặc mở bằng admin local. File runtime không nằm trong Git. Bản online chưa đổi; cần kho lưu trữ ngoài để xuất bản và giữ dữ liệu qua redeploy.");
+        return;
+      }
       const result = await request("content", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ data: session.data, revision: session.revision }) });
-      setSession(current => current ? { ...current, data: result.data, base: result.data, revision: result.revision } : current);
+      const data = withPresentation(result.data);
+      setSession(current => current ? { ...current, data, base: data, revision: result.revision } : current);
       notice("Đã lưu nội dung thiệp. Bản cũ được sao lưu trong .editor/history.");
     } catch (error) { notice(error instanceof Error ? error.message : "Lưu thất bại.", true); }
     finally { lock.current = false; setBusy(false); }
-  }, [session, dirty, request, readOnly]);
+  }, [session, dirty, request, deployment]);
   async function reloadContent() {
     if (lock.current || dirty && !window.confirm("Bỏ bản nháp và tải lại dữ liệu đã lưu?")) return;
     lock.current = true; setBusy(true);
     try {
-      const result = await request("content");
-      setSession({ data: result.data, base: result.data, revision: result.revision, past: [], future: [] });
+      const result = deployment ? { data: initialData, revision: "deployment" } : await request("content");
+      const data = withPresentation(result.data);
+      setSession({ data, base: data, revision: result.revision, past: [], future: [] });
       setSelected(null);
       notice("Đã tải dữ liệu mới nhất, không tải lại trang.");
     } catch (error) { notice(error instanceof Error ? error.message : "Không thể tải lại dữ liệu.", true); }
@@ -174,7 +205,8 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
   }, [save]);
 
   async function uploadImage(file: File, purpose?: string) {
-    if (lock.current || readOnly) return;
+    if (lock.current) return;
+    if (deployment) throw new Error("Upload chỉ khả dụng ở admin local. Trên bản online, hãy chọn ảnh có sẵn trong thư viện.");
     if (file.size > maxUploadBytes) throw new Error(`Ảnh ${formatImageSize(file.size)} vượt giới hạn ${formatImageSize(maxUploadBytes)}. Hãy xuất ảnh với cạnh dài tối đa ${imageSettings.maxUploadDimension}px rồi upload lại.`);
     lock.current = true; setBusy(true);
     try {
@@ -202,7 +234,7 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
     finally { lock.current = false; setBusy(false); }
   }
   function listChange(path: EditorPath, operation: "add" | "remove" | "up" | "down", index = 0) {
-    if (!session || readOnly) return;
+    if (!session || lock.current) return;
     const config = listConfig(path), items = structuredClone(readPath(session.data, path)) as unknown[];
     if (!config) return;
     if (operation === "add" && items.length < config.max) {
@@ -229,55 +261,120 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
   return <main className="ed-root">
     <header className="ed-topbar"><div className="ed-brand">Thiệp cưới<small>Visual editor</small></div>
       <label className="ed-route"><span className="ed-sr-only">Trang xem trước</span><select value={page} onChange={event => setPage(event.target.value as PreviewMessage["page"])}><option value="entrance">Màn mở đầu</option><option value="groom">Thiệp nhà trai</option><option value="bride">Thiệp nhà gái</option></select></label>
-      <div className="ed-top-actions"><span className={`ed-connection ${session ? "connected" : ""}`}>{session ? dirty ? "Có thay đổi chưa lưu" : "Đã đồng bộ" : "Đang kết nối…"}</span>
+      <div className="ed-top-actions"><span role="status" className={`ed-connection ${session ? "connected" : ""}`}>{session ? dirty ? "Có thay đổi chưa lưu" : "Đã đồng bộ" : connectionError ? "Không thể kết nối" : "Đang kết nối…"}</span>
+        {!session && connectionError && <button onClick={() => setConnectionAttempt(attempt => attempt + 1)}>Thử kết nối lại</button>}
         <button disabled={!session || busy} onClick={() => { setSelected(null); setSearch(""); setInspector(true); }}>Nội dung</button>
         <button onClick={() => setInvitationLinksOpen(true)}>Tạo link mời</button>
+        <button disabled={!session || busy} onClick={() => { setDocumentId("presentation"); setSelected(null); setSearch(""); setInspector(true); }}>Font chung &amp; số</button>
         <details className="ed-tools"><summary>Tùy chọn</summary><div className="ed-tools-menu">
           <label>Khung xem<select value={viewport} onChange={event => setViewport(Number(event.target.value))}><option value={1440}>Desktop · 1440</option><option value={768}>Tablet · 768</option><option value={390}>Mobile · 390</option></select></label>
           <label>Chế độ<select value={mode} onChange={event => setMode(event.target.value as PreviewMessage["mode"])}><option value="select">Bấm để sửa</option><option value="browse">Duyệt thiệp</option></select></label>
           <div className="ed-history"><button disabled={!session?.past.length || busy} onClick={() => history("undo")}>Hoàn tác</button><button disabled={!session?.future.length || busy} onClick={() => history("redo")}>Làm lại</button></div>
           <button disabled={!session || busy} onClick={() => { setDocumentId("metadata"); setSelected(null); setInspector(true); }}>SEO & chia sẻ</button>
-          <button disabled={!session || busy || readOnly} onClick={() => setResponsesOpen(true)}>Danh sách hồi đáp</button>
-          <button disabled={busy || readOnly} onClick={() => void reloadContent()}>Tải lại dữ liệu</button>
-          {!readOnly && <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>}
-        </div></details><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button>
+          <button disabled={!session || busy || deployment} onClick={() => setResponsesOpen(true)}>Danh sách hồi đáp</button>
+          <button disabled={!session || busy} onClick={() => void reloadContent()}>Tải lại dữ liệu</button>
+          {!deployment && <button disabled={busy} onClick={() => void logout()}>Đăng xuất</button>}
+        </div></details><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : deployment ? "Xuất JSON" : "Lưu thay đổi"}</button>
       </div>
     </header>
-    {readOnly && <div className="ed-feedback" role="status">Bản online chỉ xem trước, không upload hoặc lưu. Chỉnh sửa/upload bằng admin local, lưu rồi commit/push nội dung và ảnh. Deployment mới luôn dùng dữ liệu trong Git.</div>}
+    {deployment && <div className="ed-feedback" role="status">Có thể sửa nội dung, font, block và chọn ảnh có sẵn; upload cần admin local. Bản nháp chưa được xuất bản và sẽ mất khi tải lại: bấm Xuất JSON để sao lưu. Lưu online bền vững cần kết nối kho dữ liệu riêng.</div>}
     {feedback.text && <div className={`ed-feedback ${feedback.error ? "is-error" : ""}`} role={feedback.error ? "alert" : "status"}><span>{feedback.text}</span><button aria-label="Đóng thông báo" onClick={() => notice("")}>×</button></div>}
     <section className="ed-workspace"><div className="ed-stage"><p className="ed-preview-hint">{mode === "select" ? "Bấm vào chữ hoặc ảnh trên thiệp để sửa · Mọi trường khác nằm trong Nội dung" : "Duyệt thiệp để mở album và form · Chọn Bấm để sửa khi cần chỉnh nội dung"}</p>
       <div ref={canvas} className="ed-canvas"><div className="ed-preview-surface" style={{ width: viewport * scale, height: frameHeight * scale }}><div className="ed-frame" style={{ width: viewport, height: frameHeight, transform: `scale(${scale})` }}><iframe ref={frame} title="Xem trước thiệp cưới — bản nháp" src="/admin/preview" onLoad={sendPreview} /></div></div></div>
     </div></section>
-    {inspector && session && <InPageDialog className="ed-dialog" label="Chỉnh sửa nội dung" inactive={!!assets || galleryInsertion !== null} onClose={() => { if (!busy) setInspector(false); }}>
-      <header><div><p className="ed-eyebrow">Bản nháp · xem trước tức thì</p><h2>{selected ? "Sửa ngay trên thiệp" : "Nội dung thiệp"}</h2></div><button disabled={busy} aria-label="Đóng chỉnh sửa" onClick={() => setInspector(false)}>×</button></header>
+    {inspector && session && <InPageDialog className="ed-dialog" label={documentId === "presentation" ? "Font chung & số" : "Chỉnh sửa nội dung"} inactive={!!assets || galleryInsertion !== null} onClose={() => { if (!busy) setInspector(false); }}>
+      <header><div><p className="ed-eyebrow">{documentId === "presentation" ? "Cấu hình toàn trang" : "Bản nháp · xem trước tức thì"}</p><h2>{documentId === "presentation" ? "Font chung & số" : selected ? "Sửa ngay trên thiệp" : (document?.label || "Nội dung")}</h2></div><button disabled={busy} aria-label="Đóng chỉnh sửa" onClick={() => setInspector(false)}>×</button></header>
       <div className="ed-dialog-body"><label className="ed-document-label">Nhóm nội dung<select value={documentId} disabled={busy} onChange={event => { setDocumentId(event.target.value); setSelected(null); setSearch(""); }}>{documents.map(doc => <option key={doc.id} value={doc.id}>{doc.label}</option>)}</select></label>
+        {documentId === "presentation" && <PresentationEditor data={session.data} disabled={busy} change={change} />}
         {documentId === "mail" && <p className="ed-config-help">Chỉ gửi cho khách chọn tham dự và nhập email. Dùng {"{name}, {couple}, {side}, {guests}"} để chèn thông tin. Cấu hình SMTP trong Environment Variables của Vercel rồi redeploy, hoặc .env.local khi chạy local; không nhập mật khẩu SMTP vào nội dung thiệp.</p>}
         {documentId.startsWith("gift-") && <p className="ed-config-help">Upload mã QR thật của đúng người nhận. Mỗi nhà dùng một ảnh riêng; có thể ẩn mã QR bằng Bật chức năng.</p>}
         {documentId.startsWith("event-") && <p className="ed-config-help">Địa chỉ là chữ hiển thị ở hero; Link bản đồ là URL Google Maps được mở khi bấm địa chỉ. Điền riêng cho nhà trai và nhà gái. Nội dung này cũng dùng trong email hướng dẫn.</p>}
-        {selected ? <button className="ed-show-all" onClick={() => setSelected(null)}>Xem tất cả trường trong nhóm</button> : <input className="ed-search" aria-label="Tìm nội dung trong nhóm" placeholder="Tìm nội dung…" value={search} onChange={event => setSearch(event.target.value)} />}
-        {!selected && document?.lists.map(list => {
-          const items = readPath(session.data, list.path) as Record<string, unknown>[];
-          const listKey = list.path.join(".");
-          const insertion = Math.min(insertPositions[listKey] ?? items.length, items.length);
-          const isPhotoList = list.path[0] === "photos";
-          return <section className="ed-list" key={listKey}>
-            <h3>{list.label} · {items.length}/{list.max}</h3>
-            {items.map((item, index) => <div className="ed-list-row" key={index}>{isPhotoList && <img className="ed-list-thumb" src={String(item.src)} alt="" />}<span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || readOnly || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || readOnly || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || readOnly || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}
-            <label className="ed-insert-position">Vị trí chèn {isPhotoList ? "ảnh" : "mục"}
-              <select value={insertion} disabled={busy || readOnly || items.length >= list.max} onChange={event => setInsertPositions(current => ({ ...current, [listKey]: Number(event.target.value) }))}>
-                {Array.from({ length: items.length + 1 }, (_, index) => <option key={index} value={index}>{index === 0 ? "Đầu danh sách" : index === items.length ? `Cuối danh sách · vị trí ${index + 1}` : `Trước mục ${index + 1} · ${String(items[index].alt || items[index].title || "Ảnh")}`}</option>)}
-              </select>
-            </label>
-            <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay, chỉ công khai khi bấm Lưu.</p>
-            <button disabled={busy || readOnly || items.length >= list.max} onClick={() => listKey === "photos.gallery" ? setGalleryInsertion(insertion) : listChange(list.path, "add", insertion)}>{listKey === "photos.gallery" ? "Chọn ảnh & xem trước" : `Thêm ${isPhotoList ? "ảnh" : "mục"} tại vị trí ${insertion + 1}`}</button>
-          </section>;
-        })}
-        <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy || readOnly} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
-      </div><footer><span>Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu.</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : "Lưu thay đổi"}</button></footer>
+        {documentId !== "presentation" && (() => {
+          const blockId = resolveBlockId(documentId, selected);
+          const blockSettings = blockId ? session.data.presentation?.blocks?.[blockId] : null;
+          const blockDef = blockId ? blockDefinitions.find(b => b.id === blockId) : null;
+          return <>
+            {blockId && blockSettings && blockDef && (
+              <div className="ed-modal-block-config">
+                <div className="ed-modal-block-header">
+                  <span className="ed-block-badge">Thành phần: {blockDef.label}</span>
+                  <button
+                    type="button"
+                    className={`ed-btn-block-toggle ${blockSettings.visible ? "ed-btn-delete-block" : "ed-btn-restore-block"}`}
+                    disabled={busy}
+                    onClick={() => change(["presentation", "blocks", blockId, "visible"], !blockSettings.visible)}
+                  >
+                    {blockSettings.visible ? "Xóa block khỏi thiệp" : "Khôi phục block"}
+                  </button>
+                </div>
+                <div className="ed-modal-font-row">
+                  <label htmlFor={`modal-font-${blockId}`}>Chọn font cho thành phần này</label>
+                  <select
+                    id={`modal-font-${blockId}`}
+                    disabled={busy || !blockSettings.visible}
+                    value={blockSettings.font || ""}
+                    onChange={event => change(["presentation", "blocks", blockId, "font"], event.target.value)}
+                  >
+                    <option value="">Theo font mặc định toàn trang</option>
+                    {fontOptions.map(font => (
+                      <option key={font.id} value={font.id}>{font.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <p
+                  className="ed-font-sample"
+                  style={{ fontFamily: fontFamily(blockSettings.font || session.data.presentation.typography.body) }}
+                >
+                  Mẫu chữ: {blockDef.label} · Hạnh phúc đong đầy
+                </p>
+                {!blockSettings.visible && (
+                  <p className="ed-block-hidden-notice">Thành phần này đang được xóa/ẩn khỏi thiệp cưới.</p>
+                )}
+              </div>
+            )}
+            {selected ? <button className="ed-show-all" onClick={() => setSelected(null)}>Xem tất cả trường trong nhóm</button> : <input className="ed-search" aria-label="Tìm nội dung trong nhóm" placeholder="Tìm nội dung…" value={search} onChange={event => setSearch(event.target.value)} />}
+            {!selected && document?.lists.map(list => {
+              const items = readPath(session.data, list.path) as Record<string, unknown>[];
+              const listKey = list.path.join(".");
+              const insertion = Math.min(insertPositions[listKey] ?? items.length, items.length);
+              const isPhotoList = list.path[0] === "photos";
+              return <section className="ed-list" key={listKey}>
+                <h3>{list.label} · {items.length}/{list.max}</h3>
+                {list.path[1] === "heroSlides" && <><p className="ed-config-help">Chọn nhiều ảnh liên tiếp trong thư viện. Một ảnh đứng yên; nhiều ảnh tự trượt mỗi 2 giây, lặp vô hạn. Danh sách trống dùng ảnh hero mặc định.</p><button disabled={busy || items.length >= list.max} onClick={() => void library(list.path)}>Chọn nhiều ảnh hero từ thư viện</button></>}
+                {items.map((item, index) => <div className="ed-list-row" key={index}>{isPhotoList && <img className="ed-list-thumb" src={String(item.src)} alt="" />}<span>{index + 1}. {String(item.title || item.alt || "Ảnh")}</span><button aria-label={`Chuyển mục ${index + 1} lên`} disabled={busy || index === 0} onClick={() => listChange(list.path, "up", index)}>↑</button><button aria-label={`Chuyển mục ${index + 1} xuống`} disabled={busy || index === items.length - 1} onClick={() => listChange(list.path, "down", index)}>↓</button><button aria-label={`Xóa mục ${index + 1}`} disabled={busy || items.length <= list.min} onClick={() => listChange(list.path, "remove", index)}>Xóa</button></div>)}
+                <label className="ed-insert-position">Vị trí chèn {isPhotoList ? "ảnh" : "mục"}
+                  <select value={insertion} disabled={busy || items.length >= list.max} onChange={event => setInsertPositions(current => ({ ...current, [listKey]: Number(event.target.value) }))}>
+                    {Array.from({ length: items.length + 1 }, (_, index) => <option key={index} value={index}>{index === 0 ? "Đầu danh sách" : index === items.length ? `Cuối danh sách · vị trí ${index + 1}` : `Trước mục ${index + 1} · ${String(items[index].alt || items[index].title || "Ảnh")}`}</option>)}
+                  </select>
+                </label>
+                <p className="ed-config-help">{isPhotoList ? "Ảnh" : "Mục"} mới ở vị trí {insertion + 1}{insertion < items.length ? `; các mục từ ${insertion + 1} trở đi sẽ lùi xuống.` : ", sau mục cuối cùng."} Bản xem trước cập nhật ngay. {deployment ? "Xuất JSON để sao lưu bản nháp; chưa xuất bản online." : "Bấm Lưu để lưu vào dữ liệu local."}</p>
+                <button disabled={busy || items.length >= list.max} onClick={() => listKey === "photos.gallery" ? setGalleryInsertion(insertion) : listChange(list.path, "add", insertion)}>{listKey === "photos.gallery" ? "Chọn ảnh & xem trước" : `Thêm ${isPhotoList ? "ảnh" : "mục"} tại vị trí ${insertion + 1}`}</button>
+              </section>;
+            })}
+            <div className="ed-fields">{visibleFields.map(field => <FieldEditor key={JSON.stringify(field.path)} field={field} disabled={busy} uploadEnabled={!deployment} maxUploadBytes={maxUploadBytes} change={value => change(field.path, value)} upload={file => void upload(field.path, file)} library={() => void library(field.path)} />)}{!visibleFields.length && <p>Không có trường phù hợp.</p>}</div>
+          </>;
+        })()}
+      </div><footer><span>{deployment ? "Thay đổi chỉ ở bản xem trước. Xuất JSON để sao lưu, không xuất bản online." : "Thay đổi chỉ hiển thị trong bản xem trước cho đến khi bấm Lưu."}</span>{feedback.text && <p className={feedback.error ? "ed-dialog-error" : ""} role={feedback.error ? "alert" : "status"}>{feedback.text}</p>}<button disabled={busy} onClick={() => setInspector(false)}>Xong</button><button className="ed-save" disabled={!dirty || busy} onClick={() => void save()}>{busy ? "Đang xử lý…" : deployment ? "Xuất JSON" : "Lưu thay đổi"}</button></footer>
     </InPageDialog>}
-    {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}><header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header><MediaLibraryGrid assets={assets} usedSources={assetTarget?.[0] === "photos" && assetTarget[1] === "gallery" ? session?.data.photos.gallery.map(photo => photo.src) : undefined} onChoose={source => { if (assetTarget) change(assetTarget, source); setAssets(null); setAssetTarget(null); }} />{!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}</InPageDialog>}
-    {galleryInsertion !== null && session && <GalleryInsert data={session.data} initialPosition={galleryInsertion} page={page === "entrance" ? "groom" : page} busy={busy} maxUploadBytes={maxUploadBytes} upload={uploadImage} loadAssets={loadAssets} onClose={() => { if (!lock.current) setGalleryInsertion(null); }} onInsert={(photo, position) => {
-      if (lock.current || readOnly) return;
+    {assets && <InPageDialog className="ed-library" label="Thư viện ảnh" onClose={() => { setAssets(null); setAssetTarget(null); }}>
+      <header><div><p className="ed-eyebrow">Ảnh trong public</p><h2>Thư viện ảnh</h2></div><button aria-label="Đóng thư viện" onClick={() => { setAssets(null); setAssetTarget(null); }}>×</button></header>
+      {assetTarget?.[1] === "heroSlides" && <p>Chọn lần lượt các ảnh muốn thêm. Ảnh đã chọn được đánh dấu; bấm Xong khi hoàn tất.</p>}
+      <MediaLibraryGrid assets={assets} usedLabel={assetTarget?.[1] === "heroSlides" ? "Đã chọn cho hero" : undefined} usedSources={assetTarget?.[1] === "heroSlides" && session && assetTarget.length === 3 ? (readPath(session.data, assetTarget) as { src: string }[]).map(photo => photo.src) : assetTarget?.[0] === "photos" && assetTarget[1] === "gallery" ? session?.data.photos.gallery.map(photo => photo.src) : undefined} onChoose={source => {
+        if (assetTarget?.[1] === "heroSlides" && assetTarget.length === 3 && session) {
+          const items = readPath(session.data, assetTarget) as WeddingData["photos"]["heroSlides"]["groom"];
+          const config = listConfig(assetTarget);
+          if (!config || items.length >= config.max) { notice("Tối đa 20 ảnh hero cho mỗi nhà.", true); return; }
+          if (!items.some(photo => photo.src === source)) change(assetTarget, [...items, { src: source, alt: session.data.photos.heroAlt, position: "center" }]);
+          return;
+        }
+        if (assetTarget) change(assetTarget, source);
+        setAssets(null); setAssetTarget(null);
+      }} />
+      {assetTarget?.[1] === "heroSlides" && <button onClick={() => { setAssets(null); setAssetTarget(null); }}>Xong</button>}
+      {!assets.length && <p>Chưa có ảnh. Upload ảnh từ bảng chỉnh sửa.</p>}
+    </InPageDialog>}
+    {galleryInsertion !== null && session && <GalleryInsert data={session.data} initialPosition={galleryInsertion} page={page === "entrance" ? "groom" : page} busy={busy} uploadEnabled={!deployment} maxUploadBytes={maxUploadBytes} upload={uploadImage} loadAssets={loadAssets} onClose={() => { if (!lock.current) setGalleryInsertion(null); }} onInsert={(photo, position) => {
+      if (lock.current) return;
       const items = [...session.data.photos.gallery];
       const config = listConfig(["photos", "gallery"]);
       if (!config || items.length >= config.max) return;
@@ -286,7 +383,7 @@ export function WeddingEditor({ initialData, readOnly = false }: { initialData: 
       change(["photos", "gallery"], items);
       setGalleryInsertion(null); setSelected(["photos", "gallery", position, "src"]);
       setPage(page === "entrance" ? "groom" : page);
-      notice(`Đã thêm ảnh vào gallery tại vị trí ${position + 1}. Bấm Lưu để lưu thay đổi.`);
+      notice(`Đã thêm ảnh vào gallery tại vị trí ${position + 1}. ${deployment ? "Xuất JSON để sao lưu bản nháp; chưa xuất bản online." : "Bấm Lưu để lưu thay đổi."}`);
     }} />}
     {responsesOpen && <GuestResponses request={request} onClose={() => setResponsesOpen(false)} />}
     {invitationLinksOpen && <InvitationLinks initialPath={page === "entrance" ? "/" : page === "bride" ? "/nha-gai" : "/nha-trai"} onClose={() => setInvitationLinksOpen(false)} />}

@@ -1,4 +1,4 @@
-import type weddingData from "@/data/wedding.json";
+import type weddingData from "@/data/wedding.defaults.json";
 
 export type WeddingSide = "groom" | "bride";
 export type WeddingPhoto = { src: string; alt: string; position?: string };
@@ -17,8 +17,14 @@ export type WeddingEvent = {
 };
 
 // Added 2026-11-12: JSON is the only editable content source; each family owns its event details.
-export type WeddingData = Omit<typeof weddingData, "events"> & {
+export type WeddingData = Omit<typeof weddingData, "events" | "presentation" | "photos"> & {
+  // Added 2026-11-14: independent hero slides for each family, with the original hero as fallback.
+  photos: typeof weddingData.photos & { heroSlides: Record<WeddingSide, WeddingPhoto[]> };
   events: Record<WeddingSide, WeddingEvent>;
+  presentation: {
+    typography: { body: string; display: string; script: string; numbers?: string };
+    blocks: Record<string, { visible: boolean; font: string }>;
+  };
 };
 
 export function albumPhotos(data: WeddingData): (WeddingPhoto & { label: string })[] {

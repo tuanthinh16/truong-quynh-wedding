@@ -1,12 +1,13 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, type CSSProperties, type ReactNode } from "react";
 import type { WeddingData } from "@/config/wedding";
+import { typographyStyle } from "@/lib/presentation.mjs";
 
 const WeddingContext = createContext<{ data: WeddingData; preview: boolean } | null>(null);
 
 export function WeddingContentProvider({ value, children, preview = true }: { value: WeddingData; children: ReactNode; preview?: boolean }) {
-  return <WeddingContext.Provider value={{ data: value, preview }}>{children}</WeddingContext.Provider>;
+  return <WeddingContext.Provider value={{ data: value, preview }}><div className="wedding-theme" style={typographyStyle(value.presentation.typography) as CSSProperties}>{children}</div></WeddingContext.Provider>;
 }
 
 function useWeddingContext() {

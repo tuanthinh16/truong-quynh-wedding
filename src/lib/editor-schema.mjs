@@ -26,6 +26,8 @@ const labels = {
   personalization: "Lời mời cá nhân hóa", inviteLabel: "Dòng kính mời khách", fallbackName: "Tên hiển thị khi không có tên khách", thankYou: "Lời cảm ơn · dùng {name} để chèn tên", genericThanks: "Lời cảm ơn khi không có tên khách",
   // Added 2026-11-13: shared party concept, palette and dress code for invitations and email.
   partyConcept: "Concept bữa tiệc", paletteLabel: "Nhãn concept", tones: "Tone màu (văn bản)", dressCodeLabel: "Nhãn trang phục", dressCode: "Trang phục",
+  // Added 2026-11-14: per-family slideshow labels in the visual editor.
+  heroSlides: "Ảnh hero tự chuyển · mỗi 2 giây",
 };
 
 export function readPath(data, path) {
@@ -41,6 +43,8 @@ export function writePath(data, path, value) {
 
 export function listConfig(path) {
   const key = path.join(".");
+  // Added 2026-11-14: optional per-family hero slides, editable with the existing image library.
+  if (/^photos\.heroSlides\.(groom|bride)$/.test(key)) return { min: 0, max: 20, template: { src: "/images/wedding-demo.jpg", alt: "Ảnh bìa thiệp cưới", position: "center" } };
   if (key === "photos.story") return { min: 1, max: 4, template: { src: "/images/editorial-demo.jpg", alt: "Khoảnh khắc ngày cưới", position: "center" } };
   if (key === "photos.gallery") return { min: 1, max: 100, template: { src: "/images/wedding-demo.jpg", alt: "Khoảnh khắc ngày cưới", label: "" } };
   if (/^events\.(groom|bride)\.schedule$/.test(key)) return { min: 0, max: 32, template: { time: "09:00", title: "Hoạt động mới", detail: "", icon: "heart", date: "" } };
@@ -89,6 +93,6 @@ export function editorDocuments(data) {
   add("gift-groom", "Quà mừng nhà trai", ["gifts", "groom"]);
   add("gift-bride", "Quà mừng nhà gái", ["gifts", "bride"]);
   add("mail", "Email hướng dẫn", ["mail"]);
-  add("party-concept", "Concept bữa tiệc", ["partyConcept"]);
+  documents.push({ id: "presentation", label: "Font chung & số", path: ["presentation"], fields: [], lists: [] });
   return documents;
 }

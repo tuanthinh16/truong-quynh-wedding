@@ -1,7 +1,38 @@
 /* Added 2026-11-13: personal invitation and closing message, shared with admin preview. */
-.guest-dedication { max-width: 100%; text-align: center; color: var(--red-dark); }
-.guest-dedication > span { display: block; font: 500 10px/1.6 var(--font-body), sans-serif; letter-spacing: 1.3px; text-transform: uppercase; }
-.guest-dedication > p { margin: 4px 0 0; font: italic 500 clamp(18px, 2.2vw, 26px)/1.35 var(--font-display), serif; overflow-wrap: anywhere; text-wrap: balance; }
-.guest-thanks { max-width: 520px; margin: 24px auto; padding-inline: 20px; font: 400 15px/1.8 var(--font-body), sans-serif; color: var(--red-dark); overflow-wrap: anywhere; text-wrap: balance; }
-.welcome-content .guest-dedication { margin: 0 auto 20px; }
-.invitation-letter .guest-dedication { margin-bottom: 28px; }
+.guest-dedication {
+    max-width: 100%;
+    text-align: center;
+    color: var(--red-dark);
+}
+
+.guest-dedication>span {
+    display: block;
+    font: 500 10px/1.6 var(--font-body), sans-serif;
+    letter-spacing: 1.3px;
+    text-transform: uppercase;
+}
+
+.guest-dedication>p {
+    margin: 4px 0 0;
+    font: italic 500 clamp(18px, 2.2vw, 26px)/1.35 var(--font-display), serif;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+}
+
+.guest-thanks {
+    max-width: 520px;
+    margin: 24px auto;
+    padding-inline: 20px;
+    font: 400 15px/1.8 var(--font-body), sans-serif;
+    color: var(--cream);
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+}
+
+.welcome-content .guest-dedication {
+    margin: 0 auto 20px;
+}
+
+.invitation-letter .guest-dedication {
+    margin-bottom: 28px;
+}

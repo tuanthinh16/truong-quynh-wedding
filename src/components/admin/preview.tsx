@@ -40,7 +40,10 @@ function PreviewSurface({ state }: { state: PreviewMessage }) {
   useEffect(() => {
     const root = surface.current;
     if (!root) return;
-    const fieldMap = new Map(fields.map(field => [JSON.stringify(field.path), field]));
+    const fieldMap = new Map<string, { label: string }>(fields.map(field => [JSON.stringify(field.path), field]));
+    for (const document of editorDocuments(state.data) as EditorDocument[]) {
+      for (const list of document.lists) fieldMap.set(JSON.stringify(list.path), { label: list.label });
+    }
     const normalize = (text: string) => text.replace(/\s+/g, " ").trim();
     function bind() {
       if (!root) return;

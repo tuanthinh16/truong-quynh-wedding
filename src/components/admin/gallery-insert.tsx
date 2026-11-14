@@ -11,8 +11,8 @@ import { MediaLibraryGrid } from "./media-library-grid";
 
 type GalleryPhoto = WeddingData["photos"]["gallery"][number];
 
-export function GalleryInsert({ data, initialPosition, page, busy, maxUploadBytes, upload, loadAssets, onClose, onInsert }: {
-  data: WeddingData; initialPosition: number; page: "groom" | "bride"; busy: boolean; maxUploadBytes: number;
+export function GalleryInsert({ data, initialPosition, page, busy, uploadEnabled = true, maxUploadBytes, upload, loadAssets, onClose, onInsert }: {
+  data: WeddingData; initialPosition: number; page: "groom" | "bride"; busy: boolean; uploadEnabled?: boolean; maxUploadBytes: number;
   upload: (file: File) => Promise<string | undefined>;
   loadAssets: () => Promise<MediaAsset[]>;
   onClose: () => void; onInsert: (photo: GalleryPhoto, position: number) => void;
@@ -72,8 +72,8 @@ export function GalleryInsert({ data, initialPosition, page, busy, maxUploadByte
       <header><div><p className="ed-eyebrow">Gallery · ảnh mới</p><h2>Chọn ảnh & vị trí chèn</h2></div><button disabled={pending} aria-label="Đóng thêm ảnh" onClick={onClose}>×</button></header>
       <div className="ed-dialog-body ed-gallery-layout">
         <div className="ed-gallery-form">
-          <div className="ed-image-actions"><label className="ed-upload">Upload ảnh<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={pending} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void chooseFile(file); }} /></label><button disabled={pending} onClick={() => void openLibrary()}>Thư viện ảnh</button></div>
-          <small>Tối đa {formatImageSize(maxUploadBytes)}. Upload chỉ lưu tệp; ảnh chưa được thêm vào gallery.</small>
+          <div className="ed-image-actions">{uploadEnabled && <label className="ed-upload">Upload ảnh<input type="file" accept="image/jpeg,image/png,image/webp,image/avif" disabled={pending} onChange={event => { const file = event.target.files?.[0]; event.target.value = ""; if (file) void chooseFile(file); }} /></label>}<button disabled={pending} onClick={() => void openLibrary()}>Thư viện ảnh</button></div>
+          <small>{uploadEnabled ? `Tối đa ${formatImageSize(maxUploadBytes)}. Upload chỉ lưu tệp; ảnh chưa được thêm vào gallery.` : "Chọn ảnh có sẵn trong thư viện để thêm vào gallery. Upload ảnh mới chỉ khả dụng ở admin local."}</small>
           {src && <img className="ed-gallery-chosen" src={src} alt={alt || "Ảnh đang chọn"} />}
           <label>Mô tả ảnh<input value={alt} disabled={pending} onChange={event => setAlt(event.target.value)} placeholder="Khoảnh khắc ngày cưới" /></label>
           <label>Vị trí chèn<select value={position} disabled={pending} onChange={event => setPosition(Number(event.target.value))}>{Array.from({ length: data.photos.gallery.length + 1 }, (_, index) => <option key={index} value={index}>{index === 0 ? "Đầu gallery · vị trí 1" : index === data.photos.gallery.length ? `Cuối gallery · vị trí ${index + 1}` : `Trước ảnh ${index + 1} · ${data.photos.gallery[index].alt}`}</option>)}</select></label>
@@ -83,8 +83,8 @@ export function GalleryInsert({ data, initialPosition, page, busy, maxUploadByte
         </div>
         <div className="ed-gallery-preview"><label>Khung xem<select value={viewport} onChange={event => setViewport(Number(event.target.value))}><option value={1440}>Desktop · 1440</option><option value={390}>Mobile · 390</option></select></label><div className="ed-gallery-canvas" ref={canvas}><iframe ref={frame} title="Xem trước vị trí ảnh mới trong gallery" src="/admin/preview" onLoad={sendPreview} style={{ width: viewport, height: 480 / scale, transform: `scale(${scale})` }} /></div></div>
       </div>
-      <footer><span>Chỉ thêm vào bản nháp khi xác nhận. Bấm Lưu ở admin để lưu thay đổi.</span><button disabled={pending} onClick={onClose}>Hủy</button><button className="ed-save" disabled={pending || !src || duplicate} onClick={() => { if (!duplicate) onInsert({ ...listConfig(["photos", "gallery"])!.template, src, alt: alt.trim() || "Khoảnh khắc ngày cưới" } as GalleryPhoto, position); }}>Thêm ảnh tại vị trí {position + 1}</button></footer>
+      <footer><span>Chỉ thêm vào bản nháp khi xác nhận. {uploadEnabled ? "Bấm Lưu ở admin để lưu thay đổi." : "Xuất JSON ở admin để sao lưu, không xuất bản online."}</span><button disabled={pending} onClick={onClose}>Hủy</button><button className="ed-save" disabled={pending || !src || duplicate} onClick={() => { if (!duplicate) onInsert({ ...listConfig(["photos", "gallery"])!.template, src, alt: alt.trim() || "Khoảnh khắc ngày cưới" } as GalleryPhoto, position); }}>Thêm ảnh tại vị trí {position + 1}</button></footer>
     </InPageDialog>
-    {assets && <InPageDialog className="ed-library" label="Chọn ảnh cho gallery" onClose={() => setAssets(null)}><header><h2>Thư viện ảnh</h2><button aria-label="Đóng thư viện" onClick={() => setAssets(null)}>×</button></header><p>Ảnh có viền và nhãn Đã có trong gallery không thể chọn lại.</p><MediaLibraryGrid assets={assets} usedSources={usedSources} selectedSrc={src} onChoose={source => { setSrc(source); setAssets(null); }} />{!assets.length && <p>Chưa có ảnh. Hãy upload ảnh mới.</p>}</InPageDialog>}
+    {assets && <InPageDialog className="ed-library" label="Chọn ảnh cho gallery" onClose={() => setAssets(null)}><header><h2>Thư viện ảnh</h2><button aria-label="Đóng thư viện" onClick={() => setAssets(null)}>×</button></header><p>Ảnh có viền và nhãn Đã có trong gallery không thể chọn lại.</p><MediaLibraryGrid assets={assets} usedSources={usedSources} selectedSrc={src} onChoose={source => { setSrc(source); setAssets(null); }} />{!assets.length && <p>{uploadEnabled ? "Chưa có ảnh. Hãy upload ảnh mới." : "Chưa có ảnh trong deployment. Thêm ảnh bằng admin local rồi cập nhật Git."}</p>}</InPageDialog>}
   </>;
 }

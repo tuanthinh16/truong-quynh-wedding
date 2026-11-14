@@ -1,18 +1,29 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useWedding } from "./wedding-content";
 import Icon from "./icon";
 
 export default function Modal({ children, onClose, label, className = "" }: { children: ReactNode; onClose: () => void; label: string; className?: string }) {
   const wedding = useWedding();
   const dialogRef = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = dialogRef.current;
+    if (!dialog) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const previousOverflow = document.body.style.overflow;
-    dialog?.showModal(); document.body.style.overflow = "hidden";
-    return () => { dialog?.close(); document.body.style.overflow = previousOverflow; previousFocus?.focus(); };
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const properties = ["position", "top", "left", "width", "overflow"] as const;
+    const previousStyles = properties.map(property => [property, body.style[property]] as const);
+    Object.assign(body.style, { position: "fixed", top: `${-scrollY}px`, left: `${-scrollX}px`, width: "100%", overflow: "hidden" });
+    dialog.showModal();
+    return () => {
+      dialog.close();
+      previousStyles.forEach(([property, value]) => { body.style[property] = value; });
+      window.scrollTo({ left: scrollX, top: scrollY, behavior: "instant" });
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
   }, []);
   return <dialog ref={dialogRef} aria-label={label} className={`modal ${className}`} onCancel={(event) => { event.preventDefault(); onClose(); }} onClick={(event) => {
     if (event.target === event.currentTarget) {
