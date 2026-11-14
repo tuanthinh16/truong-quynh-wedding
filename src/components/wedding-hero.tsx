@@ -28,7 +28,7 @@ export default function WeddingHero({ side }: { side: WeddingSide }) {
         <div className="hero-lettering">
           <h1 id="invitation-title" className="hero-names"><span {...editable("groom", "name")}>{wedding.groom.name}</span><i>&</i><span {...editable("bride", "name")}>{wedding.bride.name}</span></h1>
           <p className="hero-kicker" {...editable("experience", "hero", "eyebrow")}>{copy.eyebrow}</p>
-          {date && <time className="hero-event-time" dateTime={event.dateTime ?? undefined} aria-label={date.full} {...editable("events", side, "dateTime")}>{date.day}.{date.month}.{date.year}</time>}
+          {date && <time className="hero-event-time" dateTime={event.dateTime ?? undefined} aria-label={`${date.full} dương lịch`} {...editable("events", side, "dateTime")}>{date.day}.{date.month}.{date.year} DL</time>}
         </div>
       </div>
     </div>

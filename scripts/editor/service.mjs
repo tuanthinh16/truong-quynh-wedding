@@ -9,6 +9,7 @@ export { validateContent } from "../../src/lib/editor-validation.mjs";
 import { listRsvps } from "../../src/lib/rsvp-service.mjs";
 import { mailConfigured } from "../../src/lib/rsvp-mail.mjs";
 import { withPresentation } from "../../src/lib/presentation.mjs";
+import { createWeddingContentStore } from "../../src/lib/wedding-content-store.mjs";
 
 // Added 2026-11-13: bounded, same-origin uploads and atomic JSON writes with revision checks and private backups.
 const maxUpload = imageSettings.maxUploadBytes;
@@ -67,6 +68,9 @@ export function createEditorService({ root, origin, aliases = [], token }) {
     }
     await verifyImages(next, current.data);
     next._meta = { ...current.data._meta, updatedAt: new Date().toISOString(), purpose: "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor." };
+    return writeLocal(current, next);
+  }
+  async function writeLocal(current, next) {
     const history = await directory(".editor/history");
     await fs.writeFile(path.join(history, `${Date.now()}-${randomUUID()}.json`), current.bytes, { flag: "wx", mode: 0o600 });
     const bytes = Buffer.from(JSON.stringify(next, null, 2) + "\n");
@@ -77,6 +81,17 @@ export function createEditorService({ root, origin, aliases = [], token }) {
       await fs.rename(temporary, contentFile);
     } finally { await fs.unlink(temporary).catch(() => {}); }
     return { data: next, revision: revisionOf(bytes) };
+  }
+  async function syncFromRedis(input) {
+    if (!input || typeof input.revision !== "string") throw new EditorError(400, "Cần revision local hợp lệ.");
+    const current = await read();
+    if (input.revision !== current.revision) throw new EditorError(409, "File local đã thay đổi. Tải lại dữ liệu trước khi đồng bộ.");
+    const store = createWeddingContentStore({ readDefaults: async () => current.data });
+    if (!store.configured) throw new EditorError(503, "Chưa cấu hình Redis trong .env.local. Cần dùng cùng database và WEDDING_CONTENT_KEY với Vercel.");
+    const remote = await store.read();
+    if (remote.raw === null) throw new EditorError(404, "Redis chưa có nội dung đã lưu. Không ghi đè file local bằng dữ liệu mặc định.");
+    validateContent(remote.data, current.data);
+    return writeLocal(current, remote.data);
   }
   async function upload(request) {
     if (!["image/jpeg", "image/png", "image/webp", "image/avif"].includes(String(request.headers["content-type"]).split(";")[0])) throw new EditorError(415, "Chỉ nhận JPG, PNG, WebP hoặc AVIF.");
@@ -166,11 +181,11 @@ export function createEditorService({ root, origin, aliases = [], token }) {
       else if (request.method === "GET" && url.pathname === "/__editor/api/media") json(200, await media());
       else if (request.method === "GET" && url.pathname === "/__editor/api/rsvps") { const current = await read(); json(200, { ...await listRsvps(root), mail: { configured: mailConfigured(), enabled: current.data.mail.enabled } }); }
       else if (request.method === "POST" && url.pathname === "/__editor/api/upload") json(201, await upload(request));
-      else if (request.method === "PUT" && url.pathname === "/__editor/api/content") {
+      else if (request.method === "PUT" && url.pathname === "/__editor/api/content" || request.method === "POST" && url.pathname === "/__editor/api/sync") {
         if (String(request.headers["content-type"]).split(";")[0] !== "application/json") throw new EditorError(415, "Cần Content-Type application/json.");
         let input;
         try { input = JSON.parse((await body(request, 2 * 1024 * 1024)).toString("utf8")); } catch (error) { if (error instanceof EditorError) throw error; throw new EditorError(400, "JSON không hợp lệ."); }
-        const pending = queue.then(() => save(input));
+        const pending = queue.then(() => url.pathname === "/__editor/api/sync" ? syncFromRedis(input) : save(input));
         queue = pending.catch(() => {});
         json(200, await pending);
       } else json(405, { error: "Phương thức không hỗ trợ." });

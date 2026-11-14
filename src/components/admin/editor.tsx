@@ -194,6 +194,18 @@ export function WeddingEditor({ deployment = false, initialAssets = [] }: { depl
     } catch (error) { notice(error instanceof Error ? error.message : "Không thể tải lại dữ liệu.", true); }
     finally { lock.current = false; setBusy(false); }
   }
+  async function syncFromRedis() {
+    if (!session || lock.current || !window.confirm("Lấy nội dung từ Redis đang dùng trên Vercel và ghi đè src/data/wedding.json? Bản local cũ sẽ được sao lưu; mọi chỉnh sửa chưa lưu sẽ bị bỏ. Thao tác này không ghi lên Redis và không tải ảnh về.")) return;
+    lock.current = true; setBusy(true);
+    try {
+      const result = await request("sync", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ revision: session.revision }) });
+      const data = withPresentation(result.data);
+      setSession({ data, base: data, revision: result.revision, past: [], future: [] });
+      setSelected(null);
+      notice("Đã đồng bộ Redis về file local. Bản cũ được lưu trong .editor/history; dữ liệu online không thay đổi.");
+    } catch (error) { notice(error instanceof Error ? error.message : "Không thể đồng bộ; dữ liệu local chưa bị ghi đè.", true); }
+    finally { lock.current = false; setBusy(false); }
+  }
   useEffect(() => { saveRef.current = () => { void save(); }; }, [save]);
   useEffect(() => {
     function keyboard(event: KeyboardEvent) { if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") { event.preventDefault(); void save(); } }
@@ -269,6 +281,7 @@ export function WeddingEditor({ deployment = false, initialAssets = [] }: { depl
         <button onClick={() => setInvitationLinksOpen(true)}>Tạo link mời</button>
         <button disabled={!session || busy} onClick={() => { setDocumentId("presentation"); setSelected(null); setSearch(""); setInspector(true); }}>Font chung &amp; số</button>
         <button disabled={!session || busy} onClick={exportJson}>Xuất JSON</button>
+        {!deployment && <button disabled={!session || busy} onClick={() => void syncFromRedis()}>Đồng bộ từ Redis</button>}
         <details className="ed-tools"><summary>Tùy chọn</summary><div className="ed-tools-menu">
           <label>Khung xem<select value={viewport} onChange={event => setViewport(Number(event.target.value))}><option value={1440}>Desktop · 1440</option><option value={768}>Tablet · 768</option><option value={390}>Mobile · 390</option></select></label>
           <label>Chế độ<select value={mode} onChange={event => setMode(event.target.value as PreviewMessage["mode"])}><option value="select">Bấm để sửa</option><option value="browse">Duyệt thiệp</option></select></label>

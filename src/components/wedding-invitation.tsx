@@ -92,7 +92,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
               <Ornament /><span className="eyebrow">{copy.invitation.eyebrow}</span>
               <h2>{copy.invitation.title} <em>{copy.invitation.accent}</em></h2>
               <p>{copy.invitation.description}</p>
-              {date && <><p className="dinner-time">{copy.invitation.atTime} <strong {...editable("events", side, "dateTime")}>{date.time}</strong> · {date.weekday}</p><div className="dinner-date" {...editable("events", side, "dateTime")}><span>{date.day}</span><i /><span>{date.month}</span><i /><span>{date.year}</span></div></>}
+              {date && <><p className="dinner-time">{copy.invitation.atTime} <strong {...editable("events", side, "dateTime")}>{date.time}</strong> · {date.weekday}</p><div className="dinner-date" {...editable("events", side, "dateTime")}><span>{date.day}</span><i /><span>{date.month}</span><i /><span>{date.year} <small>DL</small></span></div></>}
               {event.lunarDate && <p className="lunar-date" {...editable("events", side, "lunarDate")}>{copy.invitation.lunarPrefix} {event.lunarDate}</p>}
               <div className="dinner-location">{event.venue && <span className="eyebrow" {...editable("events", side, "venue")}>{copy.invitation.atVenue} {event.venue.toLocaleUpperCase("vi-VN")}</span>}{event.address && <p {...editable("events", side, "address")}>{event.address}</p>}</div>
               {event.mapUrl && <a className="button button-red" href={event.mapUrl} target="_blank" rel="noopener noreferrer"><Icon name="pin" size={17} />{copy.invitation.map}</a>}
@@ -126,7 +126,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
           <div className="section-heading reveal"><h2 {...editable("content", "schedule", "title")}>{copy.schedule.title}</h2></div>
           <ol className="wedding-timeline content-width">{event.schedule.map((item, index) => {
             const milestoneDate = item.date ? formatWeddingDate(item.date) : null;
-            return <li key={`${item.date}-${item.time}-${index}`} className="reveal"><span className="timeline-number">{String(index + 1).padStart(2, "0")}</span><div className="timeline-icon" {...editable("events", side, "schedule", index, "icon")}><Icon name={item.icon as IconName} size={25} /></div><time dateTime={item.date ? `${item.date}T${item.time}:00+07:00` : undefined} {...editable("events", side, "schedule", index, "time")}>{item.time}</time>{milestoneDate && <span className="timeline-day" {...editable("events", side, "schedule", index, "date")}>{milestoneDate.day}/{milestoneDate.month}/{milestoneDate.year}</span>}<h3 {...editable("events", side, "schedule", index, "title")}>{item.title}</h3><p {...editable("events", side, "schedule", index, "detail")}>{item.detail}</p></li>;
+            return <li key={`${item.date}-${item.time}-${index}`} className="reveal"><span className="timeline-number">{String(index + 1).padStart(2, "0")}</span><div className="timeline-icon" {...editable("events", side, "schedule", index, "icon")}><Icon name={item.icon as IconName} size={25} /></div><time dateTime={item.date ? `${item.date}T${item.time}:00+07:00` : undefined} {...editable("events", side, "schedule", index, "time")}>{item.time}</time>{milestoneDate && <span className="timeline-day" {...editable("events", side, "schedule", index, "date")}>{milestoneDate.day}/{milestoneDate.month}/{milestoneDate.year} DL</span>}<h3 {...editable("events", side, "schedule", index, "title")}>{item.title}</h3><p {...editable("events", side, "schedule", index, "detail")}>{item.detail}</p></li>;
           })}</ol>
         </WeddingBlock>}
 
@@ -159,7 +159,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
           </div>
         </WeddingBlock>}
 
-        <WeddingBlock block="footer" as="footer" className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{date && <p>{date.day} . {date.month} . {date.year}</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></WeddingBlock>
+        <WeddingBlock block="footer" as="footer" className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{date && <p>{date.day} . {date.month} . {date.year} DL</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></WeddingBlock>
       </main>
 
       <WeddingPlayback dialogOpen={rsvpOpen || galleryIndex !== null} />

@@ -24,7 +24,7 @@ export default function WeddingEntrance() {
       <div className="welcome-content">
         <div className="welcome-invitation">
           <GuestDedication />
-          {date && <time className="welcome-invitation-date" dateTime={wedding.content.entrance.date} {...editable("content", "entrance", "date")}>{date.day} <span>·</span> {date.month} <span>·</span> {date.year}</time>}
+          {date && <time className="welcome-invitation-date" dateTime={wedding.content.entrance.date} {...editable("content", "entrance", "date")}>{date.day} <span>·</span> {date.month} <span>·</span> {date.year} DL</time>}
         </div>
         <div className="welcome-footer">
         <h1 id="entrance-title" className="script-names">

@@ -203,3 +203,9 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 - API `PUT /__editor/api/content` (rewrite sang `/api/editor/api/content`) kiểm tra schema, ảnh có sẵn và revision. Lưu bằng compare-and-set nguyên tử; bản cũ giữ trong `<WEDDING_CONTENT_KEY>:history`, tối đa 20 phiên bản. Khi xung đột hoặc lỗi kết nối, bản nháp vẫn còn và API báo lỗi thật, không giả lưu hay tự tải JSON.
 - Khách đọc nội dung mới sau khi lưu; cache tag bị làm hết hạn ngay. Defaults chỉ đọc khi chưa có bản online, không bao giờ tự ghi đè bản đã lưu. Mất kết nối kho hoặc dữ liệu hỏng sẽ báo lỗi thay vì âm thầm thay bằng defaults.
 - Nút **Xuất JSON** luôn có ở header và tải đúng bản đang sửa, kể cả chưa lưu; không gọi API ghi và không đánh dấu bản nháp là đã lưu. Upload ảnh mới và lưu local vẫn giữ luồng cũ.
+
+### Đồng bộ Redis về local — 2026-11-14
+
+- Cấu hình `.env.local` dùng cùng Redis URL, token và `WEDDING_CONTENT_KEY` với Vercel, sau đó khởi động lại `npm run dev`.
+- Trong admin local, bấm **Đồng bộ từ Redis** và xác nhận để ghi đè `src/data/wedding.json` bằng nội dung online; bản file cũ được sao lưu trong `.editor/history`. Bản nháp và lịch sử hoàn tác trong UI được thay bằng nội dung vừa đồng bộ.
+- Đồng bộ chỉ đọc Redis, không cập nhật Vercel và không tải file ảnh. Nếu Redis trống, lỗi kết nối/schema hoặc file local đã bị phiên khác sửa, thao tác bị từ chối thay vì ghi đè. **Lưu thay đổi** tại local vẫn chỉ lưu file local.

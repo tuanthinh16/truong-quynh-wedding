@@ -47,7 +47,7 @@
         "label": "Một đời thương"
       },
       {
-        "src": "/images/DSC05841.jpg",
+        "src": "/images/DSC05782.jpg",
         "alt": "Khoảnh khắc bên nhau",
         "label": "Bên nhau"
       },
@@ -67,7 +67,7 @@
         "label": "Yêu thương nở hoa"
       },
       {
-        "src": "/images/DSC06362.jpg",
+        "src": "/images/DSC06116.jpg",
         "alt": "Khoảnh khắc ngày cưới",
         "label": ""
       }
@@ -84,12 +84,12 @@
           "position": "center"
         },
         {
-          "src": "/images/DSC06486.jpg",
+          "src": "/images/DSC06269.jpg",
           "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
           "position": "center"
         },
         {
-          "src": "/images/DSC06545.jpg",
+          "src": "/images/DSC06773.jpg",
           "alt": "Cô dâu và chú rể bên nhau trong ngày hạnh phúc",
           "position": "center"
         }
@@ -209,7 +209,7 @@
       "label": "Lễ vu quy",
       "venue": "Tư gia nhà gái",
       "address": "Xóm Nghĩa Lâm, Xã Nghĩa Đàn, Nghệ An",
-      "dateTime": "2026-11-28T17:30:00+07:00",
+      "dateTime": "2026-11-28T17:00:00+07:00",
       "lunarDate": "20 tháng 10 năm Bính Ngọ",
       "mapUrl": "https://maps.app.goo.gl/dCCZR9wb9qEVrLdX9",
       "sideLabel": "Nhà gái",
@@ -222,7 +222,7 @@
           "date": "2026-11-28"
         },
         {
-          "time": "17:30",
+          "time": "17:00",
           "title": "Bữa cơm thân mật",
           "detail": "Cùng gia đình nhà gái dùng bữa và chia sẻ niềm vui.",
           "icon": "heart",
@@ -274,7 +274,7 @@
       "accent": "yêu thương",
       "description": "Đến dự bữa cơm thân mật và chung vui cùng gia đình chúng mình.",
       "atTime": "Vào lúc",
-      "lunarPrefix": "Nhằm ngày",
+      "lunarPrefix": "Tức ngày",
       "atVenue": "TẠI",
       "map": "Xem chỉ đường",
       "closing": "Sự hiện diện của bạn là niềm vinh hạnh và hạnh phúc của gia đình chúng mình.",
@@ -296,7 +296,7 @@
       "eyebrow": "THE BEGINNING OF ALWAYS",
       "title": "Chuyện của",
       "accent": "chúng mình",
-      "description": "Một người. Một lời hẹn. Một đời bên nhau.",
+      "description": "Hai người. Một lời hẹn. Một đời bên nhau.",
       "caption": "you, me & forever."
     },
     "album": {
@@ -433,7 +433,7 @@
       "rampMilliseconds": 5000
     },
     "hero": {
-      "eyebrow": "Are getting married.",
+      "eyebrow": "Are getting married",
       "button": "Xem lời mời",
       "dateLabel": "NGÀY CHUNG ĐÔI",
       "timeLabel": "Vào lúc",
@@ -480,8 +480,8 @@
   },
   "_meta": {
     "partyConceptNote": "2026-11-13: partyConcept dùng chung cho hai nhà, sửa trong admin; tones và dressCode chỉ hiện hai dòng chữ nhỏ dưới lịch và trong email, không chấm màu hay border; tắt enabled để ẩn cả hai.",
-    "updatedAt": "2026-11-14T06:03:11.748Z",
-    "purpose": "2026-11-13: Nội dung được lưu bằng visual editor; ảnh upload trong public/uploads/editor.",
+    "updatedAt": "2026-11-14T13:13:09.774Z",
+    "purpose": "2026-11-14: Nội dung lưu online bằng API admin; không phụ thuộc deploy hoặc file JSON trong Git.",
     "personalizationNote": "2026-11-13: Thêm content.personalization để sửa lời kính mời, tên mặc định và lời cảm ơn theo {name}; tên khách lấy từ query name, danh sách tạo link chỉ xử lý trong trình duyệt.",
     "entranceDateNote": "2026-11-13: Thêm content.entrance.date cho ngày tháng năm của màn mở đầu trước khi chọn gia đình, sửa riêng trong admin; lời kính mời, tên khách hoặc Bạn và ngày nằm ở 1/3 phía trên ảnh.",
     "configNotes": "2026-11-13: Thêm ảnh dọc/ngang, chuyện chúng mình và cảnh báo hồi đáp tạm. Bổ sung ngày từng mốc timeline cho hai nhà, lời mời 8 năm, photos.couplePortrait/coupleAlt cho ảnh chung và events.<side>.locationImage cho ảnh cạnh bản đồ. Bữa cơm nhà gái tạm dùng 17:30 ngày 28/11/2026 theo giờ tiệc sẵn có; timeline nhà trai dựng tương tự để sửa sau. Upload và lưu local, deploy lấy dữ liệu từ Git. 2026-11-13: Thêm invitation.locationTitle cho bố cục địa chỉ ảnh trái, thông tin và map phải; hộp quà trái tim rung nhẹ đóng/mở QR không có hướng dẫn chữ; content.countdown cho nhãn đếm ngược theo ngày giờ từng nhà, dùng chung UI và admin. 2026-11-13: Thêm events.<side>.mapEmbedUrl độc lập địa chỉ/link chỉ đường, sửa trực tiếp trong admin; cấu hình upload 30 MB và WebP responsive dựng lúc build tại image-settings.mjs."
@@ -496,7 +496,7 @@
     "blocks": {
       "hero": {
         "visible": true,
-        "font": ""
+        "font": "quicksand"
       },
       "invitation": {
         "visible": true,
