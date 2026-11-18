@@ -26,7 +26,7 @@ export function validateContent(input, baseline) {
       for (const key of expected) visit(value[key], previous[key], [...trail, key]);
     } else {
       const key = trail.at(-1);
-      if (value === null && ["dateTime", "mapUrl", "mapEmbedUrl"].includes(key)) return;
+      if (value === null && ["dateTime", "ceremonyDateTime", "mapUrl", "mapEmbedUrl"].includes(key)) return;
       const kind = fieldKind(trail, previous);
       if (kind === "number") {
         if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1e9) invalid("cần số không âm hợp lệ.");

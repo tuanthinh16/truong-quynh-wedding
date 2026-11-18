@@ -111,6 +111,11 @@ export function withPresentation(data) {
       // Added 2026-11-14: desktop hero albums, without replacing existing portrait albums.
       heroLandscapeSlides: { groom: [], bride: [], ...data.photos?.heroLandscapeSlides },
     },
+    // Added 2026-11-18: legacy bride records keep their reception date without guessing a ceremony date.
+    events: {
+      ...data.events,
+      bride: { ...data.events.bride, ceremonyDateTime: data.events.bride.ceremonyDateTime ?? null },
+    },
   };
 }
 

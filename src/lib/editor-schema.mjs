@@ -32,6 +32,8 @@ const labels = {
   entranceLandscape: "Ảnh mở đầu · ngang (desktop)",
   // Added 2026-11-14: separate multi-image desktop hero albums for both families.
   heroLandscapeSlides: "Ảnh hero ngang (desktop) · mỗi 2 giây",
+  // Added 2026-11-18: edit the bride ceremony independently of the reception.
+  ceremonyDateTime: "Ngày và giờ lễ thành hôn",
 };
 
 export function readPath(data, path) {
@@ -63,7 +65,7 @@ export function fieldKind(path, value) {
   const key = path.at(-1);
   if (typeof value === "boolean") return "toggle";
   if (typeof value === "number") return "number";
-  if (key === "dateTime") return "date";
+  if (["dateTime", "ceremonyDateTime"].includes(key)) return "date";
   if (key === "date") return "day";
   if (key === "icon") return "icon";
   if (key === "portrait" || key === "bouquet" || key === "qrImage" || key === "locationImage" || path[0] === "photos" && ["hero", "roses", "couplePortrait", "src", "entranceLandscape"].includes(key)) return "image";
@@ -81,9 +83,10 @@ export function editorDocuments(data) {
         if (list) lists.push({ path: current, label: trail.join(" / "), min: list.min, max: list.max });
         for (const [key, child] of Object.entries(value)) {
           if (key.startsWith("_")) continue;
-          walk(child, [...current, Array.isArray(value) ? Number(key) : key], [...trail, labels[key] || (/^\d+$/.test(key) ? `Mục ${Number(key) + 1}` : key)]);
+          const fieldLabel = current.join(".") === "events.bride" && key === "dateTime" ? "Ngày và giờ mời cơm" : labels[key] || (/^\d+$/.test(key) ? `Mục ${Number(key) + 1}` : key);
+          walk(child, [...current, Array.isArray(value) ? Number(key) : key], [...trail, fieldLabel]);
         }
-      } else fields.push({ path: current, key: String(current.at(-1)), label: trail.join(" / ") || label, kind: fieldKind(current, value), nullable: value === null || ["dateTime", "mapUrl", "mapEmbedUrl"].includes(current.at(-1)), value });
+      } else fields.push({ path: current, key: String(current.at(-1)), label: trail.join(" / ") || label, kind: fieldKind(current, value), nullable: value === null || ["dateTime", "ceremonyDateTime", "mapUrl", "mapEmbedUrl"].includes(current.at(-1)), value });
     }
     walk(readPath(data, path), path, []);
     documents.push({ id, label, path, fields, lists });

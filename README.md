@@ -23,12 +23,12 @@ Thông tin ngày cưới:
 
 - Nhà trai giữ ngày đã cung cấp: Chủ Nhật, **29/11/2026**, nhằm ngày 21 tháng 10 năm Bính Ngọ; giữ giờ 17:30 từ dữ liệu trước đó.
 - Nhà gái sớm hơn một ngày: Thứ Bảy, **28/11/2026**, nhằm ngày 20 tháng 10 năm Bính Ngọ.
-- Mỗi bên có giờ riêng trong `events.<side>.dateTime`; hiện giữ **17:30** theo dữ liệu đã có. Khi có giờ thực tế, chỉnh độc lập từng bên. Hero và lời mời đều hiển thị giờ của đúng gia đình.
+- Mỗi bên có giờ riêng trong `events.<side>.dateTime`. Riêng nhà gái, trường này là ngày giờ mời cơm; `events.bride.ceremonyDateTime` là ngày giờ lễ thành hôn độc lập. Hero nhà gái dùng ngày lễ, không dùng ngày mời cơm.
 - Địa điểm mặc định là tư gia từng bên, `address` trống và `mapUrl` là `null`; điền địa chỉ thật riêng cho mỗi bên.
 - Mỗi route lấy duy nhất `events.groom` hoặc `events.bride` cho ngày bìa, lịch tháng, giờ tiệc, âm lịch, địa điểm, chỉ đường, lịch trình và ngày cuối thiệp. Thay một bên không ảnh hưởng bên kia.
 
 - `events.groom` / `events.bride`: `sideLabel`, `label`, `venue`, `address`, `dateTime`, `lunarDate`, `mapUrl`, `schedule` độc lập.
-- `events.<side>.dateTime`: ISO 8601 giờ Việt Nam, định dạng `YYYY-MM-DDTHH:mm:ss+07:00`. Lịch tháng tự tính số ngày và vị trí ngày cưới từ giá trị này. Để `null` khi chưa chốt.
+- `events.<side>.dateTime`: ISO 8601 giờ Việt Nam, định dạng `YYYY-MM-DDTHH:mm:ss+07:00`. Nhà gái dùng cho lời mời cơm, giờ tại khu vực địa chỉ và email hướng dẫn; nhà trai giữ nguyên cách sử dụng. Để `null` khi chưa chốt.
 - `events.<side>.lunarDate`: điền âm lịch tương ứng khi đổi ngày; không tự tính hay sao chép từ bên kia.
 - `events.<side>.schedule`: các mốc `{ time, title, detail, icon }` của riêng gia đình đó. Mảng rỗng sẽ ẩn section. Icon hỗ trợ: `car`, `flower`, `heart`, `rings`, `pin`, `calendar`, `check`, `arrow`, `image`.
 - `mapUrl`: URL chỉ đường thật khi có địa chỉ. Để `null` thì không hiện nút chỉ đường.
@@ -141,7 +141,7 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 - **Lời mời**: lời gửi những người thân thương và nội dung hành trình 8 năm nằm phía trên lịch/ngày cưới; sửa `letterTitle` / `letterBody`.
 - **Ngày cưới nhà trai / nhà gái → Lịch trình**: mỗi mốc có ngày riêng (`date`, chọn bằng date picker), giờ, tiêu đề, mô tả và icon. Nhà gái có ăn hỏi **09:30 28/11/2026**, bữa cơm **17:30 28/11/2026** (tạm giữ giờ tiệc đã có, chưa được xác nhận lại), vu quy **10:00 29/11/2026**, thành hôn **11:00 29/11/2026**. Nhà trai dựng tương tự để sửa sau nhưng không có bữa cơm thân mật.
 - **Ngày cưới → Ảnh cưới cạnh bản đồ**: mỗi nhà chọn một ảnh dọc riêng. Bố cục cuối thiệp giữ ảnh bên trái, tiêu đề Address / tư gia / địa chỉ / map gọn bên phải trên cả mobile và desktop. Giờ và ngày âm lịch nằm phía trên; dùng cùng dữ liệu ngày cưới và cùng component trong admin preview. Sửa tiêu đề tại **Lời mời → Tiêu đề khu vực địa chỉ**.
-- **Đếm ngược ngày cưới**: bốn ô ngày/giờ/phút/giây bên dưới ảnh và map, chạy theo `events.<side>.dateTime` của từng nhà. Đổi ngày giờ trong admin sẽ cập nhật bộ đếm; qua giờ tổ chức thì dừng ở 00, không hiển thị số âm; bỏ ngày giờ thì ẩn bộ đếm. Các nhãn sửa trong nhóm **Đếm ngược ngày cưới**.
+- **Đếm ngược ngày cưới**: bốn ô ngày/giờ/phút/giây bên dưới ảnh và map, chạy theo `events.groom.dateTime` ở nhà trai và `events.bride.ceremonyDateTime` ở nhà gái. Đổi ngày giờ trong admin sẽ cập nhật bộ đếm; qua giờ tổ chức thì dừng ở 00, không hiển thị số âm; bỏ ngày giờ thì ẩn bộ đếm. Các nhãn sửa trong nhóm **Đếm ngược ngày cưới**.
 - **THE BEGINNING OF ALWAYS**: ảnh xếp chồng kiểu scrapbook, nhấn vào phần ảnh lộ ra hoặc dùng bàn phím để xem; không có icon góc ảnh. Hai ảnh cuối **OUR WEDDING GALLERY** đổi sang vòm và chữ nhật bo góc bất đối xứng.
 
 ### Tối ưu ảnh và map nhúng — 2026-11-13
@@ -209,3 +209,10 @@ Tài liệu: https://support.google.com/accounts/answer/185833 và https://devel
 - Cấu hình `.env.local` dùng cùng Redis URL, token và `WEDDING_CONTENT_KEY` với Vercel, sau đó khởi động lại `npm run dev`.
 - Trong admin local, bấm **Đồng bộ từ Redis** và xác nhận để ghi đè `src/data/wedding.json` bằng nội dung online; bản file cũ được sao lưu trong `.editor/history`. Bản nháp và lịch sử hoàn tác trong UI được thay bằng nội dung vừa đồng bộ.
 - Đồng bộ chỉ đọc Redis, không cập nhật Vercel và không tải file ảnh. Nếu Redis trống, lỗi kết nối/schema hoặc file local đã bị phiên khác sửa, thao tác bị từ chối thay vì ghi đè. **Lưu thay đổi** tại local vẫn chỉ lưu file local.
+
+### Tách ngày mời cơm và lễ thành hôn nhà gái — 2026-11-18
+
+- `events.bride.dateTime`: **Ngày và giờ mời cơm**, giữ dữ liệu Redis vừa đồng bộ: **16:30 ngày 28/11/2026**.
+- `events.bride.ceremonyDateTime`: **Ngày và giờ lễ thành hôn**, khởi tạo **11:00 ngày 29/11/2026** theo lịch trình hiện có. Hero, lịch tháng, đếm ngược và ngày cuối thiệp dùng trường này.
+- Hai trường sửa độc lập trong admin, chấp nhận `null`; thay đổi hoặc bỏ trống một trường không thay đổi trường còn lại. Không tự lấy ngày nhà trai hay suy ra từ lịch trình khi chỉnh sửa. `lunarDate` vẫn là âm lịch của ngày mời cơm, cần sửa thủ công nếu đổi ngày này.
+- Nội dung Redis cũ chưa có `ceremonyDateTime` được bổ sung `null` khi đọc để không lấy nhầm ngày mời cơm làm ngày lễ. Cần nhập ngày lễ và lưu trong admin online nếu cập nhật bản đang chạy; đồng bộ về local không ghi ngược Redis.

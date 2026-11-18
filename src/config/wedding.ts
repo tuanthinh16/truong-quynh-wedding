@@ -15,6 +15,8 @@ export type WeddingEvent = {
   locationImage: string;
   // Added 2026-11-13: independently editable embed URL, separate from the directions link/address.
   mapEmbedUrl: string | null;
+  // Added 2026-11-18: bride ceremony timing is independent of the reception dateTime.
+  ceremonyDateTime?: string | null;
 };
 
 // Added 2026-11-12: JSON is the only editable content source; each family owns its event details.

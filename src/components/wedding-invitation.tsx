@@ -52,6 +52,9 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
   const pageRef = useRef<HTMLDivElement>(null);
   const event = wedding.events[side];
   const date = event.dateTime ? formatWeddingDate(event.dateTime) : null;
+  const ceremonyField = side === "bride" ? "ceremonyDateTime" : "dateTime";
+  const ceremonyDateTime = event[ceremonyField] ?? null;
+  const ceremonyDate = ceremonyDateTime ? formatWeddingDate(ceremonyDateTime) : null;
 
   useEffect(() => {
     void startMusic();
@@ -86,8 +89,8 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
           <FloralArt className="details-floral" />
           <div className="family-names reveal"><div><span className="eyebrow">{wedding.groom.role}</span><h2>{wedding.groom.name}</h2></div><Icon name="rings" size={37} /><div><span className="eyebrow">{wedding.bride.role}</span><h2>{wedding.bride.name}</h2></div></div>
           <div className="invitation-letter content-width reveal"><GuestDedication /><h2 {...editable("content", "invitation", "letterTitle")}>{copy.invitation.letterTitle}</h2><p {...editable("content", "invitation", "letterBody")}>{copy.invitation.letterBody}</p></div>
-          <div className={`date-invitation-grid content-width reveal${date ? "" : " without-calendar"}`}>
-            {event.dateTime && <WeddingCalendar date={event.dateTime.slice(0, 10)} />}
+          <div className={`date-invitation-grid content-width reveal${ceremonyDate ? "" : " without-calendar"}`}>
+            {ceremonyDateTime && <WeddingCalendar date={ceremonyDateTime.slice(0, 10)} />}
             <div className="dinner-invitation">
               <Ornament /><span className="eyebrow">{copy.invitation.eyebrow}</span>
               <h2>{copy.invitation.title} <em>{copy.invitation.accent}</em></h2>
@@ -155,11 +158,11 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
               <div className="location-map-heading"><h2 {...editable("content", "invitation", "locationTitle")}>{copy.invitation.locationTitle}</h2><h3 {...editable("events", side, "venue")}>{event.venue}</h3><p {...editable("events", side, "address")}>{event.address}</p></div>
               {event.mapEmbedUrl && isMapEmbedUrl(event.mapEmbedUrl) && <iframe key={event.mapEmbedUrl} title={`${copy.invitation.map} · ${event.sideLabel} · ${event.address}`} src={event.mapEmbedUrl} {...editable("events", side, "mapEmbedUrl")} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />}
             </div>
-            <WeddingCountdown dateTime={event.dateTime} />
+            <WeddingCountdown dateTime={ceremonyDateTime} />
           </div>
         </WeddingBlock>}
 
-        <WeddingBlock block="footer" as="footer" className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{date && <p>{date.day} . {date.month} . {date.year} DL</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></WeddingBlock>
+        <WeddingBlock block="footer" as="footer" className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{ceremonyDate && <p {...editable("events", side, ceremonyField)}>{ceremonyDate.day} . {ceremonyDate.month} . {ceremonyDate.year} DL</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></WeddingBlock>
       </main>
 
       <WeddingPlayback dialogOpen={rsvpOpen || galleryIndex !== null} />
