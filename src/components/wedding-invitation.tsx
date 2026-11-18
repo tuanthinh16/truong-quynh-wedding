@@ -51,9 +51,11 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
   const [shareStatus, setShareStatus] = useState("");
   const pageRef = useRef<HTMLDivElement>(null);
   const event = wedding.events[side];
-  const date = event.dateTime ? formatWeddingDate(event.dateTime) : null;
+  const receptionField = side === "bride" ? "receptionDateTime" : "dateTime";
+  const receptionDateTime = event[receptionField] ?? event.dateTime;
+  const date = receptionDateTime ? formatWeddingDate(receptionDateTime) : null;
   const ceremonyField = side === "bride" ? "ceremonyDateTime" : "dateTime";
-  const ceremonyDateTime = event[ceremonyField] ?? null;
+  const ceremonyDateTime = event[ceremonyField] ?? event.dateTime;
   const ceremonyDate = ceremonyDateTime ? formatWeddingDate(ceremonyDateTime) : null;
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
               <Ornament /><span className="eyebrow">{copy.invitation.eyebrow}</span>
               <h2>{copy.invitation.title} <em>{copy.invitation.accent}</em></h2>
               <p>{copy.invitation.description}</p>
-              {date && <><p className="dinner-time">{copy.invitation.atTime} <strong {...editable("events", side, "dateTime")}>{date.time}</strong> · {date.weekday}</p><div className="dinner-date" {...editable("events", side, "dateTime")}><span>{date.day}</span><i /><span>{date.month}</span><i /><span>{date.year} <small>DL</small></span></div></>}
+              {date && <><p className="dinner-time">{copy.invitation.atTime} <strong {...editable("events", side, receptionField)}>{date.time}</strong> · {date.weekday}</p><div className="dinner-date" {...editable("events", side, receptionField)}><span>{date.day}</span><i /><span>{date.month}</span><i /><span>{date.year} <small>DL</small></span></div></>}
               {event.lunarDate && <p className="lunar-date" {...editable("events", side, "lunarDate")}>{copy.invitation.lunarPrefix} {event.lunarDate}</p>}
               <div className="dinner-location">{event.venue && <span className="eyebrow" {...editable("events", side, "venue")}>{copy.invitation.atVenue} {event.venue.toLocaleUpperCase("vi-VN")}</span>}{event.address && <p {...editable("events", side, "address")}>{event.address}</p>}</div>
               {event.mapUrl && <a className="button button-red" href={event.mapUrl} target="_blank" rel="noopener noreferrer"><Icon name="pin" size={17} />{copy.invitation.map}</a>}
@@ -152,7 +154,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
         </WeddingBlock>
         {event.address && <WeddingBlock block="location" id="dia-chi" className="reply-section section-space location-section">
           <div className="reply-location content-width">
-            <div className="location-time reveal">{date && event.dateTime && <time dateTime={event.dateTime} {...editable("events", side, "dateTime")}>{date.time}</time>}{event.lunarDate && <p><span {...editable("content", "invitation", "lunarPrefix")}>{copy.invitation.lunarPrefix}</span> <span {...editable("events", side, "lunarDate")}>{event.lunarDate}</span></p>}</div>
+            <div className="location-time reveal">{date && receptionDateTime && <time dateTime={receptionDateTime} {...editable("events", side, receptionField)}>{date.time}</time>}{event.lunarDate && <p><span {...editable("content", "invitation", "lunarPrefix")}>{copy.invitation.lunarPrefix}</span> <span {...editable("events", side, "lunarDate")}>{event.lunarDate}</span></p>}</div>
             <div className="location-portrait photo-reveal" {...editable("events", side, "locationImage")}><ViewportPhoto src={event.locationImage} alt={copy.invitation.locationImageAlt} sizes="(min-width: 1100px) 456px, 44vw" direction="right" /></div>
             <div className="location-map reveal" {...editable("events", side, "mapEmbedUrl")}>
               <div className="location-map-heading"><h2 {...editable("content", "invitation", "locationTitle")}>{copy.invitation.locationTitle}</h2><h3 {...editable("events", side, "venue")}>{event.venue}</h3><p {...editable("events", side, "address")}>{event.address}</p></div>
@@ -162,7 +164,7 @@ export default function WeddingInvitation({ side, galleryAppend }: { side: Weddi
           </div>
         </WeddingBlock>}
 
-        <WeddingBlock block="footer" as="footer" className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{ceremonyDate && <p {...editable("events", side, ceremonyField)}>{ceremonyDate.day} . {ceremonyDate.month} . {ceremonyDate.year} DL</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></WeddingBlock>
+        <WeddingBlock block="footer" as="footer" className="invitation-footer"><span className="eyebrow">{copy.footer.eyebrow}</span><div className="footer-names">{wedding.groom.shortName} <span>&</span> {wedding.bride.shortName}</div>{ceremonyDate && <p>{ceremonyDate.day} . {ceremonyDate.month} . {ceremonyDate.year} DL</p>}<Ornament /><blockquote>{copy.footer.quote}</blockquote><GuestDedication thanks /><button className="share-button" onClick={shareInvitation}><Icon name="copy" size={15} />{copy.footer.share} {event.sideLabel.toLocaleLowerCase("vi-VN")}</button><p className="share-status" role="status">{shareStatus}</p><div className="footer-bottom"><span>{copy.footer.signature}</span></div></WeddingBlock>
       </main>
 
       <WeddingPlayback dialogOpen={rsvpOpen || galleryIndex !== null} />

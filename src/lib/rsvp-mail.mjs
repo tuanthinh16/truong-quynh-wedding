@@ -27,7 +27,8 @@ export function guidanceMessage(wedding, reply) {
   const couple = `${wedding.groom.name} & ${wedding.bride.name}`;
   const values = { name: reply.name, couple, side: event.sideLabel, guests: String(reply.guests) };
   const template = text => text.replace(/\{(name|couple|side|guests)\}/g, (_, key) => values[key]);
-  const date = event.dateTime ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(event.dateTime)) : "";
+  const dateTime = reply.side === "bride" ? event.receptionDateTime ?? event.dateTime : event.dateTime;
+  const date = dateTime ? new Intl.DateTimeFormat("vi-VN", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(dateTime)) : "";
   let mapUrl = "";
   try { const url = new URL(event.mapUrl); if (["https:", "http:"].includes(url.protocol)) mapUrl = url.href; } catch {}
   if (!mapUrl && event.address.trim()) mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address.trim())}`;

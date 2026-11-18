@@ -11,7 +11,7 @@ export default function WeddingHero({ side }: { side: WeddingSide }) {
   const wedding = useWedding();
   const event = wedding.events[side];
   const dateField = side === "bride" ? "ceremonyDateTime" : "dateTime";
-  const dateTime = event[dateField];
+  const dateTime = event[dateField] ?? event.dateTime;
   const date = dateTime ? formatWeddingDate(dateTime) : null;
   const copy = wedding.experience.hero;
   const desktop = useLandscapePhoto();

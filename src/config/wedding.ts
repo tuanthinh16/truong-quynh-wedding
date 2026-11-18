@@ -17,6 +17,8 @@ export type WeddingEvent = {
   mapEmbedUrl: string | null;
   // Added 2026-11-18: bride ceremony timing is independent of the reception dateTime.
   ceremonyDateTime?: string | null;
+  // Added 2026-11-18: separate reception timing; keep dateTime for legacy Redis records.
+  receptionDateTime?: string | null;
 };
 
 // Added 2026-11-12: JSON is the only editable content source; each family owns its event details.
